@@ -1,0 +1,43 @@
+{
+  "name": "cell-router",
+  "version": "0.2.0",
+  "description": "Router component based on WebCell",
+  "keywords": [
+    "web-component",
+    "router",
+    "web-cell",
+    "web-app"
+  ],
+  "author": "shiy2008@gmail.com",
+  "license": "LGPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EasyWebApp/cell-router.git"
+  },
+  "bugs": {
+    "url": "https://github.com/EasyWebApp/cell-router/issues"
+  },
+  "homepage": "https://easywebapp.github.io/cell-router/",
+  "main": "source/index.js",
+  "browser": "dist/source.js",
+  "directories": {
+    "lib": "source/",
+    "test": "test/"
+  },
+  "scripts": {
+    "lint": "eslint source/",
+    "precommit": "npm run lint",
+    "build": "web-cell pack",
+    "start": "web-cell preview",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "web-cell": "^0.9.3"
+  },
+  "devDependencies": {
+    "babel-polyfill": "^6.26.0",
+    "eslint": "^5.0.1",
+    "husky": "^0.14.3",
+    "web-cell-cli": "^0.4.1"
+  }
+}
