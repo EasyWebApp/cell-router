@@ -22,4 +22,4 @@ then write your **SPA index page** follow [the example](https://github.com/EasyW
 
  - Online: [URL](https://easywebapp.github.io/cell-router/) or `npm docs`
 
- - Offline: `npm start`
+ - Offline: `npm run help`

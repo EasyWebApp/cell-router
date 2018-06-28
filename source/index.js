@@ -12,7 +12,7 @@ var mode = 'hash', page, prefix = '';
 /**
  * Routes elements wrapper
  */
-export default  component(class CellRouter extends HTMLElement {
+export default  class CellRouter extends HTMLElement {
 
     constructor() {  super();  }
 
@@ -117,4 +117,7 @@ export default  component(class CellRouter extends HTMLElement {
 
         return this;
     }
-});
+}
+
+
+component( CellRouter );

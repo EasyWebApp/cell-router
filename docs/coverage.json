@@ -1,0 +1,36 @@
+{
+  "coverage": "56%",
+  "expectCount": 25,
+  "actualCount": 14,
+  "files": {
+    "source/CellRoute.js": {
+      "expectCount": 8,
+      "actualCount": 4,
+      "undocumentLines": [
+        3,
+        11,
+        20,
+        27
+      ]
+    },
+    "source/index.js": {
+      "expectCount": 9,
+      "actualCount": 5,
+      "undocumentLines": [
+        7,
+        9,
+        17,
+        19
+      ]
+    },
+    "source/PageStack.js": {
+      "expectCount": 8,
+      "actualCount": 5,
+      "undocumentLines": [
+        10,
+        12,
+        43
+      ]
+    }
+  }
+}

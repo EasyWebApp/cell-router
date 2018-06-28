@@ -167,7 +167,8 @@ var _module_ = {
             /**
              * Route entry
              */
-            exports.default = (0, _webCell.component)(function (_HTMLElement) {
+
+            var CellRoute = function (_HTMLElement) {
                 _inherits(CellRoute, _HTMLElement);
 
                 function CellRoute() {
@@ -224,7 +225,10 @@ var _module_ = {
                 }]);
 
                 return CellRoute;
-            }(HTMLElement));
+            }(HTMLElement);
+
+            exports.default = CellRoute;
+            (0, _webCell.component)(CellRoute);
         }
     },
     './index': {
@@ -258,7 +262,8 @@ var _module_ = {
             /**
              * Routes elements wrapper
              */
-            exports.default = (0, _webCell.component)(function (_HTMLElement2) {
+
+            var CellRouter = function (_HTMLElement2) {
                 _inherits(CellRouter, _HTMLElement2);
 
                 function CellRouter() {
@@ -402,7 +407,10 @@ var _module_ = {
                 }]);
 
                 return CellRouter;
-            }(HTMLElement));
+            }(HTMLElement);
+
+            exports.default = CellRouter;
+            (0, _webCell.component)(CellRouter);
         }
     },
     'web-cell': { exports: web_cell }

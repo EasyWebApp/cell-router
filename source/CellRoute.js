@@ -6,7 +6,7 @@ const route_map = new Map();
 /**
  * Route entry
  */
-export default  component(class CellRoute extends HTMLElement {
+export default  class CellRoute extends HTMLElement {
 
     constructor() {  super();  }
 
@@ -37,4 +37,7 @@ export default  component(class CellRoute extends HTMLElement {
      * @type {string}
      */
     get tag() {  return  route_map.get( this )[1];  }
-});
+}
+
+
+component( CellRoute );
