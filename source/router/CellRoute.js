@@ -19,9 +19,14 @@ export default  class CellRoute extends HTMLElement {
 
     connectedCallback() {
 
-        route_map.set(this, [
-            this.getAttribute('path'), this.getAttribute('tag')
-        ]);
+        if (this.parentNode.tagName === 'CELL-ROUTER')
+            route_map.set(this, [
+                this.getAttribute('path'), this.getAttribute('tag')
+            ]);
+        else
+            throw new DOMError(
+                '<cell-route /> must be a child of <cell-router />'
+            );
     }
 
     disconnectedCallback() {  route_map.delete( this );  }

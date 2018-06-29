@@ -2,8 +2,8 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <base data-ice="baseUrl" href="../../">
-  <title data-ice="title">source/index.js | cell-router</title>
+  <base data-ice="baseUrl" href="../../../">
+  <title data-ice="title">source/loader/CellPage.js | cell-router</title>
   <link type="text/css" rel="stylesheet" href="css/style.css">
   <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
   <script src="script/prettify/prettify.js"></script>
@@ -38,14 +38,75 @@
 </div>
 </nav>
 
-<div class="content" data-ice="content"><h1 data-ice="title">source/index.js</h1>
-<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">export {default as CellLoader} from &apos;./loader/CellLoader&apos;;
+<div class="content" data-ice="content"><h1 data-ice="title">source/loader/CellPage.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import {component} from &apos;web-cell&apos;;
 
-export {default as CellPage} from &apos;./loader/CellPage&apos;;
+const ESM = (! document.querySelector(
+        &apos;script[src$=&quot;custom-elements-es5-adapter.js&quot;]&apos;
+    )),
+    page_data = new WeakMap();
 
-export {default as CellRouter} from &apos;./router/CellRouter&apos;;
 
-export {default as CellRoute} from &apos;./router/CellRoute&apos;;
+
+export default  class CellPage extends HTMLElement {
+
+    constructor() {  super();  }
+
+    connectedCallback() {
+
+        const loader = this.parentNode;
+
+        if (loader.tagName === &apos;CELL-LOADER&apos;)
+            page_data.set(this, {
+                path:  new URL(
+                    this.getAttribute(&apos;path&apos;) || &apos;&apos;,  loader.base
+                ) + &apos;&apos;
+            });
+        else
+            throw new DOMError(
+                &apos;&lt;cell-page /&gt; must be a child of &lt;cell-loader /&gt;&apos;
+            );
+    }
+
+    /**
+     * URL of this component
+     *
+     * @type {string}
+     */
+    get path() {  return  page_data.get( this ).path;  }
+
+    /**
+     * Tag name of this component
+     *
+     * @type {string}
+     */
+    get name() {  return  this.path.split(&apos;/&apos;).slice(-1)[0];  }
+
+    /**
+     * @type {boolean}
+     */
+    get loaded() {  return  (!! window.customElements.get( this.name ));  }
+
+    /**
+     * @return {Promise}
+     */
+    load() {
+
+        return  this.loaded ?
+            Promise.resolve() :
+            new Promise((resolve, reject)  =&gt;  document.head.append(
+                Object.assign(document.createElement(&apos;script&apos;), {
+                    onload:   resolve,
+                    onerror:  reject,
+                    type:     ESM ? &apos;module&apos; : &apos;text/javascript&apos;,
+                    src:      `${this.path}.js`
+                })
+            ));
+    }
+}
+
+
+component( CellPage );
 </code></pre>
 
 </div>

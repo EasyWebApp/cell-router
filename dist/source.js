@@ -58,18 +58,31 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
+
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var _module_ = {
-    './PageStack': {
-        base: '.',
+    './router/PageStack': {
+        base: './router',
         dependency: [],
         factory: function factory(require, exports, module) {
             Object.defineProperty(exports, "__esModule", {
                 value: true
             });
+
+            var _webCell = require('web-cell');
+
+            var _CellLoader = require('../loader/CellLoader');
+
+            var _CellLoader2 = _interopRequireDefault(_CellLoader);
+
+            function _interopRequireDefault(obj) {
+                return obj && obj.__esModule ? obj : { default: obj };
+            }
+
             /**
              * Page DOM storage
              */
@@ -81,8 +94,25 @@ var _module_ = {
                 function PageStack(container) {
                     _classCallCheck(this, PageStack);
 
-                    this.length = this.last = 0;
+                    /**
+                     * Page count
+                     *
+                     * @type {number}
+                     */
+                    this.length = 0;
 
+                    /**
+                     * Index of last page
+                     *
+                     * @type {number}
+                     */
+                    this.last = 0;
+
+                    /**
+                     * Page container
+                     *
+                     * @type {Element}
+                     */
                     this.container = document.querySelector(container);
                 }
 
@@ -115,35 +145,95 @@ var _module_ = {
 
                 }, {
                     key: 'turnTo',
-                    value: function turnTo(tag) {
+                    value: function () {
+                        var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(tag) {
+                            return regeneratorRuntime.wrap(function _callee$(_context) {
+                                while (1) {
+                                    switch (_context.prev = _context.next) {
+                                        case 0:
+                                            if (!tag.includes('-')) {
+                                                _context.next = 3;
+                                                break;
+                                            }
 
-                        tag = document.createElement(tag);
+                                            _context.next = 3;
+                                            return _CellLoader2.default.load(tag);
 
-                        this.turnOver().container.append(tag);
+                                        case 3:
 
-                        this.last = this.length;
+                                            tag = document.createElement(tag);
 
-                        return this.container.innerHTML;
-                    }
+                                            this.turnOver().container.append(tag);
+
+                                            this.last = this.length;
+
+                                            return _context.abrupt('return', this.container.innerHTML);
+
+                                        case 7:
+                                        case 'end':
+                                            return _context.stop();
+                                    }
+                                }
+                            }, _callee, this);
+                        }));
+
+                        function turnTo(_x) {
+                            return _ref.apply(this, arguments);
+                        }
+
+                        return turnTo;
+                    }()
 
                     /**
-                     * @param {number} page - Index of a Page component
-                     *
-                     * @return {boolean} Whether this page has DOM cache
+                     * @param {number} page      - Index of a Page component
+                     * @param {string} [HTML=''] - Fallback HTML source
                      */
 
                 }, {
                     key: 'backTo',
-                    value: function backTo(page) {
+                    value: function () {
+                        var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(page, HTML) {
+                            return regeneratorRuntime.wrap(function _callee2$(_context2) {
+                                while (1) {
+                                    switch (_context2.prev = _context2.next) {
+                                        case 0:
 
-                        this.turnOver(this.last);
+                                            this.turnOver(this.last);
 
-                        this.last = page;
+                                            page = this[this.last = page];
 
-                        page = this[page];
+                                            if (!(!page && HTML)) {
+                                                _context2.next = 6;
+                                                break;
+                                            }
 
-                        return page ? this.container.append(page) || true : false;
-                    }
+                                            _context2.next = 5;
+                                            return Promise.all((HTML.match(/<\w+-\w+/g) || []).map(function (raw) {
+                                                return _CellLoader2.default.load(raw.slice(1));
+                                            }));
+
+                                        case 5:
+
+                                            page = _webCell.View.parseDOM(HTML);
+
+                                        case 6:
+
+                                            this.container.append(page || '');
+
+                                        case 7:
+                                        case 'end':
+                                            return _context2.stop();
+                                    }
+                                }
+                            }, _callee2, this);
+                        }));
+
+                        function backTo(_x2, _x3) {
+                            return _ref2.apply(this, arguments);
+                        }
+
+                        return backTo;
+                    }()
                 }]);
 
                 return PageStack;
@@ -152,8 +242,8 @@ var _module_ = {
             exports.default = PageStack;
         }
     },
-    './CellRoute': {
-        base: '.',
+    './router/CellRoute': {
+        base: './router',
         dependency: [],
         factory: function factory(require, exports, module) {
             Object.defineProperty(exports, "__esModule", {
@@ -188,7 +278,7 @@ var _module_ = {
                     key: 'connectedCallback',
                     value: function connectedCallback() {
 
-                        route_map.set(this, [this.getAttribute('path'), this.getAttribute('tag')]);
+                        if (this.parentNode.tagName === 'CELL-ROUTER') route_map.set(this, [this.getAttribute('path'), this.getAttribute('tag')]);else throw new DOMError('<cell-route /> must be a child of <cell-router />');
                     }
                 }, {
                     key: 'disconnectedCallback',
@@ -231,8 +321,8 @@ var _module_ = {
             (0, _webCell.component)(CellRoute);
         }
     },
-    './index': {
-        base: '.',
+    './router/CellRouter': {
+        base: './router',
         dependency: [],
         factory: function factory(require, exports, module) {
             Object.defineProperty(exports, "__esModule", {
@@ -253,7 +343,7 @@ var _module_ = {
                 return obj && obj.__esModule ? obj : { default: obj };
             }
 
-            var on = _CellRoute2.default.prototype.on;
+            var on = _webCell.Component.prototype.on;
 
             var mode = 'hash',
                 page,
@@ -307,21 +397,49 @@ var _module_ = {
                      *
                      * @param {Element} link - A `<a href="" />`
                      */
-                    value: function navTo(link) {
+                    value: function () {
+                        var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(link) {
+                            var path, title, tag, HTML;
+                            return regeneratorRuntime.wrap(function _callee3$(_context3) {
+                                while (1) {
+                                    switch (_context3.prev = _context3.next) {
+                                        case 0:
+                                            path = link.getAttribute('href'), title = link.title || link.textContent.trim();
+                                            tag = this.map[path];
 
-                        var path = link.getAttribute('href'),
-                            title = link.title || link.textContent.trim();
+                                            if (tag) {
+                                                _context3.next = 4;
+                                                break;
+                                            }
 
-                        var tag = this.map[path];
+                                            return _context3.abrupt('return');
 
-                        if (!tag) return;
+                                        case 4:
+                                            _context3.next = 6;
+                                            return page.turnTo(tag);
 
-                        var HTML = page.turnTo(tag);
+                                        case 6:
+                                            HTML = _context3.sent;
 
-                        window.history.pushState({ path: path, tag: tag, title: title, index: page.last, HTML: HTML }, title, prefix + path);
 
-                        document.title = title;
-                    }
+                                            window.history.pushState({ path: path, tag: tag, title: title, index: page.last, HTML: HTML }, title, prefix + path);
+
+                                            document.title = title;
+
+                                        case 9:
+                                        case 'end':
+                                            return _context3.stop();
+                                    }
+                                }
+                            }, _callee3, this);
+                        }));
+
+                        function navTo(_x4) {
+                            return _ref3.apply(this, arguments);
+                        }
+
+                        return navTo;
+                    }()
 
                     /**
                      * @return {CellRouter} This element
@@ -330,6 +448,7 @@ var _module_ = {
                 }, {
                     key: 'listen',
                     value: function listen() {
+                        var _this3 = this;
 
                         var router = this;
 
@@ -342,16 +461,42 @@ var _module_ = {
                             router.navTo(this);
                         });
 
-                        window.addEventListener('popstate', function (event) {
+                        window.addEventListener('popstate', function () {
+                            var _ref4 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(event) {
+                                var state;
+                                return regeneratorRuntime.wrap(function _callee4$(_context4) {
+                                    while (1) {
+                                        switch (_context4.prev = _context4.next) {
+                                            case 0:
+                                                state = event.state;
 
-                            var state = event.state;
+                                                if (state) {
+                                                    _context4.next = 3;
+                                                    break;
+                                                }
 
-                            if (!state) return;
+                                                return _context4.abrupt('return');
 
-                            if (!page.backTo(state.index)) page.container.append(_webCell.View.parseDOM(state.HTML));
+                                            case 3:
+                                                _context4.next = 5;
+                                                return page.backTo(state.index, state.HTML);
 
-                            document.title = state.title;
-                        });
+                                            case 5:
+
+                                                document.title = state.title;
+
+                                            case 6:
+                                            case 'end':
+                                                return _context4.stop();
+                                        }
+                                    }
+                                }, _callee4, _this3);
+                            }));
+
+                            return function (_x5) {
+                                return _ref4.apply(this, arguments);
+                            };
+                        }());
 
                         return this;
                     }
@@ -411,6 +556,262 @@ var _module_ = {
 
             exports.default = CellRouter;
             (0, _webCell.component)(CellRouter);
+        }
+    },
+    './loader/CellPage': {
+        base: './loader',
+        dependency: [],
+        factory: function factory(require, exports, module) {
+            Object.defineProperty(exports, "__esModule", {
+                value: true
+            });
+
+            var _webCell = require('web-cell');
+
+            var ESM = !document.querySelector('script[src$="custom-elements-es5-adapter.js"]'),
+                page_data = new WeakMap();
+
+            var CellPage = function (_HTMLElement3) {
+                _inherits(CellPage, _HTMLElement3);
+
+                function CellPage() {
+                    _classCallCheck(this, CellPage);
+
+                    return _possibleConstructorReturn(this, (CellPage.__proto__ || Object.getPrototypeOf(CellPage)).call(this));
+                }
+
+                _createClass(CellPage, [{
+                    key: 'connectedCallback',
+                    value: function connectedCallback() {
+
+                        var loader = this.parentNode;
+
+                        if (loader.tagName === 'CELL-LOADER') page_data.set(this, {
+                            path: new URL(this.getAttribute('path') || '', loader.base) + ''
+                        });else throw new DOMError('<cell-page /> must be a child of <cell-loader />');
+                    }
+
+                    /**
+                     * URL of this component
+                     *
+                     * @type {string}
+                     */
+
+                }, {
+                    key: 'load',
+
+
+                    /**
+                     * @return {Promise}
+                     */
+                    value: function load() {
+                        var _this5 = this;
+
+                        return this.loaded ? Promise.resolve() : new Promise(function (resolve, reject) {
+                            return document.head.append(Object.assign(document.createElement('script'), {
+                                onload: resolve,
+                                onerror: reject,
+                                type: ESM ? 'module' : 'text/javascript',
+                                src: _this5.path + '.js'
+                            }));
+                        });
+                    }
+                }, {
+                    key: 'path',
+                    get: function get() {
+                        return page_data.get(this).path;
+                    }
+
+                    /**
+                     * Tag name of this component
+                     *
+                     * @type {string}
+                     */
+
+                }, {
+                    key: 'name',
+                    get: function get() {
+                        return this.path.split('/').slice(-1)[0];
+                    }
+
+                    /**
+                     * @type {boolean}
+                     */
+
+                }, {
+                    key: 'loaded',
+                    get: function get() {
+                        return !!window.customElements.get(this.name);
+                    }
+                }]);
+
+                return CellPage;
+            }(HTMLElement);
+
+            exports.default = CellPage;
+            (0, _webCell.component)(CellPage);
+        }
+    },
+    './loader/CellLoader': {
+        base: './loader',
+        dependency: [],
+        factory: function factory(require, exports, module) {
+            Object.defineProperty(exports, "__esModule", {
+                value: true
+            });
+
+            var _webCell = require('web-cell');
+
+            var _CellPage = require('./CellPage');
+
+            var _CellPage2 = _interopRequireDefault(_CellPage);
+
+            function _interopRequireDefault(obj) {
+                return obj && obj.__esModule ? obj : { default: obj };
+            }
+
+            var loader = new Map();
+
+            /**
+             * Page components loader
+             */
+
+            var CellLoader = function (_HTMLElement4) {
+                _inherits(CellLoader, _HTMLElement4);
+
+                function CellLoader() {
+                    _classCallCheck(this, CellLoader);
+
+                    return _possibleConstructorReturn(this, (CellLoader.__proto__ || Object.getPrototypeOf(CellLoader)).call(this));
+                }
+
+                _createClass(CellLoader, [{
+                    key: 'connectedCallback',
+                    value: function connectedCallback() {
+
+                        loader.set(this, {
+                            base: new URL(this.getAttribute('base'), this.baseURI) + ''
+                        });
+                    }
+                }, {
+                    key: 'disconnectedCallback',
+                    value: function disconnectedCallback() {
+                        loader.delete(this);
+                    }
+
+                    /**
+                     * URL base for loading
+                     *
+                     * @type {string}
+                     */
+
+                }, {
+                    key: 'base',
+                    get: function get() {
+                        return loader.get(this).base;
+                    }
+
+                    /**
+                     * `<cell-page />` children
+                     *
+                     * @type {CellPage[]}
+                     */
+
+                }, {
+                    key: 'pageList',
+                    get: function get() {
+
+                        return [].concat(_toConsumableArray(this.children)).filter(function (element) {
+                            return element instanceof _CellPage2.default;
+                        });
+                    }
+
+                    /**
+                     * All `<cell-page />`s in this page
+                     *
+                     * @type {CellPage[]}
+                     */
+
+                }], [{
+                    key: 'load',
+
+
+                    /**
+                     * @param {string} tag - Tag name of a Page component
+                     *
+                     * @return {Promise}
+                     */
+                    value: function load(tag) {
+
+                        return this.pageList.filter(function (page) {
+                            return page.name === tag;
+                        })[0].load();
+                    }
+                }, {
+                    key: 'pageList',
+                    get: function get() {
+                        var _ref5;
+
+                        return (_ref5 = []).concat.apply(_ref5, _toConsumableArray([].concat(_toConsumableArray(loader.keys())).map(function (item) {
+                            return item.pageList;
+                        })));
+                    }
+                }]);
+
+                return CellLoader;
+            }(HTMLElement);
+
+            exports.default = CellLoader;
+            (0, _webCell.component)(CellLoader);
+        }
+    },
+    './index': {
+        base: '.',
+        dependency: [],
+        factory: function factory(require, exports, module) {
+            Object.defineProperty(exports, "__esModule", {
+                value: true
+            });
+
+            var _CellLoader = require('./loader/CellLoader');
+
+            Object.defineProperty(exports, 'CellLoader', {
+                enumerable: true,
+                get: function get() {
+                    return _interopRequireDefault(_CellLoader).default;
+                }
+            });
+
+            var _CellPage = require('./loader/CellPage');
+
+            Object.defineProperty(exports, 'CellPage', {
+                enumerable: true,
+                get: function get() {
+                    return _interopRequireDefault(_CellPage).default;
+                }
+            });
+
+            var _CellRouter = require('./router/CellRouter');
+
+            Object.defineProperty(exports, 'CellRouter', {
+                enumerable: true,
+                get: function get() {
+                    return _interopRequireDefault(_CellRouter).default;
+                }
+            });
+
+            var _CellRoute = require('./router/CellRoute');
+
+            Object.defineProperty(exports, 'CellRoute', {
+                enumerable: true,
+                get: function get() {
+                    return _interopRequireDefault(_CellRoute).default;
+                }
+            });
+
+            function _interopRequireDefault(obj) {
+                return obj && obj.__esModule ? obj : { default: obj };
+            }
         }
     },
     'web-cell': { exports: web_cell }

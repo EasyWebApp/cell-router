@@ -2,8 +2,8 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <base data-ice="baseUrl" href="../../">
-  <title data-ice="title">source/PageStack.js | cell-router</title>
+  <base data-ice="baseUrl" href="../../../">
+  <title data-ice="title">source/router/PageStack.js | cell-router</title>
   <link type="text/css" rel="stylesheet" href="css/style.css">
   <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
   <script src="script/prettify/prettify.js"></script>
@@ -16,7 +16,7 @@
   
   <a href="identifiers.html">Reference</a>
   <a href="source.html">Source</a>
-  
+  <a href="test.html" data-ice="testLink">Test</a>
   <div class="search-box">
   <span>
     <img src="./image/search.png">
@@ -29,15 +29,22 @@
 <nav class="navigation" data-ice="nav"><div>
   <ul>
     
-  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/source/CellRoute.js~CellRoute.html">CellRoute</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/source/PageStack.js~PageStack.html">PageStack</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/source/index.js~CellRouter.html">CellRouter</a></span></span></li>
+  <li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#loader">loader</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/source/loader/CellLoader.js~CellLoader.html">CellLoader</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/source/loader/CellPage.js~CellPage.html">CellPage</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#router">router</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/source/router/CellRoute.js~CellRoute.html">CellRoute</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/source/router/CellRouter.js~CellRouter.html">CellRouter</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/source/router/PageStack.js~PageStack.html">PageStack</a></span></span></li>
 </ul>
 </div>
 </nav>
 
-<div class="content" data-ice="content"><h1 data-ice="title">source/PageStack.js</h1>
-<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">/**
+<div class="content" data-ice="content"><h1 data-ice="title">source/router/PageStack.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import {View} from &apos;web-cell&apos;;
+
+import CellLoader from &apos;../loader/CellLoader&apos;;
+
+
+/**
  * Page DOM storage
  */
 export default  class PageStack {
@@ -45,9 +52,25 @@ export default  class PageStack {
      * @param {string} container - CSS selector of Page container
      */
     constructor(container) {
+        /**
+         * Page count
+         *
+         * @type {number}
+         */
+        this.length = 0;
 
-        this.length = this.last = 0;
+        /**
+         * Index of last page
+         *
+         * @type {number}
+         */
+        this.last = 0;
 
+        /**
+         * Page container
+         *
+         * @type {Element}
+         */
         this.container = document.querySelector( container );
     }
 
@@ -73,7 +96,9 @@ export default  class PageStack {
      *
      * @return {string} HTML source of this page
      */
-    turnTo(tag) {
+    async turnTo(tag) {
+
+        if ( tag.includes(&apos;-&apos;) )  await CellLoader.load( tag );
 
         tag = document.createElement( tag );
 
@@ -85,19 +110,27 @@ export default  class PageStack {
     }
 
     /**
-     * @param {number} page - Index of a Page component
-     *
-     * @return {boolean} Whether this page has DOM cache
+     * @param {number} page      - Index of a Page component
+     * @param {string} [HTML=&apos;&apos;] - Fallback HTML source
      */
-    backTo(page) {
+    async backTo(page, HTML) {
 
         this.turnOver( this.last );
 
-        this.last = page;
+        page = this[this.last = page];
 
-        page = this[ page ];
+        if ((! page)  &amp;&amp;  HTML) {
 
-        return  page  ?  (this.container.append( page ) || true)  :  false;
+            await Promise.all(
+                (HTML.match( /&lt;\w+-\w+/g ) || [ ]).map(
+                    raw  =&gt;  CellLoader.load( raw.slice(1) )
+                )
+            );
+
+            page = View.parseDOM( HTML );
+        }
+
+        this.container.append(page || &apos;&apos;);
     }
 }
 </code></pre>

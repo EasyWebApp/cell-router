@@ -1,6 +1,6 @@
 {
   "name": "cell-router",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Router component based on WebCell",
   "keywords": [
     "web-component",
@@ -30,11 +30,12 @@
     "build": "web-cell pack  &&  esdoc",
     "prepublishOnly": "npm run build",
     "help": "web-server docs/ -o",
-    "start": "web-cell preview",
+    "build-test": "cd test  &&  web-cell pack",
+    "start": "npm run build-test  &&  web-cell preview",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "web-cell": "^0.9.3"
+    "web-cell": "^0.9.4"
   },
   "devDependencies": {
     "babel-polyfill": "^6.26.0",

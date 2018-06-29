@@ -2,8 +2,8 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <base data-ice="baseUrl" href="../../">
-  <title data-ice="title">source/index.js | cell-router</title>
+  <base data-ice="baseUrl" href="../../../">
+  <title data-ice="title">source/loader/CellLoader.js | cell-router</title>
   <link type="text/css" rel="stylesheet" href="css/style.css">
   <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
   <script src="script/prettify/prettify.js"></script>
@@ -38,14 +38,70 @@
 </div>
 </nav>
 
-<div class="content" data-ice="content"><h1 data-ice="title">source/index.js</h1>
-<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">export {default as CellLoader} from &apos;./loader/CellLoader&apos;;
+<div class="content" data-ice="content"><h1 data-ice="title">source/loader/CellLoader.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import {component} from &apos;web-cell&apos;;
 
-export {default as CellPage} from &apos;./loader/CellPage&apos;;
+import CellPage from &apos;./CellPage&apos;;
 
-export {default as CellRouter} from &apos;./router/CellRouter&apos;;
+const loader = new Map();
 
-export {default as CellRoute} from &apos;./router/CellRoute&apos;;
+
+/**
+ * Page components loader
+ */
+export default  class CellLoader extends HTMLElement {
+
+    constructor() {  super();  }
+
+    connectedCallback() {
+
+        loader.set(this, {
+            base:  new URL(this.getAttribute(&apos;base&apos;), this.baseURI) + &apos;&apos;
+        });
+    }
+
+    disconnectedCallback() {  loader.delete( this );  }
+
+    /**
+     * URL base for loading
+     *
+     * @type {string}
+     */
+    get base() {  return  loader.get( this ).base;  }
+
+    /**
+     * `&lt;cell-page /&gt;` children
+     *
+     * @type {CellPage[]}
+     */
+    get pageList() {
+
+        return  [... this.children].filter(element =&gt; element instanceof CellPage);
+    }
+
+    /**
+     * All `&lt;cell-page /&gt;`s in this page
+     *
+     * @type {CellPage[]}
+     */
+    static get pageList() {
+
+        return  [ ].concat(... [... loader.keys()].map(item =&gt; item.pageList));
+    }
+
+    /**
+     * @param {string} tag - Tag name of a Page component
+     *
+     * @return {Promise}
+     */
+    static load(tag) {
+
+        return  this.pageList.filter(page =&gt; page.name === tag)[0].load();
+    }
+}
+
+
+component( CellLoader );
 </code></pre>
 
 </div>
