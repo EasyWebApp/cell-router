@@ -28,5 +28,17 @@
     <main>
         Loading...
     </main>
+    <script>
+        const box = document.querySelector('main');
+
+        function pageDetail(event) {
+
+            console.log(event.type, event.detail);
+        }
+
+        box.addEventListener('pagechange', pageDetail);
+
+        box.addEventListener('pagechanged', pageDetail);
+    </script>
 </body>
 </html>

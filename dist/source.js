@@ -65,6 +65,82 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var _module_ = {
+    './router/Page': {
+        base: './router',
+        dependency: [],
+        factory: function factory(require, exports, module) {
+            Object.defineProperty(exports, "__esModule", {
+                value: true
+            });
+            var location = window.location;
+
+            var basePath = location.pathname;
+
+            /**
+             * Page meta
+             */
+
+            var Page = function () {
+                /**
+                 * @param {string} mode - History path mode
+                 */
+                function Page(mode) {
+                    _classCallCheck(this, Page);
+
+                    /**
+                     * Route path
+                     *
+                     * @type {string}
+                     */
+                    this.path = mode === 'hash' ? location.hash.slice(1) : location.pathname.replace(basePath, '');
+
+                    /**
+                     * @type {string}
+                     */
+                    this.title = document.title;
+                }
+
+                /**
+                 * @protected
+                 *
+                 * @param {Node[]} fragment - DOM content
+                 *
+                 * @return {Page} This page
+                 */
+
+
+                _createClass(Page, [{
+                    key: 'addContent',
+                    value: function addContent(fragment) {
+                        var _fragment;
+
+                        /**
+                         * Sub DOM tree of this page
+                         *
+                         * @type {DocumentFragment}
+                         */
+                        this.fragment = document.createDocumentFragment();
+
+                        (_fragment = this.fragment).append.apply(_fragment, _toConsumableArray(fragment));
+
+                        if (fragment = this.fragment.firstElementChild)
+                            /**
+                             * Tag name of this Page component
+                             *
+                             * @type {string}
+                             */
+                            this.tag = fragment.tagName.toLowerCase();
+
+                        return this;
+                    }
+                }]);
+
+                return Page;
+            }();
+
+            exports.default = Page;
+        }
+    },
     './router/PageStack': {
         base: './router',
         dependency: [],
@@ -74,6 +150,10 @@ var _module_ = {
             });
 
             var _webCell = require('web-cell');
+
+            var _Page = require('./Page');
+
+            var _Page2 = _interopRequireDefault(_Page);
 
             var _CellLoader = require('../loader/CellLoader');
 
@@ -89,9 +169,12 @@ var _module_ = {
 
             var PageStack = function () {
                 /**
-                 * @param {string} container - CSS selector of Page container
+                 * @param {string} container     - CSS selector of Page container
+                 * @param {string} [mode='hash'] - History path mode (`hash` or `path`)
                  */
-                function PageStack(container) {
+                function PageStack(container, mode) {
+                    var _this = this;
+
                     _classCallCheck(this, PageStack);
 
                     /**
@@ -114,113 +197,162 @@ var _module_ = {
                      * @type {Element}
                      */
                     this.container = document.querySelector(container);
-                }
-
-                /**
-                 * @protected
-                 *
-                 * @param {number} index
-                 *
-                 * @return {PageStack}
-                 */
-
-
-                _createClass(PageStack, [{
-                    key: 'turnOver',
-                    value: function turnOver(index) {
-                        var _index;
-
-                        index = index != null ? index : this.length++;
-
-                        (_index = this[index] = this[index] || document.createDocumentFragment()).append.apply(_index, _toConsumableArray(this.container.childNodes));
-
-                        return this;
-                    }
 
                     /**
-                     * @param {string} tag - Tag name of a Page component
+                     * History path mode (`hash` or `path`)
                      *
-                     * @return {string} HTML source of this page
+                     * @type {string}
                      */
+                    this.mode = mode || 'hash';
 
-                }, {
-                    key: 'turnTo',
-                    value: function () {
-                        var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(tag) {
+                    this.addHistory('', '', '', this.last, true);
+
+                    window.addEventListener('popstate', function () {
+                        var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(event) {
                             return regeneratorRuntime.wrap(function _callee$(_context) {
                                 while (1) {
                                     switch (_context.prev = _context.next) {
                                         case 0:
-                                            if (!tag.includes('-')) {
+                                            if (!event.state) {
                                                 _context.next = 3;
                                                 break;
                                             }
 
                                             _context.next = 3;
-                                            return _CellLoader2.default.load(tag);
+                                            return _this.backTo(event.state);
 
                                         case 3:
-
-                                            tag = document.createElement(tag);
-
-                                            this.turnOver().container.append(tag);
-
-                                            this.last = this.length;
-
-                                            return _context.abrupt('return', this.container.innerHTML);
-
-                                        case 7:
                                         case 'end':
                                             return _context.stop();
                                     }
                                 }
-                            }, _callee, this);
+                            }, _callee, _this);
                         }));
 
-                        function turnTo(_x) {
+                        return function (_x) {
                             return _ref.apply(this, arguments);
-                        }
+                        };
+                    }());
+                }
 
-                        return turnTo;
-                    }()
+                /**
+                 * @protected
+                 *
+                 * @param {string}  tag
+                 * @param {string}  path
+                 * @param {string}  title
+                 * @param {number}  index
+                 * @param {boolean} replace
+                 */
+
+
+                _createClass(PageStack, [{
+                    key: 'addHistory',
+                    value: function addHistory(tag, path, title, index, replace) {
+
+                        window.history[(replace ? 'replace' : 'push') + 'State']({
+                            tag: tag, path: path, title: title,
+                            index: this[replace ? 'length' : 'last'] = index,
+                            HTML: this.container.innerHTML
+                        }, title = title || document.title, (this.mode === 'hash' ? '#' : '') + path);
+
+                        document.title = title;
+                    }
 
                     /**
-                     * @param {number} page      - Index of a Page component
-                     * @param {string} [HTML=''] - Fallback HTML source
+                     * @protected
+                     *
+                     * @param {string}  event      - Name of a Custom event
+                     * @param {boolean} cancelable - Whether this event can be canceled
+                     * @param {number}  from       - Index of leaving page
+                     * @param {Object}  to         - Meta of entering page
+                     *
+                     * @return {boolean} Whether `event.preventDefault()` invoked
                      */
 
                 }, {
-                    key: 'backTo',
+                    key: 'emit',
+                    value: function emit(event, cancelable, from, to) {
+
+                        return this.container.dispatchEvent(new CustomEvent(event, {
+                            bubbles: true,
+                            cancelable: cancelable,
+                            detail: {
+                                from: this[from],
+                                to: to
+                            }
+                        }));
+                    }
+
+                    /**
+                     * @protected
+                     *
+                     * @param {number} [index]
+                     *
+                     * @return {Page}
+                     */
+
+                }, {
+                    key: 'turnOver',
+                    value: function turnOver(index) {
+
+                        index = index != null ? index : this.length++;
+
+                        return (this[index] = this[index] || new _Page2.default(this.mode)).addContent(this.container.childNodes);
+                    }
+
+                    /**
+                     * @param {string} tag     - Tag name of a Page component
+                     * @param {string} path    - Route path
+                     * @param {string} [title]
+                     *
+                     * @emits {PageChangeEvent}
+                     * @emits {PageChangedEvent}
+                     */
+
+                }, {
+                    key: 'turnTo',
                     value: function () {
-                        var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(page, HTML) {
+                        var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(tag, path, title) {
+                            var page;
                             return regeneratorRuntime.wrap(function _callee2$(_context2) {
                                 while (1) {
                                     switch (_context2.prev = _context2.next) {
                                         case 0:
+                                            page = { tag: tag, path: path, title: title };
 
-                                            this.turnOver(this.last);
-
-                                            page = this[this.last = page];
-
-                                            if (!(!page && HTML)) {
-                                                _context2.next = 6;
+                                            if (!tag.includes('-')) {
+                                                _context2.next = 4;
                                                 break;
                                             }
 
-                                            _context2.next = 5;
-                                            return Promise.all((HTML.match(/<\w+-\w+/g) || []).map(function (raw) {
-                                                return _CellLoader2.default.load(raw.slice(1));
-                                            }));
+                                            _context2.next = 4;
+                                            return _CellLoader2.default.load(tag);
 
-                                        case 5:
+                                        case 4:
 
-                                            page = _webCell.View.parseDOM(HTML);
+                                            tag = document.createElement(tag);
 
-                                        case 6:
+                                            this.turnOver();
 
-                                            this.container.append(page || '');
+                                            if (this.emit('pagechange', true, this.last, page)) {
+                                                _context2.next = 8;
+                                                break;
+                                            }
 
-                                        case 7:
+                                            return _context2.abrupt('return');
+
+                                        case 8:
+
+                                            this.container.append(tag);
+
+                                            this.addHistory(page.tag, path, title, this.length);
+
+                                            page.tag = tag;
+
+                                            this.emit('pagechanged', false, this.last - 1, page);
+
+                                        case 12:
                                         case 'end':
                                             return _context2.stop();
                                     }
@@ -228,8 +360,88 @@ var _module_ = {
                             }, _callee2, this);
                         }));
 
-                        function backTo(_x2, _x3) {
+                        function turnTo(_x2, _x3, _x4) {
                             return _ref2.apply(this, arguments);
+                        }
+
+                        return turnTo;
+                    }()
+
+                    /**
+                     * @protected
+                     *
+                     * @param {Object} state       - `event.state`
+                     * @param {string} state.tag
+                     * @param {string} state.path
+                     * @param {string} state.title
+                     * @param {number} state.index
+                     * @param {string} state.HTML
+                     *
+                     * @emits {PageChangeEvent}
+                     * @emits {PageChangedEvent}
+                     */
+
+                }, {
+                    key: 'backTo',
+                    value: function () {
+                        var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(state) {
+                            var page, last, _page_;
+
+                            return regeneratorRuntime.wrap(function _callee3$(_context3) {
+                                while (1) {
+                                    switch (_context3.prev = _context3.next) {
+                                        case 0:
+                                            page = { tag: state.tag, path: state.path, title: state.title }, last = this.last;
+
+                                            if (this.emit('pagechange', true, last, page)) {
+                                                _context3.next = 3;
+                                                break;
+                                            }
+
+                                            return _context3.abrupt('return');
+
+                                        case 3:
+
+                                            this.turnOver(last);
+
+                                            _page_ = this[this.last = state.index];
+
+                                            if (!(!_page_ && state.HTML)) {
+                                                _context3.next = 11;
+                                                break;
+                                            }
+
+                                            _context3.next = 8;
+                                            return Promise.all((state.HTML.match(/<\w+-\w+/g) || []).map(function (raw) {
+                                                return _CellLoader2.default.load(raw.slice(1));
+                                            }));
+
+                                        case 8:
+
+                                            this.container.append(_webCell.View.parseDOM(state.HTML));
+                                            _context3.next = 12;
+                                            break;
+
+                                        case 11:
+                                            this.container.append(_page_.fragment || '');
+
+                                        case 12:
+                                            this.addHistory(page.tag, page.path, page.title, this.last, true);
+
+                                            page.tag = this.container.firstElementChild;
+
+                                            this.emit('pagechanged', false, last, page);
+
+                                        case 15:
+                                        case 'end':
+                                            return _context3.stop();
+                                    }
+                                }
+                            }, _callee3, this);
+                        }));
+
+                        function backTo(_x5) {
+                            return _ref3.apply(this, arguments);
                         }
 
                         return backTo;
@@ -239,7 +451,29 @@ var _module_ = {
                 return PageStack;
             }();
 
-            exports.default = PageStack;
+            exports.default = PageStack; /**
+                                          * Before changing a page
+                                          *
+                                          * @typedef {CustomEvent} PageChangeEvent
+                                          *
+                                          * @property {boolean} bubbles     - `true`
+                                          * @property {boolean} cancelable  - `true`
+                                          * @property {Object}  detail
+                                          * @property {Page}    detail.from - Leaving page
+                                          * @property {Object}  detail.to   - Entering page
+                                          */
+
+            /**
+             * After changing a page
+             *
+             * @typedef {CustomEvent} PageChangedEvent
+             *
+             * @property {boolean} bubbles     - `true`
+             * @property {boolean} cancelable  - `false`
+             * @property {Object}  detail
+             * @property {Page}    detail.from - Leaving page
+             * @property {Object}  detail.to   - Entering page
+             */
         }
     },
     './router/CellRoute': {
@@ -345,9 +579,7 @@ var _module_ = {
 
             var on = _webCell.Component.prototype.on;
 
-            var mode = 'hash',
-                page,
-                prefix = '';
+            var page;
 
             /**
              * Routes elements wrapper
@@ -365,21 +597,23 @@ var _module_ = {
                 _createClass(CellRouter, [{
                     key: 'connectedCallback',
                     value: function connectedCallback() {
+                        var _this4 = this;
 
                         document.addEventListener('DOMContentLoaded', function () {
 
-                            page = new _PageStack2.default('main');
-
-                            window.history.replaceState({
-                                title: document.title,
-                                index: page.last,
-                                HTML: page.container.innerHTML
-                            }, document.title, '');
+                            page = new _PageStack2.default('main', _this4.getAttribute('mode'));
                         });
 
-                        mode = this.listen().getAttribute('mode') || mode;
+                        var router = this;
 
-                        if (mode === 'hash') prefix = '#';
+                        on.call(document.body, 'click', 'a[href]', function (event) {
+
+                            if ((this.target || '_self') !== '_self') return;
+
+                            event.preventDefault();
+
+                            router.navTo(this);
+                        });
                     }
 
                     /**
@@ -398,112 +632,41 @@ var _module_ = {
                      * @param {Element} link - A `<a href="" />`
                      */
                     value: function () {
-                        var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(link) {
-                            var path, title, tag, HTML;
-                            return regeneratorRuntime.wrap(function _callee3$(_context3) {
+                        var _ref4 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(link) {
+                            var path, tag;
+                            return regeneratorRuntime.wrap(function _callee4$(_context4) {
                                 while (1) {
-                                    switch (_context3.prev = _context3.next) {
+                                    switch (_context4.prev = _context4.next) {
                                         case 0:
-                                            path = link.getAttribute('href'), title = link.title || link.textContent.trim();
+                                            path = link.getAttribute('href');
                                             tag = this.map[path];
 
-                                            if (tag) {
-                                                _context3.next = 4;
+                                            if (!tag) {
+                                                _context4.next = 5;
                                                 break;
                                             }
 
-                                            return _context3.abrupt('return');
+                                            _context4.next = 5;
+                                            return page.turnTo(tag, path, link.title || link.textContent.trim());
 
-                                        case 4:
-                                            _context3.next = 6;
-                                            return page.turnTo(tag);
-
-                                        case 6:
-                                            HTML = _context3.sent;
-
-
-                                            window.history.pushState({ path: path, tag: tag, title: title, index: page.last, HTML: HTML }, title, prefix + path);
-
-                                            document.title = title;
-
-                                        case 9:
+                                        case 5:
                                         case 'end':
-                                            return _context3.stop();
+                                            return _context4.stop();
                                     }
                                 }
-                            }, _callee3, this);
+                            }, _callee4, this);
                         }));
 
-                        function navTo(_x4) {
-                            return _ref3.apply(this, arguments);
+                        function navTo(_x6) {
+                            return _ref4.apply(this, arguments);
                         }
 
                         return navTo;
                     }()
-
-                    /**
-                     * @return {CellRouter} This element
-                     */
-
-                }, {
-                    key: 'listen',
-                    value: function listen() {
-                        var _this3 = this;
-
-                        var router = this;
-
-                        on.call(document.body, 'click', 'a[href]', function (event) {
-
-                            if ((this.target || '_self') !== '_self') return;
-
-                            event.preventDefault();
-
-                            router.navTo(this);
-                        });
-
-                        window.addEventListener('popstate', function () {
-                            var _ref4 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(event) {
-                                var state;
-                                return regeneratorRuntime.wrap(function _callee4$(_context4) {
-                                    while (1) {
-                                        switch (_context4.prev = _context4.next) {
-                                            case 0:
-                                                state = event.state;
-
-                                                if (state) {
-                                                    _context4.next = 3;
-                                                    break;
-                                                }
-
-                                                return _context4.abrupt('return');
-
-                                            case 3:
-                                                _context4.next = 5;
-                                                return page.backTo(state.index, state.HTML);
-
-                                            case 5:
-
-                                                document.title = state.title;
-
-                                            case 6:
-                                            case 'end':
-                                                return _context4.stop();
-                                        }
-                                    }
-                                }, _callee4, _this3);
-                            }));
-
-                            return function (_x5) {
-                                return _ref4.apply(this, arguments);
-                            };
-                        }());
-
-                        return this;
-                    }
                 }, {
                     key: 'mode',
                     get: function get() {
-                        return mode;
+                        return page.mode;
                     }
 
                     /**
@@ -605,14 +768,14 @@ var _module_ = {
                      * @return {Promise}
                      */
                     value: function load() {
-                        var _this5 = this;
+                        var _this6 = this;
 
                         return this.loaded ? Promise.resolve() : new Promise(function (resolve, reject) {
                             return document.head.append(Object.assign(document.createElement('script'), {
                                 onload: resolve,
                                 onerror: reject,
                                 type: ESM ? 'module' : 'text/javascript',
-                                src: _this5.path + '.js'
+                                src: _this6.path + '.js'
                             }));
                         });
                     }

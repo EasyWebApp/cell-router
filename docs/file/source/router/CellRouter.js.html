@@ -33,7 +33,10 @@
 <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/source/loader/CellPage.js~CellPage.html">CellPage</a></span></span></li>
 <li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#router">router</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/source/router/CellRoute.js~CellRoute.html">CellRoute</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/source/router/CellRouter.js~CellRouter.html">CellRouter</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/source/router/Page.js~Page.html">Page</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/source/router/PageStack.js~PageStack.html">PageStack</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-PageChangeEvent">PageChangeEvent</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-PageChangedEvent">PageChangedEvent</a></span></span></li>
 </ul>
 </div>
 </nav>
@@ -47,7 +50,7 @@ import PageStack from &apos;./PageStack&apos;;
 
 const on = Component.prototype.on;
 
-var mode = &apos;hash&apos;, page, prefix = &apos;&apos;;
+var page;
 
 
 /**
@@ -61,22 +64,19 @@ export default  class CellRouter extends HTMLElement {
 
         document.addEventListener(&apos;DOMContentLoaded&apos;,  () =&gt; {
 
-            page = new PageStack(&apos;main&apos;);
-
-            window.history.replaceState(
-                {
-                    title:  document.title,
-                    index:  page.last,
-                    HTML:   page.container.innerHTML
-                },
-                document.title,
-                &apos;&apos;
-            );
+            page = new PageStack(&apos;main&apos;, this.getAttribute(&apos;mode&apos;));
         });
 
-        mode = this.listen().getAttribute(&apos;mode&apos;) || mode;
+        const router = this;
 
-        if (mode === &apos;hash&apos;)  prefix = &apos;#&apos;;
+        on.call(document.body,  &apos;click&apos;,  &apos;a[href]&apos;,  function (event) {
+
+            if ((this.target || &apos;_self&apos;)  !==  &apos;_self&apos;)  return;
+
+            event.preventDefault();
+
+            router.navTo( this );
+        });
     }
 
     /**
@@ -84,7 +84,7 @@ export default  class CellRouter extends HTMLElement {
      *
      * @type {string}
      */
-    get mode() {  return mode;  }
+    get mode() {  return page.mode;  }
 
     /**
      * Key for path, Value for tag
@@ -112,50 +112,12 @@ export default  class CellRouter extends HTMLElement {
      */
     async navTo(link) {
 
-        const path = link.getAttribute(&apos;href&apos;),
-            title = link.title || link.textContent.trim();
+        const path = link.getAttribute(&apos;href&apos;);
 
-        var tag = this.map[ path ];
+        const tag = this.map[ path ];
 
-        if (! tag)  return;
-
-        const HTML = await page.turnTo( tag );
-
-        window.history.pushState(
-            {path,  tag,  title,  index: page.last,  HTML},  title,  prefix + path
-        );
-
-        document.title = title;
-    }
-
-    /**
-     * @return {CellRouter} This element
-     */
-    listen() {
-
-        const router = this;
-
-        on.call(document.body,  &apos;click&apos;,  &apos;a[href]&apos;,  function (event) {
-
-            if ((this.target || &apos;_self&apos;)  !==  &apos;_self&apos;)  return;
-
-            event.preventDefault();
-
-            router.navTo( this );
-        });
-
-        window.addEventListener(&apos;popstate&apos;,  async event =&gt; {
-
-            const state = event.state;
-
-            if (! state)  return;
-
-            await page.backTo(state.index, state.HTML);
-
-            document.title = state.title;
-        });
-
-        return this;
+        if ( tag )
+            await page.turnTo(tag,  path,  link.title || link.textContent.trim());
     }
 }
 

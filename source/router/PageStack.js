@@ -1,5 +1,7 @@
 import {View} from 'web-cell';
 
+import Page from './Page';
+
 import CellLoader from '../loader/CellLoader';
 
 
@@ -8,9 +10,10 @@ import CellLoader from '../loader/CellLoader';
  */
 export default  class PageStack {
     /**
-     * @param {string} container - CSS selector of Page container
+     * @param {string} container     - CSS selector of Page container
+     * @param {string} [mode='hash'] - History path mode (`hash` or `path`)
      */
-    constructor(container) {
+    constructor(container, mode) {
         /**
          * Page count
          *
@@ -31,64 +34,181 @@ export default  class PageStack {
          * @type {Element}
          */
         this.container = document.querySelector( container );
+
+        /**
+         * History path mode (`hash` or `path`)
+         *
+         * @type {string}
+         */
+        this.mode = mode || 'hash';
+
+        this.addHistory('', '', '', this.last, true);
+
+        window.addEventListener('popstate',  async event => {
+
+            if ( event.state )  await this.backTo( event.state );
+        });
     }
 
     /**
      * @protected
      *
-     * @param {number} index
+     * @param {string}  tag
+     * @param {string}  path
+     * @param {string}  title
+     * @param {number}  index
+     * @param {boolean} replace
+     */
+    addHistory(tag, path, title, index, replace) {
+
+        window.history[`${replace ? 'replace' : 'push'}State`](
+            {
+                tag,  path,  title,
+                index:  this[replace ? 'length' : 'last'] = index,
+                HTML:   this.container.innerHTML
+            },
+            title = title || document.title,
+            ((this.mode === 'hash')  ?  '#'  :  '')  +  path
+        );
+
+        document.title = title;
+    }
+
+    /**
+     * @protected
      *
-     * @return {PageStack}
+     * @param {string}  event      - Name of a Custom event
+     * @param {boolean} cancelable - Whether this event can be canceled
+     * @param {number}  from       - Index of leaving page
+     * @param {Object}  to         - Meta of entering page
+     *
+     * @return {boolean} Whether `event.preventDefault()` invoked
+     */
+    emit(event, cancelable, from, to) {
+
+        return  this.container.dispatchEvent(new CustomEvent(event, {
+            bubbles:     true,
+            cancelable:  cancelable,
+            detail:      {
+                from:  this[ from ],
+                to:    to
+            }
+        }));
+    }
+
+    /**
+     * @protected
+     *
+     * @param {number} [index]
+     *
+     * @return {Page}
      */
     turnOver(index) {
 
         index = (index != null)  ?  index  :  this.length++;
 
-        (this[ index ] = this[ index ]  ||  document.createDocumentFragment())
-            .append(... this.container.childNodes);
-
-        return this;
+        return (
+            this[ index ] = this[ index ]  ||  new Page( this.mode )
+        ).addContent(
+            this.container.childNodes
+        );
     }
 
     /**
-     * @param {string} tag - Tag name of a Page component
+     * @param {string} tag     - Tag name of a Page component
+     * @param {string} path    - Route path
+     * @param {string} [title]
      *
-     * @return {string} HTML source of this page
+     * @emits {PageChangeEvent}
+     * @emits {PageChangedEvent}
      */
-    async turnTo(tag) {
+    async turnTo(tag, path, title) {
+
+        const page = {tag, path, title};
 
         if ( tag.includes('-') )  await CellLoader.load( tag );
 
         tag = document.createElement( tag );
 
-        this.turnOver().container.append( tag );
+        this.turnOver();
 
-        this.last = this.length;
+        if (! this.emit('pagechange', true, this.last, page))  return;
 
-        return this.container.innerHTML;
+        this.container.append( tag );
+
+        this.addHistory(page.tag, path, title, this.length);
+
+        page.tag = tag;
+
+        this.emit('pagechanged',  false,  this.last - 1,  page);
     }
 
     /**
-     * @param {number} page      - Index of a Page component
-     * @param {string} [HTML=''] - Fallback HTML source
+     * @protected
+     *
+     * @param {Object} state       - `event.state`
+     * @param {string} state.tag
+     * @param {string} state.path
+     * @param {string} state.title
+     * @param {number} state.index
+     * @param {string} state.HTML
+     *
+     * @emits {PageChangeEvent}
+     * @emits {PageChangedEvent}
      */
-    async backTo(page, HTML) {
+    async backTo(state) {
 
-        this.turnOver( this.last );
+        var page = {tag: state.tag,  path: state.path,  title: state.title},
+            last = this.last;
 
-        page = this[this.last = page];
+        if (! this.emit('pagechange', true, last, page))  return;
 
-        if ((! page)  &&  HTML) {
+        this.turnOver( last );
+
+        var _page_ = this[this.last = state.index];
+
+        if ((! _page_)  &&  state.HTML) {
 
             await Promise.all(
-                (HTML.match( /<\w+-\w+/g ) || [ ]).map(
+                (state.HTML.match( /<\w+-\w+/g ) || [ ]).map(
                     raw  =>  CellLoader.load( raw.slice(1) )
                 )
             );
 
-            page = View.parseDOM( HTML );
-        }
+            this.container.append( View.parseDOM( state.HTML ) );
+        } else
+            this.container.append(_page_.fragment || '');
 
-        this.container.append(page || '');
+        this.addHistory(page.tag, page.path, page.title, this.last, true);
+
+        page.tag = this.container.firstElementChild;
+
+        this.emit('pagechanged', false, last, page);
     }
 }
+
+
+/**
+ * Before changing a page
+ *
+ * @typedef {CustomEvent} PageChangeEvent
+ *
+ * @property {boolean} bubbles     - `true`
+ * @property {boolean} cancelable  - `true`
+ * @property {Object}  detail
+ * @property {Page}    detail.from - Leaving page
+ * @property {Object}  detail.to   - Entering page
+ */
+
+
+/**
+ * After changing a page
+ *
+ * @typedef {CustomEvent} PageChangedEvent
+ *
+ * @property {boolean} bubbles     - `true`
+ * @property {boolean} cancelable  - `false`
+ * @property {Object}  detail
+ * @property {Page}    detail.from - Leaving page
+ * @property {Object}  detail.to   - Entering page
+ */

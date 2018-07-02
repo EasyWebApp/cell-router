@@ -13,7 +13,7 @@ Router component based on [WebCell](https://web-cell.tk/)
  - [x] Page link:
    - `<a href="route/path">Page title</a>`
    - `<a href="route/path" title="Page title" target="_self">Example page</a>`
- - [x] Page container: `<main />`
+ - [x] Page container: `<main />` with `pagechange` & `pagechanged` custom events
  - [x] Path mode: `location.hash` (default) & `history.pushState()`
  - [x] Page loader: auto detect **UMD** & **ES module**
  - [x] DOM cache

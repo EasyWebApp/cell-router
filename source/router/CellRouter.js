@@ -6,7 +6,7 @@ import PageStack from './PageStack';
 
 const on = Component.prototype.on;
 
-var mode = 'hash', page, prefix = '';
+var page;
 
 
 /**
@@ -20,22 +20,19 @@ export default  class CellRouter extends HTMLElement {
 
         document.addEventListener('DOMContentLoaded',  () => {
 
-            page = new PageStack('main');
-
-            window.history.replaceState(
-                {
-                    title:  document.title,
-                    index:  page.last,
-                    HTML:   page.container.innerHTML
-                },
-                document.title,
-                ''
-            );
+            page = new PageStack('main', this.getAttribute('mode'));
         });
 
-        mode = this.listen().getAttribute('mode') || mode;
+        const router = this;
 
-        if (mode === 'hash')  prefix = '#';
+        on.call(document.body,  'click',  'a[href]',  function (event) {
+
+            if ((this.target || '_self')  !==  '_self')  return;
+
+            event.preventDefault();
+
+            router.navTo( this );
+        });
     }
 
     /**
@@ -43,7 +40,7 @@ export default  class CellRouter extends HTMLElement {
      *
      * @type {string}
      */
-    get mode() {  return mode;  }
+    get mode() {  return page.mode;  }
 
     /**
      * Key for path, Value for tag
@@ -71,50 +68,12 @@ export default  class CellRouter extends HTMLElement {
      */
     async navTo(link) {
 
-        const path = link.getAttribute('href'),
-            title = link.title || link.textContent.trim();
+        const path = link.getAttribute('href');
 
-        var tag = this.map[ path ];
+        const tag = this.map[ path ];
 
-        if (! tag)  return;
-
-        const HTML = await page.turnTo( tag );
-
-        window.history.pushState(
-            {path,  tag,  title,  index: page.last,  HTML},  title,  prefix + path
-        );
-
-        document.title = title;
-    }
-
-    /**
-     * @return {CellRouter} This element
-     */
-    listen() {
-
-        const router = this;
-
-        on.call(document.body,  'click',  'a[href]',  function (event) {
-
-            if ((this.target || '_self')  !==  '_self')  return;
-
-            event.preventDefault();
-
-            router.navTo( this );
-        });
-
-        window.addEventListener('popstate',  async event => {
-
-            const state = event.state;
-
-            if (! state)  return;
-
-            await page.backTo(state.index, state.HTML);
-
-            document.title = state.title;
-        });
-
-        return this;
+        if ( tag )
+            await page.turnTo(tag,  path,  link.title || link.textContent.trim());
     }
 }
 
