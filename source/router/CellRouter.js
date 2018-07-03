@@ -17,6 +17,10 @@ export default  class CellRouter extends HTMLElement {
     constructor() {  super();  }
 
     connectedCallback() {
+        /**
+         * @type {boolean}
+         */
+        this.loading = false;
 
         document.addEventListener('DOMContentLoaded',  () => {
 
@@ -25,13 +29,18 @@ export default  class CellRouter extends HTMLElement {
 
         const router = this;
 
-        on.call(document.body,  'click',  'a[href]',  function (event) {
+        on.call(document.body,  'click',  'a[href]',  async function (event) {
 
-            if ((this.target || '_self')  !==  '_self')  return;
+            if (this.loading  ||  ((this.target || '_self')  !==  '_self'))
+                return;
 
             event.preventDefault();
 
-            router.navTo( this );
+            this.loading = true;
+
+            await router.navTo( this );
+
+            this.loading = false;
         });
     }
 
@@ -64,6 +73,13 @@ export default  class CellRouter extends HTMLElement {
     /**
      * @protected
      *
+     * @type {PageStack}
+     */
+    get stack() {  return page;  }
+
+    /**
+     * @protected
+     *
      * @param {Element} link - A `<a href="" />`
      */
     async navTo(link) {
@@ -73,7 +89,7 @@ export default  class CellRouter extends HTMLElement {
         const tag = this.map[ path ];
 
         if ( tag )
-            await page.turnTo(tag,  path,  link.title || link.textContent.trim());
+            await page.push(tag,  path,  link.title || link.textContent.trim());
     }
 }
 

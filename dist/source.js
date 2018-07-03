@@ -58,89 +58,13 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
-
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var _module_ = {
-    './router/Page': {
-        base: './router',
-        dependency: [],
-        factory: function factory(require, exports, module) {
-            Object.defineProperty(exports, "__esModule", {
-                value: true
-            });
-            var location = window.location;
-
-            var basePath = location.pathname;
-
-            /**
-             * Page meta
-             */
-
-            var Page = function () {
-                /**
-                 * @param {string} mode - History path mode
-                 */
-                function Page(mode) {
-                    _classCallCheck(this, Page);
-
-                    /**
-                     * Route path
-                     *
-                     * @type {string}
-                     */
-                    this.path = mode === 'hash' ? location.hash.slice(1) : location.pathname.replace(basePath, '');
-
-                    /**
-                     * @type {string}
-                     */
-                    this.title = document.title;
-                }
-
-                /**
-                 * @protected
-                 *
-                 * @param {Node[]} fragment - DOM content
-                 *
-                 * @return {Page} This page
-                 */
-
-
-                _createClass(Page, [{
-                    key: 'addContent',
-                    value: function addContent(fragment) {
-                        var _fragment;
-
-                        /**
-                         * Sub DOM tree of this page
-                         *
-                         * @type {DocumentFragment}
-                         */
-                        this.fragment = document.createDocumentFragment();
-
-                        (_fragment = this.fragment).append.apply(_fragment, _toConsumableArray(fragment));
-
-                        if (fragment = this.fragment.firstElementChild)
-                            /**
-                             * Tag name of this Page component
-                             *
-                             * @type {string}
-                             */
-                            this.tag = fragment.tagName.toLowerCase();
-
-                        return this;
-                    }
-                }]);
-
-                return Page;
-            }();
-
-            exports.default = Page;
-        }
-    },
     './router/PageStack': {
         base: './router',
         dependency: [],
@@ -148,12 +72,6 @@ var _module_ = {
             Object.defineProperty(exports, "__esModule", {
                 value: true
             });
-
-            var _webCell = require('web-cell');
-
-            var _Page = require('./Page');
-
-            var _Page2 = _interopRequireDefault(_Page);
 
             var _CellLoader = require('../loader/CellLoader');
 
@@ -182,7 +100,7 @@ var _module_ = {
                      *
                      * @type {number}
                      */
-                    this.length = 0;
+                    this.length = 1;
 
                     /**
                      * Index of last page
@@ -190,6 +108,13 @@ var _module_ = {
                      * @type {number}
                      */
                     this.last = 0;
+
+                    /**
+                     * State of last page
+                     *
+                     * @type {HistoryState}
+                     */
+                    this.lastState = { path: '', title: document.title, index: this.last };
 
                     /**
                      * Page container
@@ -205,7 +130,7 @@ var _module_ = {
                      */
                     this.mode = mode || 'hash';
 
-                    this.addHistory('', '', '', this.last, true);
+                    history.replaceState(this.lastState, document.title, '');
 
                     window.addEventListener('popstate', function () {
                         var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(event) {
@@ -219,7 +144,7 @@ var _module_ = {
                                             }
 
                                             _context.next = 3;
-                                            return _this.backTo(event.state);
+                                            return _this.pop(event.state);
 
                                         case 3:
                                         case 'end':
@@ -238,67 +163,63 @@ var _module_ = {
                 /**
                  * @protected
                  *
-                 * @param {string}  tag
-                 * @param {string}  path
-                 * @param {string}  title
-                 * @param {number}  index
-                 * @param {boolean} replace
+                 * @param {string}       event      - Name of a Custom event
+                 * @param {boolean}      cancelable - Whether this event can be canceled
+                 * @param {HistoryState} from       - Meta of leaving page
+                 * @param {HistoryState} to         - Meta of entering page
+                 *
+                 * @return {boolean} Whether `event.preventDefault()` invoked
                  */
 
 
                 _createClass(PageStack, [{
-                    key: 'addHistory',
-                    value: function addHistory(tag, path, title, index, replace) {
-
-                        window.history[(replace ? 'replace' : 'push') + 'State']({
-                            tag: tag, path: path, title: title,
-                            index: this[replace ? 'length' : 'last'] = index,
-                            HTML: this.container.innerHTML
-                        }, title = title || document.title, (this.mode === 'hash' ? '#' : '') + path);
-
-                        document.title = title;
-                    }
-
-                    /**
-                     * @protected
-                     *
-                     * @param {string}  event      - Name of a Custom event
-                     * @param {boolean} cancelable - Whether this event can be canceled
-                     * @param {number}  from       - Index of leaving page
-                     * @param {Object}  to         - Meta of entering page
-                     *
-                     * @return {boolean} Whether `event.preventDefault()` invoked
-                     */
-
-                }, {
-                    key: 'emit',
-                    value: function emit(event, cancelable, from, to) {
+                    key: 'dispatch',
+                    value: function dispatch(event, cancelable, from, to) {
 
                         return this.container.dispatchEvent(new CustomEvent(event, {
                             bubbles: true,
                             cancelable: cancelable,
-                            detail: {
-                                from: this[from],
-                                to: to
-                            }
+                            detail: { from: from, to: to }
                         }));
                     }
 
                     /**
                      * @protected
                      *
-                     * @param {number} [index]
-                     *
-                     * @return {Page}
+                     * @return {PageStack}
                      */
 
                 }, {
-                    key: 'turnOver',
-                    value: function turnOver(index) {
+                    key: 'cache',
+                    value: function cache() {
+                        var _last;
 
-                        index = index != null ? index : this.length++;
+                        this[this.last] = this[this.last] || document.createDocumentFragment();
 
-                        return (this[index] = this[index] || new _Page2.default(this.mode)).addContent(this.container.childNodes);
+                        (_last = this[this.last]).append.apply(_last, _toConsumableArray(this.container.childNodes));
+
+                        return this;
+                    }
+
+                    /**
+                     * @protected
+                     *
+                     * @param {string} tag     - Tag name of a Page component
+                     * @param {string} path    - Route path
+                     * @param {string} [title]
+                     */
+
+                }, {
+                    key: 'record',
+                    value: function record(tag, path, title) {
+
+                        title = title || document.title;
+
+                        this.lastState = { tag: tag, path: path, title: title, index: this.last = this.length++ };
+
+                        history.pushState(this.lastState, title, (this.mode === 'hash' ? '#' : '') + path);
+
+                        document.title = title;
                     }
 
                     /**
@@ -311,48 +232,43 @@ var _module_ = {
                      */
 
                 }, {
-                    key: 'turnTo',
+                    key: 'push',
                     value: function () {
                         var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(tag, path, title) {
-                            var page;
+                            var previous, next;
                             return regeneratorRuntime.wrap(function _callee2$(_context2) {
                                 while (1) {
                                     switch (_context2.prev = _context2.next) {
                                         case 0:
-                                            page = { tag: tag, path: path, title: title };
-
                                             if (!tag.includes('-')) {
-                                                _context2.next = 4;
+                                                _context2.next = 3;
                                                 break;
                                             }
 
-                                            _context2.next = 4;
+                                            _context2.next = 3;
                                             return _CellLoader2.default.load(tag);
 
-                                        case 4:
+                                        case 3:
+                                            previous = history.state, next = { tag: document.createElement(tag), path: path, title: title };
 
-                                            tag = document.createElement(tag);
-
-                                            this.turnOver();
-
-                                            if (this.emit('pagechange', true, this.last, page)) {
-                                                _context2.next = 8;
+                                            if (this.dispatch('pagechange', true, previous, next)) {
+                                                _context2.next = 6;
                                                 break;
                                             }
 
                                             return _context2.abrupt('return');
 
-                                        case 8:
+                                        case 6:
 
-                                            this.container.append(tag);
+                                            this.cache();
 
-                                            this.addHistory(page.tag, path, title, this.length);
+                                            this.container.append(next.tag);
 
-                                            page.tag = tag;
+                                            this.record(tag, path, title);
 
-                                            this.emit('pagechanged', false, this.last - 1, page);
+                                            this.dispatch('pagechanged', false, previous, next);
 
-                                        case 12:
+                                        case 10:
                                         case 'end':
                                             return _context2.stop();
                                     }
@@ -360,79 +276,59 @@ var _module_ = {
                             }, _callee2, this);
                         }));
 
-                        function turnTo(_x2, _x3, _x4) {
+                        function push(_x2, _x3, _x4) {
                             return _ref2.apply(this, arguments);
                         }
 
-                        return turnTo;
+                        return push;
                     }()
 
                     /**
                      * @protected
                      *
-                     * @param {Object} state       - `event.state`
-                     * @param {string} state.tag
-                     * @param {string} state.path
-                     * @param {string} state.title
-                     * @param {number} state.index
-                     * @param {string} state.HTML
-                     *
-                     * @emits {PageChangeEvent}
-                     * @emits {PageChangedEvent}
+                     * @param {HistoryState} state - `state` property of {@link PopStateEvent}
                      */
 
                 }, {
-                    key: 'backTo',
+                    key: 'pop',
                     value: function () {
                         var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(state) {
-                            var page, last, _page_;
-
+                            var tag;
                             return regeneratorRuntime.wrap(function _callee3$(_context3) {
                                 while (1) {
                                     switch (_context3.prev = _context3.next) {
                                         case 0:
-                                            page = { tag: state.tag, path: state.path, title: state.title }, last = this.last;
 
-                                            if (this.emit('pagechange', true, last, page)) {
-                                                _context3.next = 3;
+                                            this.length = Math.max(this.length, state.index + 1);
+
+                                            tag = this.cache()[this.last = state.index];
+
+                                            if (tag) {
+                                                _context3.next = 8;
                                                 break;
                                             }
 
-                                            return _context3.abrupt('return');
+                                            tag = state.tag;
 
-                                        case 3:
-
-                                            this.turnOver(last);
-
-                                            _page_ = this[this.last = state.index];
-
-                                            if (!(!_page_ && state.HTML)) {
-                                                _context3.next = 11;
+                                            if (!tag.includes('-')) {
+                                                _context3.next = 7;
                                                 break;
                                             }
 
-                                            _context3.next = 8;
-                                            return Promise.all((state.HTML.match(/<\w+-\w+/g) || []).map(function (raw) {
-                                                return _CellLoader2.default.load(raw.slice(1));
-                                            }));
+                                            _context3.next = 7;
+                                            return _CellLoader2.default.load(tag);
+
+                                        case 7:
+
+                                            tag = document.createElement(tag);
 
                                         case 8:
 
-                                            this.container.append(_webCell.View.parseDOM(state.HTML));
-                                            _context3.next = 12;
-                                            break;
+                                            this.container.append(state.tag = tag);
 
-                                        case 11:
-                                            this.container.append(_page_.fragment || '');
+                                            this.dispatch('pagechanged', false, this.lastState, this.lastState = state);
 
-                                        case 12:
-                                            this.addHistory(page.tag, page.path, page.title, this.last, true);
-
-                                            page.tag = this.container.firstElementChild;
-
-                                            this.emit('pagechanged', false, last, page);
-
-                                        case 15:
+                                        case 10:
                                         case 'end':
                                             return _context3.stop();
                                     }
@@ -440,11 +336,11 @@ var _module_ = {
                             }, _callee3, this);
                         }));
 
-                        function backTo(_x5) {
+                        function pop(_x5) {
                             return _ref3.apply(this, arguments);
                         }
 
-                        return backTo;
+                        return pop;
                     }()
                 }]);
 
@@ -452,27 +348,36 @@ var _module_ = {
             }();
 
             exports.default = PageStack; /**
-                                          * Before changing a page
+                                          * @typedef {Object} HistoryState
                                           *
-                                          * @typedef {CustomEvent} PageChangeEvent
-                                          *
-                                          * @property {boolean} bubbles     - `true`
-                                          * @property {boolean} cancelable  - `true`
-                                          * @property {Object}  detail
-                                          * @property {Page}    detail.from - Leaving page
-                                          * @property {Object}  detail.to   - Entering page
+                                          * @property {string|Element} tag   - Page component
+                                          * @property {string}         path  - Route path
+                                          * @property {string}         title
+                                          * @property {number}         index - Stack index of a page
                                           */
+
+            /**
+             * Before changing a page
+             *
+             * @typedef {CustomEvent} PageChangeEvent
+             *
+             * @property {boolean}       bubbles     - `true`
+             * @property {boolean}       cancelable  - `true`
+             * @property {Object}        detail
+             * @property {HistoryState}  detail.from - Leaving page
+             * @property {HistoryState}  detail.to   - Entering page
+             */
 
             /**
              * After changing a page
              *
              * @typedef {CustomEvent} PageChangedEvent
              *
-             * @property {boolean} bubbles     - `true`
-             * @property {boolean} cancelable  - `false`
-             * @property {Object}  detail
-             * @property {Page}    detail.from - Leaving page
-             * @property {Object}  detail.to   - Entering page
+             * @property {boolean}       bubbles     - `true`
+             * @property {boolean}       cancelable  - `false`
+             * @property {Object}        detail
+             * @property {HistoryState}  detail.from - Leaving page
+             * @property {HistoryState}  detail.to   - Entering page
              */
         }
     },
@@ -599,6 +504,11 @@ var _module_ = {
                     value: function connectedCallback() {
                         var _this4 = this;
 
+                        /**
+                         * @type {boolean}
+                         */
+                        this.loading = false;
+
                         document.addEventListener('DOMContentLoaded', function () {
 
                             page = new _PageStack2.default('main', _this4.getAttribute('mode'));
@@ -606,14 +516,44 @@ var _module_ = {
 
                         var router = this;
 
-                        on.call(document.body, 'click', 'a[href]', function (event) {
+                        on.call(document.body, 'click', 'a[href]', function () {
+                            var _ref4 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(event) {
+                                return regeneratorRuntime.wrap(function _callee4$(_context4) {
+                                    while (1) {
+                                        switch (_context4.prev = _context4.next) {
+                                            case 0:
+                                                if (!(this.loading || (this.target || '_self') !== '_self')) {
+                                                    _context4.next = 2;
+                                                    break;
+                                                }
 
-                            if ((this.target || '_self') !== '_self') return;
+                                                return _context4.abrupt('return');
 
-                            event.preventDefault();
+                                            case 2:
 
-                            router.navTo(this);
-                        });
+                                                event.preventDefault();
+
+                                                this.loading = true;
+
+                                                _context4.next = 6;
+                                                return router.navTo(this);
+
+                                            case 6:
+
+                                                this.loading = false;
+
+                                            case 7:
+                                            case 'end':
+                                                return _context4.stop();
+                                        }
+                                    }
+                                }, _callee4, this);
+                            }));
+
+                            return function (_x6) {
+                                return _ref4.apply(this, arguments);
+                            };
+                        }());
                     }
 
                     /**
@@ -632,33 +572,33 @@ var _module_ = {
                      * @param {Element} link - A `<a href="" />`
                      */
                     value: function () {
-                        var _ref4 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(link) {
+                        var _ref5 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5(link) {
                             var path, tag;
-                            return regeneratorRuntime.wrap(function _callee4$(_context4) {
+                            return regeneratorRuntime.wrap(function _callee5$(_context5) {
                                 while (1) {
-                                    switch (_context4.prev = _context4.next) {
+                                    switch (_context5.prev = _context5.next) {
                                         case 0:
                                             path = link.getAttribute('href');
                                             tag = this.map[path];
 
                                             if (!tag) {
-                                                _context4.next = 5;
+                                                _context5.next = 5;
                                                 break;
                                             }
 
-                                            _context4.next = 5;
-                                            return page.turnTo(tag, path, link.title || link.textContent.trim());
+                                            _context5.next = 5;
+                                            return page.push(tag, path, link.title || link.textContent.trim());
 
                                         case 5:
                                         case 'end':
-                                            return _context4.stop();
+                                            return _context5.stop();
                                     }
                                 }
-                            }, _callee4, this);
+                            }, _callee5, this);
                         }));
 
-                        function navTo(_x6) {
-                            return _ref4.apply(this, arguments);
+                        function navTo(_x7) {
+                            return _ref5.apply(this, arguments);
                         }
 
                         return navTo;
@@ -711,6 +651,18 @@ var _module_ = {
                         }
 
                         return route;
+                    }
+
+                    /**
+                     * @protected
+                     *
+                     * @type {PageStack}
+                     */
+
+                }, {
+                    key: 'stack',
+                    get: function get() {
+                        return page;
                     }
                 }]);
 
@@ -913,9 +865,9 @@ var _module_ = {
                 }, {
                     key: 'pageList',
                     get: function get() {
-                        var _ref5;
+                        var _ref6;
 
-                        return (_ref5 = []).concat.apply(_ref5, _toConsumableArray([].concat(_toConsumableArray(loader.keys())).map(function (item) {
+                        return (_ref6 = []).concat.apply(_ref6, _toConsumableArray([].concat(_toConsumableArray(loader.keys())).map(function (item) {
                             return item.pageList;
                         })));
                     }

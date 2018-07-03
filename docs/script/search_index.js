@@ -24,16 +24,40 @@ window.esdocSearchIndex = [
     "class"
   ],
   [
-    "cell-router/source/router/page.js~page",
-    "class/source/router/Page.js~Page.html",
-    "<span>Page</span> <span class=\"search-result-import-path\">cell-router/source/router/Page.js</span>",
-    "class"
-  ],
-  [
     "cell-router/source/router/pagestack.js~pagestack",
     "class/source/router/PageStack.js~PageStack.html",
     "<span>PageStack</span> <span class=\"search-result-import-path\">cell-router/source/router/PageStack.js</span>",
     "class"
+  ],
+  [
+    "pagestack source/router/pagestack.js~pagestack,pagestack",
+    "test-file/test/index.js.html#lineNumber26",
+    "Page history",
+    "test"
+  ],
+  [
+    "pagestack#pop source/router/pagestack.js~pagestack#pop,pagestack#pop",
+    "test-file/test/index.js.html#lineNumber64",
+    "Page history Back to a old page",
+    "test"
+  ],
+  [
+    "pagestack#constructor source/router/pagestack.js~pagestack#constructor,pagestack#constructor",
+    "test-file/test/index.js.html#lineNumber33",
+    "Page history Boot SPA",
+    "test"
+  ],
+  [
+    "pagestack#cache pagestack#record pagestack#push source/router/pagestack.js~pagestack#cache,pagestack#cache source/router/pagestack.js~pagestack#record,pagestack#record source/router/pagestack.js~pagestack#push,pagestack#push",
+    "test-file/test/index.js.html#lineNumber44",
+    "Page history Go to a new page",
+    "test"
+  ],
+  [
+    "pagestack#pop source/router/pagestack.js~pagestack#pop,pagestack#pop",
+    "test-file/test/index.js.html#lineNumber88",
+    "Page history Reload SPA",
+    "test"
   ],
   [
     "source/.external-ecmascript.js~array",
@@ -522,6 +546,12 @@ window.esdocSearchIndex = [
     "method"
   ],
   [
+    "source/router/cellrouter.js~cellrouter#loading",
+    "class/source/router/CellRouter.js~CellRouter.html#instance-member-loading",
+    "source/router/CellRouter.js~CellRouter#loading",
+    "member"
+  ],
+  [
     "source/router/cellrouter.js~cellrouter#map",
     "class/source/router/CellRouter.js~CellRouter.html#instance-get-map",
     "source/router/CellRouter.js~CellRouter#map",
@@ -540,45 +570,9 @@ window.esdocSearchIndex = [
     "method"
   ],
   [
-    "source/router/page.js",
-    "file/source/router/Page.js.html",
-    "source/router/Page.js",
-    "file"
-  ],
-  [
-    "source/router/page.js~page#addcontent",
-    "class/source/router/Page.js~Page.html#instance-method-addContent",
-    "source/router/Page.js~Page#addContent",
-    "method"
-  ],
-  [
-    "source/router/page.js~page#constructor",
-    "class/source/router/Page.js~Page.html#instance-constructor-constructor",
-    "source/router/Page.js~Page#constructor",
-    "method"
-  ],
-  [
-    "source/router/page.js~page#fragment",
-    "class/source/router/Page.js~Page.html#instance-member-fragment",
-    "source/router/Page.js~Page#fragment",
-    "member"
-  ],
-  [
-    "source/router/page.js~page#path",
-    "class/source/router/Page.js~Page.html#instance-member-path",
-    "source/router/Page.js~Page#path",
-    "member"
-  ],
-  [
-    "source/router/page.js~page#tag",
-    "class/source/router/Page.js~Page.html#instance-member-tag",
-    "source/router/Page.js~Page#tag",
-    "member"
-  ],
-  [
-    "source/router/page.js~page#title",
-    "class/source/router/Page.js~Page.html#instance-member-title",
-    "source/router/Page.js~Page#title",
+    "source/router/cellrouter.js~cellrouter#stack",
+    "class/source/router/CellRouter.js~CellRouter.html#instance-get-stack",
+    "source/router/CellRouter.js~CellRouter#stack",
     "member"
   ],
   [
@@ -586,6 +580,12 @@ window.esdocSearchIndex = [
     "file/source/router/PageStack.js.html",
     "source/router/PageStack.js",
     "file"
+  ],
+  [
+    "source/router/pagestack.js~historystate",
+    "typedef/index.html#static-typedef-HistoryState",
+    "source/router/PageStack.js~HistoryState",
+    "typedef"
   ],
   [
     "source/router/pagestack.js~pagechangeevent",
@@ -600,15 +600,15 @@ window.esdocSearchIndex = [
     "typedef"
   ],
   [
-    "source/router/pagestack.js~pagestack#addhistory",
-    "class/source/router/PageStack.js~PageStack.html#instance-method-addHistory",
-    "source/router/PageStack.js~PageStack#addHistory",
-    "method"
+    "source/router/pagestack.js~pagestack#[.last]",
+    "class/source/router/PageStack.js~PageStack.html#instance-member-[.last]",
+    "source/router/PageStack.js~PageStack#[.last]",
+    "member"
   ],
   [
-    "source/router/pagestack.js~pagestack#backto",
-    "class/source/router/PageStack.js~PageStack.html#instance-method-backTo",
-    "source/router/PageStack.js~PageStack#backTo",
+    "source/router/pagestack.js~pagestack#cache",
+    "class/source/router/PageStack.js~PageStack.html#instance-method-cache",
+    "source/router/PageStack.js~PageStack#cache",
     "method"
   ],
   [
@@ -624,15 +624,21 @@ window.esdocSearchIndex = [
     "member"
   ],
   [
-    "source/router/pagestack.js~pagestack#emit",
-    "class/source/router/PageStack.js~PageStack.html#instance-method-emit",
-    "source/router/PageStack.js~PageStack#emit",
+    "source/router/pagestack.js~pagestack#dispatch",
+    "class/source/router/PageStack.js~PageStack.html#instance-method-dispatch",
+    "source/router/PageStack.js~PageStack#dispatch",
     "method"
   ],
   [
     "source/router/pagestack.js~pagestack#last",
     "class/source/router/PageStack.js~PageStack.html#instance-member-last",
     "source/router/PageStack.js~PageStack#last",
+    "member"
+  ],
+  [
+    "source/router/pagestack.js~pagestack#laststate",
+    "class/source/router/PageStack.js~PageStack.html#instance-member-lastState",
+    "source/router/PageStack.js~PageStack#lastState",
     "member"
   ],
   [
@@ -648,15 +654,21 @@ window.esdocSearchIndex = [
     "member"
   ],
   [
-    "source/router/pagestack.js~pagestack#turnover",
-    "class/source/router/PageStack.js~PageStack.html#instance-method-turnOver",
-    "source/router/PageStack.js~PageStack#turnOver",
+    "source/router/pagestack.js~pagestack#pop",
+    "class/source/router/PageStack.js~PageStack.html#instance-method-pop",
+    "source/router/PageStack.js~PageStack#pop",
     "method"
   ],
   [
-    "source/router/pagestack.js~pagestack#turnto",
-    "class/source/router/PageStack.js~PageStack.html#instance-method-turnTo",
-    "source/router/PageStack.js~PageStack#turnTo",
+    "source/router/pagestack.js~pagestack#push",
+    "class/source/router/PageStack.js~PageStack.html#instance-method-push",
+    "source/router/PageStack.js~PageStack#push",
+    "method"
+  ],
+  [
+    "source/router/pagestack.js~pagestack#record",
+    "class/source/router/PageStack.js~PageStack.html#instance-method-record",
+    "source/router/PageStack.js~PageStack#record",
     "method"
   ],
   [
@@ -675,6 +687,12 @@ window.esdocSearchIndex = [
     "test/dist/page-welcome.js",
     "test-file/test/dist/page-welcome.js.html",
     "test/dist/page-welcome.js",
+    "testFile"
+  ],
+  [
+    "test/index.js",
+    "test-file/test/index.js.html",
+    "test/index.js",
     "testFile"
   ],
   [
