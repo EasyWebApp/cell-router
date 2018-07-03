@@ -30,6 +30,12 @@ window.esdocSearchIndex = [
     "class"
   ],
   [
+    "cell-router/source/router/router.js~router",
+    "class/source/router/Router.js~Router.html",
+    "<span>Router</span> <span class=\"search-result-import-path\">cell-router/source/router/Router.js</span>",
+    "class"
+  ],
+  [
     "pagestack source/router/pagestack.js~pagestack,pagestack",
     "test-file/test/index.js.html#lineNumber26",
     "Page history",
@@ -57,6 +63,48 @@ window.esdocSearchIndex = [
     "pagestack#pop source/router/pagestack.js~pagestack#pop,pagestack#pop",
     "test-file/test/index.js.html#lineNumber88",
     "Page history Reload SPA",
+    "test"
+  ],
+  [
+    "router source/router/router.js~router,router",
+    "test-file/test/Router.js.html#lineNumber9",
+    "Router",
+    "test"
+  ],
+  [
+    "router#register source/router/router.js~router#register,router#register",
+    "test-file/test/Router.js.html#lineNumber15",
+    "Router Register route handler",
+    "test"
+  ],
+  [
+    "",
+    "test-file/test/Router.js.html#lineNumber27",
+    "Router Register route handler Path with colon parameters",
+    "test"
+  ],
+  [
+    "",
+    "test-file/test/Router.js.html#lineNumber17",
+    "Router Register route handler Plain path",
+    "test"
+  ],
+  [
+    "router#trigger source/router/router.js~router#trigger,router#trigger",
+    "test-file/test/Router.js.html#lineNumber42",
+    "Router Trigger route",
+    "test"
+  ],
+  [
+    "router#unregister source/router/router.js~router#unregister,router#unregister",
+    "test-file/test/Router.js.html#lineNumber54",
+    "Router Trigger route Path with colon parameters",
+    "test"
+  ],
+  [
+    "",
+    "test-file/test/Router.js.html#lineNumber44",
+    "Router Trigger route Plain path",
     "test"
   ],
   [
@@ -670,6 +718,48 @@ window.esdocSearchIndex = [
     "class/source/router/PageStack.js~PageStack.html#instance-method-record",
     "source/router/PageStack.js~PageStack#record",
     "method"
+  ],
+  [
+    "source/router/router.js",
+    "file/source/router/Router.js.html",
+    "source/router/Router.js",
+    "file"
+  ],
+  [
+    "source/router/router.js~router#constructor",
+    "class/source/router/Router.js~Router.html#instance-constructor-constructor",
+    "source/router/Router.js~Router#constructor",
+    "method"
+  ],
+  [
+    "source/router/router.js~router#map",
+    "class/source/router/Router.js~Router.html#instance-member-map",
+    "source/router/Router.js~Router#map",
+    "member"
+  ],
+  [
+    "source/router/router.js~router#register",
+    "class/source/router/Router.js~Router.html#instance-method-register",
+    "source/router/Router.js~Router#register",
+    "method"
+  ],
+  [
+    "source/router/router.js~router#trigger",
+    "class/source/router/Router.js~Router.html#instance-method-trigger",
+    "source/router/Router.js~Router#trigger",
+    "method"
+  ],
+  [
+    "source/router/router.js~router#unregister",
+    "class/source/router/Router.js~Router.html#instance-method-unregister",
+    "source/router/Router.js~Router#unregister",
+    "method"
+  ],
+  [
+    "test/router.js",
+    "test-file/test/Router.js.html",
+    "test/Router.js",
+    "testFile"
   ],
   [
     "test/dist/index.js",

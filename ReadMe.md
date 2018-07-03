@@ -17,6 +17,7 @@ Router component based on [WebCell](https://web-cell.tk/)
  - [x] Path mode: `location.hash` (default) & `history.pushState()`
  - [x] Page loader: auto detect **UMD** & **ES module**
  - [x] DOM cache
+ - [ ] Route handler: Similar with [Express.js](https://expressjs.com/en/guide/routing.html)
 
 
 

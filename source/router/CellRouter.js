@@ -14,13 +14,17 @@ var page;
  */
 export default  class CellRouter extends HTMLElement {
 
-    constructor() {  super();  }
+    constructor() {
 
-    connectedCallback() {
+        super();
+
         /**
          * @type {boolean}
          */
         this.loading = false;
+    }
+
+    connectedCallback() {
 
         document.addEventListener('DOMContentLoaded',  () => {
 

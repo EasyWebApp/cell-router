@@ -496,18 +496,19 @@ var _module_ = {
                 function CellRouter() {
                     _classCallCheck(this, CellRouter);
 
-                    return _possibleConstructorReturn(this, (CellRouter.__proto__ || Object.getPrototypeOf(CellRouter)).call(this));
+                    /**
+                     * @type {boolean}
+                     */
+                    var _this3 = _possibleConstructorReturn(this, (CellRouter.__proto__ || Object.getPrototypeOf(CellRouter)).call(this));
+
+                    _this3.loading = false;
+                    return _this3;
                 }
 
                 _createClass(CellRouter, [{
                     key: 'connectedCallback',
                     value: function connectedCallback() {
                         var _this4 = this;
-
-                        /**
-                         * @type {boolean}
-                         */
-                        this.loading = false;
 
                         document.addEventListener('DOMContentLoaded', function () {
 

@@ -32,7 +32,7 @@
     "help": "web-server docs/ -o",
     "build-test": "cd test  &&  web-cell pack",
     "start": "npm run build-test  &&  web-cell preview",
-    "check": "npm run build  &&  mocha",
+    "check": "web-cell pack  &&  mocha",
     "test": "npm run check -- --exit",
     "debug": "npm run check -- --inspect-brk"
   },
@@ -54,6 +54,8 @@
     "mocha": "^5.2.0",
     "puppeteer-browser": "^0.3.1",
     "should": "^13.2.1",
+    "should-sinon": "0.0.6",
+    "sinon": "^6.1.0",
     "web-cell-cli": "^0.4.1"
   },
   "babel": {
