@@ -1,6 +1,6 @@
 {
   "name": "cell-router",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "Router component based on WebCell",
   "keywords": [
     "web-component",
@@ -26,7 +26,6 @@
   },
   "scripts": {
     "lint": "eslint source/",
-    "precommit": "npm run lint",
     "build": "web-cell pack  &&  esdoc",
     "prepublishOnly": "npm run build",
     "help": "web-server docs/ -o",
@@ -34,7 +33,8 @@
     "start": "npm run build-test  &&  web-cell preview",
     "check": "web-cell pack  &&  mocha",
     "test": "npm run check -- --exit",
-    "debug": "npm run check -- --inspect-brk"
+    "debug": "npm run check -- --inspect-brk",
+    "precommit": "npm run lint  &&  npm test"
   },
   "dependencies": {
     "web-cell": "^0.9.4"

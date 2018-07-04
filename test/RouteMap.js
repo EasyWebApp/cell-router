@@ -1,22 +1,22 @@
-import Router from '../source/router/Router';
+import RouteMap from '../source/router/RouteMap';
 
 import {spy} from 'sinon';
 
 
 /**
- * @test {Router}
+ * @test {RouteMap}
  */
-describe('Router',  () => {
+describe('Route map',  () => {
 
-    const router = new Router(), handler = spy();
+    const router = new RouteMap(), handler = spy();
     /**
-     * @test {Router#register}
+     * @test {RouteMap#set}
      */
     describe('Register route handler',  () => {
 
         it('Plain path',  () => {
 
-            router.register('test', handler);
+            router.set('test', handler);
 
             Array.from( router.map.keys() )[0].should.be.eql({
                 route:    'test',
@@ -26,7 +26,7 @@ describe('Router',  () => {
 
         it('Path with colon parameters',  () => {
 
-            router.register('test/:id/example/:name', handler);
+            router.set('test/:id/example/:name', handler);
 
             Array.from( router.map.keys() )[1].should.be.eql({
                 route:      'test/:id/example/:name',
@@ -34,10 +34,19 @@ describe('Router',  () => {
                 parameter:  ['id', 'name']
             });
         });
+
+        it('Regular expression',  () => {
+
+            router.set(/^sample\/([^/]+)/, handler);
+
+            router.trigger('sample/1');
+
+            handler.should.be.calledWith( ['1'] );
+        });
     });
 
     /**
-     * @test {Router#trigger}
+     * @test {RouteMap#trigger}
      */
     describe('Trigger route',  () => {
 
@@ -45,15 +54,15 @@ describe('Router',  () => {
 
             router.trigger('test');
 
-            handler.should.be.calledWith({ });
+            handler.should.be.calledWith([ ]);
         });
 
         /**
-         * @test {Router#unregister}
+         * @test {RouteMap#delete}
          */
         it('Path with colon parameters',  () => {
 
-            router.unregister('test').trigger('test/1/example/sample',  { });
+            router.delete('test').trigger('test/1/example/sample',  { });
 
             handler.should.be.calledWith({id: '1', name: 'sample'},  { });
         });

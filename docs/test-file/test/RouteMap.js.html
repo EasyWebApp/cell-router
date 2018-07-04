@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <base data-ice="baseUrl" href="../../">
-  <title data-ice="title">test/index.js | cell-router</title>
+  <title data-ice="title">test/RouteMap.js | cell-router</title>
   <link type="text/css" rel="stylesheet" href="css/style.css">
   <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
   <script src="script/prettify/prettify.js"></script>
@@ -34,111 +34,84 @@
 <li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#router">router</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/source/router/CellRoute.js~CellRoute.html">CellRoute</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/source/router/CellRouter.js~CellRouter.html">CellRouter</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/source/router/PageStack.js~PageStack.html">PageStack</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/source/router/Router.js~Router.html">Router</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/source/router/RouteMap.js~RouteMap.html">RouteMap</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-HistoryState">HistoryState</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-PageChangeEvent">PageChangeEvent</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-PageChangedEvent">PageChangedEvent</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-RouteHandler">RouteHandler</a></span></span></li>
 </ul>
 </div>
 </nav>
 
-<div class="content" data-ice="content"><h1 data-ice="title">test/index.js</h1>
-<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import PuppeteerBrowser from &apos;puppeteer-browser&apos;;
+<div class="content" data-ice="content"><h1 data-ice="title">test/RouteMap.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import RouteMap from &apos;../source/router/RouteMap&apos;;
 
-var page;
-
-function waitForNav() {
-
-    return  page.waitForSelector(&apos;cell-router&apos;,  router =&gt; (! router.loading));
-}
-
-function firstPage() {
-
-    return  page.$eval(&apos;cell-router&apos;,  router =&gt; {
-
-        const stack = router.stack;
-
-        return [
-            stack[0].nodeType, stack.container.innerHTML, stack.last, stack.length
-        ];
-    }).should.be.fulfilledWith([11, &apos;&lt;page-hello&gt;&lt;/page-hello&gt;&apos;, 1, 2]);
-}
+import {spy} from &apos;sinon&apos;;
 
 
 /**
- * @test {PageStack}
+ * @test {RouteMap}
  */
-describe(&apos;Page history&apos;,  () =&gt; {
+describe(&apos;Route map&apos;,  () =&gt; {
 
-    before(async () =&gt; page = await PuppeteerBrowser.getPage(&apos;&apos;, &apos;test/&apos;));
-
+    const router = new RouteMap(), handler = spy();
     /**
-     * @test {PageStack#constructor}
+     * @test {RouteMap#set}
      */
-    it(&apos;Boot SPA&apos;,  () =&gt; page.evaluate(() =&gt; [
-        history.length, document.title, history.state
-    ]).should.be.fulfilledWith([
-        2,  &apos;Demo&apos;,  {path: &apos;&apos;, title: &apos;Demo&apos;, index: 0}
-    ]));
+    describe(&apos;Register route handler&apos;,  () =&gt; {
 
-    /**
-     * @test {PageStack#cache}
-     * @test {PageStack#record}
-     * @test {PageStack#push}
-     */
-    it(&apos;Go to a new page&apos;,  async () =&gt; {
+        it(&apos;Plain path&apos;,  () =&gt; {
 
-        await page.click(&apos;nav &gt; a&apos;);
+            router.set(&apos;test&apos;, handler);
 
-        await waitForNav();
+            Array.from( router.map.keys() )[0].should.be.eql({
+                route:    &apos;test&apos;,
+                pattern:  /^test/
+            });
+        });
 
-        (await page.evaluate(() =&gt; [
-            history.length, location.pathname, document.title, history.state
-        ])).should.be.eql([
-            3, &apos;/test/test&apos;, &apos;Test&apos;, {
-                tag: &apos;page-hello&apos;,  path: &apos;test&apos;,  title: &apos;Test&apos;,  index: 1
-            }
-        ]);
+        it(&apos;Path with colon parameters&apos;,  () =&gt; {
 
-        await firstPage();
+            router.set(&apos;test/:id/example/:name&apos;, handler);
+
+            Array.from( router.map.keys() )[1].should.be.eql({
+                route:      &apos;test/:id/example/:name&apos;,
+                pattern:    /^test\/([^/]+)\/example\/([^/]+)/,
+                parameter:  [&apos;id&apos;, &apos;name&apos;]
+            });
+        });
+
+        it(&apos;Regular expression&apos;,  () =&gt; {
+
+            router.set(/^sample\/([^/]+)/, handler);
+
+            router.trigger(&apos;sample/1&apos;);
+
+            handler.should.be.calledWith( [&apos;1&apos;] );
+        });
     });
 
     /**
-     * @test {PageStack#pop}
+     * @test {RouteMap#trigger}
      */
-    it(&apos;Back to a old page&apos;,  async () =&gt; {
+    describe(&apos;Trigger route&apos;,  () =&gt; {
 
-        await page.goBack();
+        it(&apos;Plain path&apos;,  () =&gt; {
 
-        (await page.$eval(&apos;cell-router&apos;,  router =&gt; {
+            router.trigger(&apos;test&apos;);
 
-            const stack = router.stack;
+            handler.should.be.calledWith([ ]);
+        });
 
-            const state = stack.lastState;
+        /**
+         * @test {RouteMap#delete}
+         */
+        it(&apos;Path with colon parameters&apos;,  () =&gt; {
 
-            delete state.tag;
+            router.delete(&apos;test&apos;).trigger(&apos;test/1/example/sample&apos;,  { });
 
-            return [
-                stack.last, state,
-                stack[1].nodeType, stack.container.innerHTML.trim()
-            ];
-        })).should.be.eql([
-            0,  {path: &apos;&apos;, title: &apos;Demo&apos;, index: 0},  11,  &apos;Loading...&apos;
-        ]);
-    });
-
-    /**
-     * @test {PageStack#pop}
-     */
-    it(&apos;Reload SPA&apos;,  async () =&gt; {
-
-        await page.reload();
-
-        await page.goForward();
-
-        await waitForNav();
-
-        await firstPage();
+            handler.should.be.calledWith({id: &apos;1&apos;, name: &apos;sample&apos;},  { });
+        });
     });
 });
 </code></pre>

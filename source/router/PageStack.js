@@ -29,7 +29,9 @@ export default  class PageStack {
          *
          * @type {HistoryState}
          */
-        this.lastState = {path: '',  title: document.title,  index: this.last};
+        this.lastState = {
+            tag: '',  path: '',  title: document.title,  index: this.last
+        };
 
         /**
          * Page container
@@ -121,6 +123,8 @@ export default  class PageStack {
         const previous = history.state,
             next = {tag: document.createElement( tag ),  path,  title};
 
+        previous.tag = this.container.children[0] || '';
+
         if (! this.dispatch('pagechange', true, previous, next))  return;
 
         this.cache();
@@ -141,6 +145,8 @@ export default  class PageStack {
 
         this.length = Math.max(this.length,  state.index + 1);
 
+        this.lastState.tag = this.container.children[0] || '';
+
         var tag = this.cache()[this.last = state.index];
 
         if (! tag) {
@@ -152,7 +158,9 @@ export default  class PageStack {
             tag = document.createElement( tag );
         }
 
-        this.container.append(state.tag = tag);
+        this.container.append( tag );
+
+        state.tag = this.container.children[0];
 
         this.dispatch(
             'pagechanged',  false,  this.lastState,  this.lastState = state

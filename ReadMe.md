@@ -17,7 +17,7 @@ Router component based on [WebCell](https://web-cell.tk/)
  - [x] Path mode: `location.hash` (default) & `history.pushState()`
  - [x] Page loader: auto detect **UMD** & **ES module**
  - [x] DOM cache
- - [ ] Route handler: Similar with [Express.js](https://expressjs.com/en/guide/routing.html)
+ - [x] Route handler: Similar with [Express.js](https://expressjs.com/en/guide/routing.html)
 
 
 
@@ -27,7 +27,7 @@ First
 ```Shell
 npm install cell-router
 ```
-then write your **SPA index page** follow [the example](https://github.com/EasyWebApp/cell-router/blob/master/test/index.html)
+then write your **SPA index page** follow [the example](https://github.com/EasyWebApp/cell-router/tree/master/test)
 
 
 

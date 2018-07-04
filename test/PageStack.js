@@ -2,6 +2,13 @@ import PuppeteerBrowser from 'puppeteer-browser';
 
 var page;
 
+function consoleData() {
+
+    return  new Promise(
+        resolve  =>  page.on('console',  message => resolve( message.text() ))
+    );
+}
+
 function waitForNav() {
 
     return  page.waitForSelector('cell-router',  router => (! router.loading));
@@ -14,9 +21,10 @@ function firstPage() {
         const stack = router.stack;
 
         return [
-            stack[0].nodeType, stack.container.innerHTML, stack.last, stack.length
+            stack[0].nodeType, stack.length, stack.last,
+            stack.container.children[0].constructor.name
         ];
-    }).should.be.fulfilledWith([11, '<page-hello></page-hello>', 1, 2]);
+    }).should.be.fulfilledWith([11, 2, 1, 'PageHello']);
 }
 
 
@@ -33,7 +41,7 @@ describe('Page history',  () => {
     it('Boot SPA',  () => page.evaluate(() => [
         history.length, document.title, history.state
     ]).should.be.fulfilledWith([
-        2,  'Demo',  {path: '', title: 'Demo', index: 0}
+        2,  'Demo',  {tag: '', path: '', title: 'Demo', index: 0}
     ]));
 
     /**
@@ -89,10 +97,26 @@ describe('Page history',  () => {
 
         await page.reload();
 
-        await page.goForward();
-
-        await waitForNav();
+        await page.goForward();    await waitForNav();
 
         await firstPage();
+    });
+
+    /**
+     * @test {CellRouter.route}
+     */
+    it('Handle route based on Custom events',  async () => {
+
+        var data = consoleData();
+
+        await page.click('nav > a:last-child');
+
+        (await data).should.be.equal('PAGE-WELCOME PAGE-HELLO');
+
+        data = consoleData();
+
+        await page.goBack();
+
+        (await data).should.be.equal('PAGE-HELLO PAGE-WELCOME');
     });
 });

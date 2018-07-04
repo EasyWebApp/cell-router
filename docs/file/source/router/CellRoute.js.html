@@ -34,10 +34,11 @@
 <li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#router">router</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/source/router/CellRoute.js~CellRoute.html">CellRoute</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/source/router/CellRouter.js~CellRouter.html">CellRouter</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/source/router/PageStack.js~PageStack.html">PageStack</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/source/router/Router.js~Router.html">Router</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/source/router/RouteMap.js~RouteMap.html">RouteMap</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-HistoryState">HistoryState</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-PageChangeEvent">PageChangeEvent</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-PageChangedEvent">PageChangedEvent</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-RouteHandler">RouteHandler</a></span></span></li>
 </ul>
 </div>
 </nav>
@@ -45,7 +46,9 @@
 <div class="content" data-ice="content"><h1 data-ice="title">source/router/CellRoute.js</h1>
 <pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import {component} from &apos;web-cell&apos;;
 
-const route_map = new Map();
+import RouteMap from &apos;./RouteMap&apos;;
+
+const path_tag = new WeakMap(), route_map = new RouteMap();
 
 
 /**
@@ -55,38 +58,38 @@ export default  class CellRoute extends HTMLElement {
 
     constructor() {  super();  }
 
-    /**
-     * @protected
-     *
-     * @type {Map}
-     */
-    static get map() {  return route_map;  }
-
     connectedCallback() {
 
-        if (this.parentNode.tagName === &apos;CELL-ROUTER&apos;)
-            route_map.set(this, [
-                this.getAttribute(&apos;path&apos;), this.getAttribute(&apos;tag&apos;)
-            ]);
-        else
+        if (this.parentNode.tagName !== &apos;CELL-ROUTER&apos;)
             throw new DOMError(
                 &apos;&lt;cell-route /&gt; must be a child of &lt;cell-router /&gt;&apos;
             );
-    }
 
-    disconnectedCallback() {  route_map.delete( this );  }
+        const path = this.getAttribute(&apos;path&apos;), tag = this.getAttribute(&apos;tag&apos;);
+
+        path_tag.set(this,  {path, tag});
+
+        route_map.set(path, tag);
+    }
 
     /**
      * @type {string}
      */
-    get path() {  return  route_map.get( this )[0];  }
+    get path() {  return  path_tag.get( this ).path;  }
 
     /**
      * Tag name of a Page component
      *
      * @type {string}
      */
-    get tag() {  return  route_map.get( this )[1];  }
+    get tag() {  return  path_tag.get( this ).tag;  }
+
+    /**
+     * @protected
+     *
+     * @type {RouteMap}
+     */
+    static get map() {  return route_map;  }
 }
 
 

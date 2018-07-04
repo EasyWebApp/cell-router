@@ -34,10 +34,11 @@
 <li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#router">router</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/source/router/CellRoute.js~CellRoute.html">CellRoute</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/source/router/CellRouter.js~CellRouter.html">CellRouter</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/source/router/PageStack.js~PageStack.html">PageStack</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/source/router/Router.js~Router.html">Router</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/source/router/RouteMap.js~RouteMap.html">RouteMap</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-HistoryState">HistoryState</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-PageChangeEvent">PageChangeEvent</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-PageChangedEvent">PageChangedEvent</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-RouteHandler">RouteHandler</a></span></span></li>
 </ul>
 </div>
 </nav>
@@ -47,9 +48,11 @@
 
 import CellRoute from &apos;./CellRoute&apos;;
 
+import RouteMap from &apos;./RouteMap&apos;;
+
 import PageStack from &apos;./PageStack&apos;;
 
-const on = Component.prototype.on;
+const on = Component.prototype.on, route_map = new RouteMap();
 
 var page;
 
@@ -74,6 +77,13 @@ export default  class CellRouter extends HTMLElement {
         document.addEventListener(&apos;DOMContentLoaded&apos;,  () =&gt; {
 
             page = new PageStack(&apos;main&apos;, this.getAttribute(&apos;mode&apos;));
+
+            on.call(page.container,  &apos;pagechanged&apos;,  event =&gt; {
+
+                const data = event.detail;
+
+                route_map.trigger(data.to.path, data.to, data.from);
+            });
         });
 
         const router = this;
@@ -107,14 +117,10 @@ export default  class CellRouter extends HTMLElement {
      */
     get map() {
 
-        const map = CellRoute.map, route = { };
+        const route = { };
 
-        for (let child of this.children) {
-
-            let item = map.get( child );
-
-            if ( item )  route[ item[0] ] = item[1];
-        }
+        for (let child of this.children)
+            if (child instanceof CellRoute)  route[ child.path ] = child.tag;
 
         return route;
     }
@@ -135,10 +141,26 @@ export default  class CellRouter extends HTMLElement {
 
         const path = link.getAttribute(&apos;href&apos;);
 
-        const tag = this.map[ path ];
+        const tag = CellRoute.map.trigger( path );
 
         if ( tag )
             await page.push(tag,  path,  link.title || link.textContent.trim());
+    }
+
+    /**
+     * Register route handler
+     *
+     * @param {string|RegExp} path    - **Plain path**, **Path with colon parameters** or
+     *                                  **Regular expression**
+     * @param {RouteHandler}  handler
+     *
+     * @return {Function} This class
+     */
+    static route(path, handler) {
+
+        route_map.set(path, handler);
+
+        return this;
     }
 }
 

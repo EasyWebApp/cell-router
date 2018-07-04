@@ -114,7 +114,9 @@ var _module_ = {
                      *
                      * @type {HistoryState}
                      */
-                    this.lastState = { path: '', title: document.title, index: this.last };
+                    this.lastState = {
+                        tag: '', path: '', title: document.title, index: this.last
+                    };
 
                     /**
                      * Page container
@@ -251,14 +253,17 @@ var _module_ = {
                                         case 3:
                                             previous = history.state, next = { tag: document.createElement(tag), path: path, title: title };
 
+
+                                            previous.tag = this.container.children[0] || '';
+
                                             if (this.dispatch('pagechange', true, previous, next)) {
-                                                _context2.next = 6;
+                                                _context2.next = 7;
                                                 break;
                                             }
 
                                             return _context2.abrupt('return');
 
-                                        case 6:
+                                        case 7:
 
                                             this.cache();
 
@@ -268,7 +273,7 @@ var _module_ = {
 
                                             this.dispatch('pagechanged', false, previous, next);
 
-                                        case 10:
+                                        case 11:
                                         case 'end':
                                             return _context2.stop();
                                     }
@@ -301,34 +306,38 @@ var _module_ = {
 
                                             this.length = Math.max(this.length, state.index + 1);
 
+                                            this.lastState.tag = this.container.children[0] || '';
+
                                             tag = this.cache()[this.last = state.index];
 
                                             if (tag) {
-                                                _context3.next = 8;
+                                                _context3.next = 9;
                                                 break;
                                             }
 
                                             tag = state.tag;
 
                                             if (!tag.includes('-')) {
-                                                _context3.next = 7;
+                                                _context3.next = 8;
                                                 break;
                                             }
 
-                                            _context3.next = 7;
+                                            _context3.next = 8;
                                             return _CellLoader2.default.load(tag);
-
-                                        case 7:
-
-                                            tag = document.createElement(tag);
 
                                         case 8:
 
-                                            this.container.append(state.tag = tag);
+                                            tag = document.createElement(tag);
+
+                                        case 9:
+
+                                            this.container.append(tag);
+
+                                            state.tag = this.container.children[0];
 
                                             this.dispatch('pagechanged', false, this.lastState, this.lastState = state);
 
-                                        case 10:
+                                        case 12:
                                         case 'end':
                                             return _context3.stop();
                                     }
@@ -381,6 +390,187 @@ var _module_ = {
              */
         }
     },
+    './router/RouteMap': {
+        base: './router',
+        dependency: [],
+        factory: function factory(require, exports, module) {
+            Object.defineProperty(exports, "__esModule", {
+                value: true
+            });
+            /**
+             * Route map
+             */
+
+            var RouteMap = function () {
+                function RouteMap() {
+                    _classCallCheck(this, RouteMap);
+
+                    /**
+                     * @protected
+                     *
+                     * @type {Map}
+                     */
+                    this.map = new Map();
+                }
+
+                /**
+                 * @param {string|RegExp}  route   - **Plain path**, **Path with colon parameters** or
+                 *                                   **Regular expression**
+                 * @param {*|RouteHandler} handler
+                 *
+                 * @return {RouteMap} This route map
+                 */
+
+
+                _createClass(RouteMap, [{
+                    key: 'set',
+                    value: function set(route, handler) {
+
+                        var pattern = { route: route };
+
+                        if (route instanceof RegExp) pattern.route = route + '', pattern.pattern = route;else {
+                            if (/\/:[^/]+/.test(route)) {
+
+                                pattern.parameter = [];
+
+                                route = route.replace(/\/:([^/]+)/g, function (_, name) {
+                                    return pattern.parameter.push(name) && '/([^/]+)';
+                                });
+                            }
+
+                            pattern.pattern = new RegExp('^' + route);
+                        }
+
+                        this.map.set(pattern, handler);
+
+                        return this;
+                    }
+
+                    /**
+                     * @param {string} route
+                     *
+                     * @return {RouteMap} This route map
+                     */
+
+                }, {
+                    key: 'delete',
+                    value: function _delete(route) {
+                        var _iteratorNormalCompletion = true;
+                        var _didIteratorError = false;
+                        var _iteratorError = undefined;
+
+                        try {
+
+                            for (var _iterator = this.map.keys()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                                var item = _step.value;
+                                if (item.route === route) this.map.delete(item);
+                            }
+                        } catch (err) {
+                            _didIteratorError = true;
+                            _iteratorError = err;
+                        } finally {
+                            try {
+                                if (!_iteratorNormalCompletion && _iterator.return) {
+                                    _iterator.return();
+                                }
+                            } finally {
+                                if (_didIteratorError) {
+                                    throw _iteratorError;
+                                }
+                            }
+                        }
+
+                        return this;
+                    }
+
+                    /**
+                     * @param {string} path   - Route path
+                     * @param {...*}   [data] - Extra data
+                     *
+                     * @return {*}
+                     */
+
+                }, {
+                    key: 'trigger',
+                    value: function trigger(path) {
+                        for (var _len = arguments.length, data = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+                            data[_key - 1] = arguments[_key];
+                        }
+
+                        var _iteratorNormalCompletion2 = true;
+                        var _didIteratorError2 = false;
+                        var _iteratorError2 = undefined;
+
+                        try {
+
+                            for (var _iterator2 = this.map.entries()[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                                var route = _step2.value;
+
+
+                                var match = path.match(route[0].pattern);
+
+                                if (!match) continue;
+
+                                if (!(route[1] instanceof Function)) return route[1];
+
+                                var parameter = {},
+                                    index = 1;
+
+                                if (route[0].parameter) {
+                                    var _iteratorNormalCompletion3 = true;
+                                    var _didIteratorError3 = false;
+                                    var _iteratorError3 = undefined;
+
+                                    try {
+                                        for (var _iterator3 = route[0].parameter[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+                                            var key = _step3.value;
+                                            parameter[key] = match[index++];
+                                        }
+                                    } catch (err) {
+                                        _didIteratorError3 = true;
+                                        _iteratorError3 = err;
+                                    } finally {
+                                        try {
+                                            if (!_iteratorNormalCompletion3 && _iterator3.return) {
+                                                _iterator3.return();
+                                            }
+                                        } finally {
+                                            if (_didIteratorError3) {
+                                                throw _iteratorError3;
+                                            }
+                                        }
+                                    }
+                                } else parameter = match.slice(1);
+
+                                return route[1].apply(route, [parameter].concat(data));
+                            }
+                        } catch (err) {
+                            _didIteratorError2 = true;
+                            _iteratorError2 = err;
+                        } finally {
+                            try {
+                                if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                                    _iterator2.return();
+                                }
+                            } finally {
+                                if (_didIteratorError2) {
+                                    throw _iteratorError2;
+                                }
+                            }
+                        }
+                    }
+                }]);
+
+                return RouteMap;
+            }();
+
+            exports.default = RouteMap; /**
+                                         * Route handler
+                                         *
+                                         * @typedef {function(parameter: Object, data: ...*)} RouteHandler
+                                         */
+        }
+    },
     './router/CellRoute': {
         base: './router',
         dependency: [],
@@ -391,7 +581,16 @@ var _module_ = {
 
             var _webCell = require('web-cell');
 
-            var route_map = new Map();
+            var _RouteMap = require('./RouteMap');
+
+            var _RouteMap2 = _interopRequireDefault(_RouteMap);
+
+            function _interopRequireDefault(obj) {
+                return obj && obj.__esModule ? obj : { default: obj };
+            }
+
+            var path_tag = new WeakMap(),
+                route_map = new _RouteMap2.default();
 
             /**
              * Route entry
@@ -406,23 +605,18 @@ var _module_ = {
                     return _possibleConstructorReturn(this, (CellRoute.__proto__ || Object.getPrototypeOf(CellRoute)).call(this));
                 }
 
-                /**
-                 * @protected
-                 *
-                 * @type {Map}
-                 */
-
-
                 _createClass(CellRoute, [{
                     key: 'connectedCallback',
                     value: function connectedCallback() {
 
-                        if (this.parentNode.tagName === 'CELL-ROUTER') route_map.set(this, [this.getAttribute('path'), this.getAttribute('tag')]);else throw new DOMError('<cell-route /> must be a child of <cell-router />');
-                    }
-                }, {
-                    key: 'disconnectedCallback',
-                    value: function disconnectedCallback() {
-                        route_map.delete(this);
+                        if (this.parentNode.tagName !== 'CELL-ROUTER') throw new DOMError('<cell-route /> must be a child of <cell-router />');
+
+                        var path = this.getAttribute('path'),
+                            tag = this.getAttribute('tag');
+
+                        path_tag.set(this, { path: path, tag: tag });
+
+                        route_map.set(path, tag);
                     }
 
                     /**
@@ -432,7 +626,7 @@ var _module_ = {
                 }, {
                     key: 'path',
                     get: function get() {
-                        return route_map.get(this)[0];
+                        return path_tag.get(this).path;
                     }
 
                     /**
@@ -444,8 +638,15 @@ var _module_ = {
                 }, {
                     key: 'tag',
                     get: function get() {
-                        return route_map.get(this)[1];
+                        return path_tag.get(this).tag;
                     }
+
+                    /**
+                     * @protected
+                     *
+                     * @type {RouteMap}
+                     */
+
                 }], [{
                     key: 'map',
                     get: function get() {
@@ -474,6 +675,10 @@ var _module_ = {
 
             var _CellRoute2 = _interopRequireDefault(_CellRoute);
 
+            var _RouteMap = require('./RouteMap');
+
+            var _RouteMap2 = _interopRequireDefault(_RouteMap);
+
             var _PageStack = require('./PageStack');
 
             var _PageStack2 = _interopRequireDefault(_PageStack);
@@ -482,7 +687,8 @@ var _module_ = {
                 return obj && obj.__esModule ? obj : { default: obj };
             }
 
-            var on = _webCell.Component.prototype.on;
+            var on = _webCell.Component.prototype.on,
+                route_map = new _RouteMap2.default();
 
             var page;
 
@@ -513,6 +719,13 @@ var _module_ = {
                         document.addEventListener('DOMContentLoaded', function () {
 
                             page = new _PageStack2.default('main', _this4.getAttribute('mode'));
+
+                            on.call(page.container, 'pagechanged', function (event) {
+
+                                var data = event.detail;
+
+                                route_map.trigger(data.to.path, data.to, data.from);
+                            });
                         });
 
                         var router = this;
@@ -580,7 +793,7 @@ var _module_ = {
                                     switch (_context5.prev = _context5.next) {
                                         case 0:
                                             path = link.getAttribute('href');
-                                            tag = this.map[path];
+                                            tag = _CellRoute2.default.map.trigger(path);
 
                                             if (!tag) {
                                                 _context5.next = 5;
@@ -604,6 +817,17 @@ var _module_ = {
 
                         return navTo;
                     }()
+
+                    /**
+                     * Register route handler
+                     *
+                     * @param {string|RegExp} path    - **Plain path**, **Path with colon parameters** or
+                     *                                  **Regular expression**
+                     * @param {RouteHandler}  handler
+                     *
+                     * @return {Function} This class
+                     */
+
                 }, {
                     key: 'mode',
                     get: function get() {
@@ -620,33 +844,28 @@ var _module_ = {
                     key: 'map',
                     get: function get() {
 
-                        var map = _CellRoute2.default.map,
-                            route = {};
+                        var route = {};
 
-                        var _iteratorNormalCompletion = true;
-                        var _didIteratorError = false;
-                        var _iteratorError = undefined;
+                        var _iteratorNormalCompletion4 = true;
+                        var _didIteratorError4 = false;
+                        var _iteratorError4 = undefined;
 
                         try {
-                            for (var _iterator = this.children[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                                var child = _step.value;
-
-
-                                var item = map.get(child);
-
-                                if (item) route[item[0]] = item[1];
+                            for (var _iterator4 = this.children[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+                                var child = _step4.value;
+                                if (child instanceof _CellRoute2.default) route[child.path] = child.tag;
                             }
                         } catch (err) {
-                            _didIteratorError = true;
-                            _iteratorError = err;
+                            _didIteratorError4 = true;
+                            _iteratorError4 = err;
                         } finally {
                             try {
-                                if (!_iteratorNormalCompletion && _iterator.return) {
-                                    _iterator.return();
+                                if (!_iteratorNormalCompletion4 && _iterator4.return) {
+                                    _iterator4.return();
                                 }
                             } finally {
-                                if (_didIteratorError) {
-                                    throw _iteratorError;
+                                if (_didIteratorError4) {
+                                    throw _iteratorError4;
                                 }
                             }
                         }
@@ -664,6 +883,14 @@ var _module_ = {
                     key: 'stack',
                     get: function get() {
                         return page;
+                    }
+                }], [{
+                    key: 'route',
+                    value: function route(path, handler) {
+
+                        route_map.set(path, handler);
+
+                        return this;
                     }
                 }]);
 

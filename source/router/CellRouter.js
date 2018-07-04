@@ -2,9 +2,11 @@ import {component, Component} from 'web-cell';
 
 import CellRoute from './CellRoute';
 
+import RouteMap from './RouteMap';
+
 import PageStack from './PageStack';
 
-const on = Component.prototype.on;
+const on = Component.prototype.on, route_map = new RouteMap();
 
 var page;
 
@@ -29,6 +31,13 @@ export default  class CellRouter extends HTMLElement {
         document.addEventListener('DOMContentLoaded',  () => {
 
             page = new PageStack('main', this.getAttribute('mode'));
+
+            on.call(page.container,  'pagechanged',  event => {
+
+                const data = event.detail;
+
+                route_map.trigger(data.to.path, data.to, data.from);
+            });
         });
 
         const router = this;
@@ -62,14 +71,10 @@ export default  class CellRouter extends HTMLElement {
      */
     get map() {
 
-        const map = CellRoute.map, route = { };
+        const route = { };
 
-        for (let child of this.children) {
-
-            let item = map.get( child );
-
-            if ( item )  route[ item[0] ] = item[1];
-        }
+        for (let child of this.children)
+            if (child instanceof CellRoute)  route[ child.path ] = child.tag;
 
         return route;
     }
@@ -90,10 +95,26 @@ export default  class CellRouter extends HTMLElement {
 
         const path = link.getAttribute('href');
 
-        const tag = this.map[ path ];
+        const tag = CellRoute.map.trigger( path );
 
         if ( tag )
             await page.push(tag,  path,  link.title || link.textContent.trim());
+    }
+
+    /**
+     * Register route handler
+     *
+     * @param {string|RegExp} path    - **Plain path**, **Path with colon parameters** or
+     *                                  **Regular expression**
+     * @param {RouteHandler}  handler
+     *
+     * @return {Function} This class
+     */
+    static route(path, handler) {
+
+        route_map.set(path, handler);
+
+        return this;
     }
 }
 

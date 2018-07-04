@@ -29,16 +29,14 @@
         Loading...
     </main>
     <script>
-        const box = document.querySelector('main');
+        const CellRouter = customElements.get('cell-router');
 
-        function pageDetail(event) {
+        function log(parameter, to, from) {
 
-            console.log(event.type, event.detail);
+            console.log(to.tag.tagName, from.tag.tagName);
         }
 
-        box.addEventListener('pagechange', pageDetail);
-
-        box.addEventListener('pagechanged', pageDetail);
+        CellRouter.route('test', log).route('example', log);
     </script>
 </body>
 </html>

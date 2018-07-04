@@ -30,81 +30,93 @@ window.esdocSearchIndex = [
     "class"
   ],
   [
-    "cell-router/source/router/router.js~router",
-    "class/source/router/Router.js~Router.html",
-    "<span>Router</span> <span class=\"search-result-import-path\">cell-router/source/router/Router.js</span>",
+    "cell-router/source/router/routemap.js~routemap",
+    "class/source/router/RouteMap.js~RouteMap.html",
+    "<span>RouteMap</span> <span class=\"search-result-import-path\">cell-router/source/router/RouteMap.js</span>",
     "class"
   ],
   [
     "pagestack source/router/pagestack.js~pagestack,pagestack",
-    "test-file/test/index.js.html#lineNumber26",
+    "test-file/test/PageStack.js.html#lineNumber34",
     "Page history",
     "test"
   ],
   [
     "pagestack#pop source/router/pagestack.js~pagestack#pop,pagestack#pop",
-    "test-file/test/index.js.html#lineNumber64",
+    "test-file/test/PageStack.js.html#lineNumber72",
     "Page history Back to a old page",
     "test"
   ],
   [
     "pagestack#constructor source/router/pagestack.js~pagestack#constructor,pagestack#constructor",
-    "test-file/test/index.js.html#lineNumber33",
+    "test-file/test/PageStack.js.html#lineNumber41",
     "Page history Boot SPA",
     "test"
   ],
   [
     "pagestack#cache pagestack#record pagestack#push source/router/pagestack.js~pagestack#cache,pagestack#cache source/router/pagestack.js~pagestack#record,pagestack#record source/router/pagestack.js~pagestack#push,pagestack#push",
-    "test-file/test/index.js.html#lineNumber44",
+    "test-file/test/PageStack.js.html#lineNumber52",
     "Page history Go to a new page",
     "test"
   ],
   [
+    "cellrouter.route source/router/cellrouter.js~cellrouter.route,cellrouter.route",
+    "test-file/test/PageStack.js.html#lineNumber108",
+    "Page history Handle route based on Custom events",
+    "test"
+  ],
+  [
     "pagestack#pop source/router/pagestack.js~pagestack#pop,pagestack#pop",
-    "test-file/test/index.js.html#lineNumber88",
+    "test-file/test/PageStack.js.html#lineNumber96",
     "Page history Reload SPA",
     "test"
   ],
   [
-    "router source/router/router.js~router,router",
-    "test-file/test/Router.js.html#lineNumber9",
-    "Router",
+    "routemap source/router/routemap.js~routemap,routemap",
+    "test-file/test/RouteMap.js.html#lineNumber9",
+    "Route map",
     "test"
   ],
   [
-    "router#register source/router/router.js~router#register,router#register",
-    "test-file/test/Router.js.html#lineNumber15",
-    "Router Register route handler",
-    "test"
-  ],
-  [
-    "",
-    "test-file/test/Router.js.html#lineNumber27",
-    "Router Register route handler Path with colon parameters",
+    "routemap#set source/router/routemap.js~routemap#set,routemap#set",
+    "test-file/test/RouteMap.js.html#lineNumber15",
+    "Route map Register route handler",
     "test"
   ],
   [
     "",
-    "test-file/test/Router.js.html#lineNumber17",
-    "Router Register route handler Plain path",
-    "test"
-  ],
-  [
-    "router#trigger source/router/router.js~router#trigger,router#trigger",
-    "test-file/test/Router.js.html#lineNumber42",
-    "Router Trigger route",
-    "test"
-  ],
-  [
-    "router#unregister source/router/router.js~router#unregister,router#unregister",
-    "test-file/test/Router.js.html#lineNumber54",
-    "Router Trigger route Path with colon parameters",
+    "test-file/test/RouteMap.js.html#lineNumber27",
+    "Route map Register route handler Path with colon parameters",
     "test"
   ],
   [
     "",
-    "test-file/test/Router.js.html#lineNumber44",
-    "Router Trigger route Plain path",
+    "test-file/test/RouteMap.js.html#lineNumber17",
+    "Route map Register route handler Plain path",
+    "test"
+  ],
+  [
+    "",
+    "test-file/test/RouteMap.js.html#lineNumber38",
+    "Route map Register route handler Regular expression",
+    "test"
+  ],
+  [
+    "routemap#trigger source/router/routemap.js~routemap#trigger,routemap#trigger",
+    "test-file/test/RouteMap.js.html#lineNumber51",
+    "Route map Trigger route",
+    "test"
+  ],
+  [
+    "routemap#delete source/router/routemap.js~routemap#delete,routemap#delete",
+    "test-file/test/RouteMap.js.html#lineNumber63",
+    "Route map Trigger route Path with colon parameters",
+    "test"
+  ],
+  [
+    "",
+    "test-file/test/RouteMap.js.html#lineNumber53",
+    "Route map Trigger route Plain path",
     "test"
   ],
   [
@@ -552,12 +564,6 @@ window.esdocSearchIndex = [
     "method"
   ],
   [
-    "source/router/cellroute.js~cellroute#disconnectedcallback",
-    "class/source/router/CellRoute.js~CellRoute.html#instance-method-disconnectedCallback",
-    "source/router/CellRoute.js~CellRoute#disconnectedCallback",
-    "method"
-  ],
-  [
     "source/router/cellroute.js~cellroute#path",
     "class/source/router/CellRoute.js~CellRoute.html#instance-get-path",
     "source/router/CellRoute.js~CellRoute#path",
@@ -622,6 +628,12 @@ window.esdocSearchIndex = [
     "class/source/router/CellRouter.js~CellRouter.html#instance-get-stack",
     "source/router/CellRouter.js~CellRouter#stack",
     "member"
+  ],
+  [
+    "source/router/cellrouter.js~cellrouter.route",
+    "class/source/router/CellRouter.js~CellRouter.html#static-method-route",
+    "source/router/CellRouter.js~CellRouter.route",
+    "method"
   ],
   [
     "source/router/pagestack.js",
@@ -720,45 +732,57 @@ window.esdocSearchIndex = [
     "method"
   ],
   [
-    "source/router/router.js",
-    "file/source/router/Router.js.html",
-    "source/router/Router.js",
+    "source/router/routemap.js",
+    "file/source/router/RouteMap.js.html",
+    "source/router/RouteMap.js",
     "file"
   ],
   [
-    "source/router/router.js~router#constructor",
-    "class/source/router/Router.js~Router.html#instance-constructor-constructor",
-    "source/router/Router.js~Router#constructor",
+    "source/router/routemap.js~routehandler",
+    "typedef/index.html#static-typedef-RouteHandler",
+    "source/router/RouteMap.js~RouteHandler",
+    "typedef"
+  ],
+  [
+    "source/router/routemap.js~routemap#constructor",
+    "class/source/router/RouteMap.js~RouteMap.html#instance-constructor-constructor",
+    "source/router/RouteMap.js~RouteMap#constructor",
     "method"
   ],
   [
-    "source/router/router.js~router#map",
-    "class/source/router/Router.js~Router.html#instance-member-map",
-    "source/router/Router.js~Router#map",
+    "source/router/routemap.js~routemap#delete",
+    "class/source/router/RouteMap.js~RouteMap.html#instance-method-delete",
+    "source/router/RouteMap.js~RouteMap#delete",
+    "method"
+  ],
+  [
+    "source/router/routemap.js~routemap#map",
+    "class/source/router/RouteMap.js~RouteMap.html#instance-member-map",
+    "source/router/RouteMap.js~RouteMap#map",
     "member"
   ],
   [
-    "source/router/router.js~router#register",
-    "class/source/router/Router.js~Router.html#instance-method-register",
-    "source/router/Router.js~Router#register",
+    "source/router/routemap.js~routemap#set",
+    "class/source/router/RouteMap.js~RouteMap.html#instance-method-set",
+    "source/router/RouteMap.js~RouteMap#set",
     "method"
   ],
   [
-    "source/router/router.js~router#trigger",
-    "class/source/router/Router.js~Router.html#instance-method-trigger",
-    "source/router/Router.js~Router#trigger",
+    "source/router/routemap.js~routemap#trigger",
+    "class/source/router/RouteMap.js~RouteMap.html#instance-method-trigger",
+    "source/router/RouteMap.js~RouteMap#trigger",
     "method"
   ],
   [
-    "source/router/router.js~router#unregister",
-    "class/source/router/Router.js~Router.html#instance-method-unregister",
-    "source/router/Router.js~Router#unregister",
-    "method"
+    "test/pagestack.js",
+    "test-file/test/PageStack.js.html",
+    "test/PageStack.js",
+    "testFile"
   ],
   [
-    "test/router.js",
-    "test-file/test/Router.js.html",
-    "test/Router.js",
+    "test/routemap.js",
+    "test-file/test/RouteMap.js.html",
+    "test/RouteMap.js",
     "testFile"
   ],
   [
@@ -777,12 +801,6 @@ window.esdocSearchIndex = [
     "test/dist/page-welcome.js",
     "test-file/test/dist/page-welcome.js.html",
     "test/dist/page-welcome.js",
-    "testFile"
-  ],
-  [
-    "test/index.js",
-    "test-file/test/index.js.html",
-    "test/index.js",
     "testFile"
   ],
   [

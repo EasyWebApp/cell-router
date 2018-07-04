@@ -34,10 +34,11 @@
 <li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#router">router</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/source/router/CellRoute.js~CellRoute.html">CellRoute</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/source/router/CellRouter.js~CellRouter.html">CellRouter</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/source/router/PageStack.js~PageStack.html">PageStack</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/source/router/Router.js~Router.html">Router</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/source/router/RouteMap.js~RouteMap.html">RouteMap</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-HistoryState">HistoryState</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-PageChangeEvent">PageChangeEvent</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-PageChangedEvent">PageChangedEvent</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-RouteHandler">RouteHandler</a></span></span></li>
 </ul>
 </div>
 </nav>
@@ -74,7 +75,9 @@ export default  class PageStack {
          *
          * @type {HistoryState}
          */
-        this.lastState = {path: &apos;&apos;,  title: document.title,  index: this.last};
+        this.lastState = {
+            tag: &apos;&apos;,  path: &apos;&apos;,  title: document.title,  index: this.last
+        };
 
         /**
          * Page container
@@ -166,6 +169,8 @@ export default  class PageStack {
         const previous = history.state,
             next = {tag: document.createElement( tag ),  path,  title};
 
+        previous.tag = this.container.children[0] || &apos;&apos;;
+
         if (! this.dispatch(&apos;pagechange&apos;, true, previous, next))  return;
 
         this.cache();
@@ -186,6 +191,8 @@ export default  class PageStack {
 
         this.length = Math.max(this.length,  state.index + 1);
 
+        this.lastState.tag = this.container.children[0] || &apos;&apos;;
+
         var tag = this.cache()[this.last = state.index];
 
         if (! tag) {
@@ -197,7 +204,9 @@ export default  class PageStack {
             tag = document.createElement( tag );
         }
 
-        this.container.append(state.tag = tag);
+        this.container.append( tag );
+
+        state.tag = this.container.children[0];
 
         this.dispatch(
             &apos;pagechanged&apos;,  false,  this.lastState,  this.lastState = state
