@@ -101,10 +101,10 @@ describe(&apos;Page history&apos;,  () =&gt; {
 
         await waitForNav();
 
-        (await page.evaluate(() =&gt; [
-            history.length, location.pathname, document.title, history.state
+        (await page.$eval(&apos;cell-router&apos;,  router =&gt; [
+            history.length, router.path, document.title, history.state
         ])).should.be.eql([
-            3, &apos;/test/test&apos;, &apos;Test&apos;, {
+            3, &apos;test&apos;, &apos;Test&apos;, {
                 tag: &apos;page-hello&apos;,  path: &apos;test&apos;,  title: &apos;Test&apos;,  index: 1
             }
         ]);
@@ -139,7 +139,7 @@ describe(&apos;Page history&apos;,  () =&gt; {
     /**
      * @test {PageStack#pop}
      */
-    it(&apos;Reload SPA&apos;,  async () =&gt; {
+    it(&apos;Reload SPA from the Root path&apos;,  async () =&gt; {
 
         await page.reload();
 
@@ -164,6 +164,18 @@ describe(&apos;Page history&apos;,  () =&gt; {
         await page.goBack();
 
         (await data).should.be.equal(&apos;PAGE-HELLO PAGE-WELCOME&apos;);
+    });
+
+    /**
+     * @test {CellRouter#boot}
+     */
+    it(&apos;Reload SPA from a Sub path&apos;,  async () =&gt; {
+
+        await page.reload();
+
+        await waitForNav();
+
+        await firstPage();
     });
 });
 </code></pre>

@@ -66,9 +66,15 @@ window.esdocSearchIndex = [
     "test"
   ],
   [
+    "cellrouter#boot source/router/cellrouter.js~cellrouter#boot,cellrouter#boot",
+    "test-file/test/PageStack.js.html#lineNumber126",
+    "Page history Reload SPA from a Sub path",
+    "test"
+  ],
+  [
     "pagestack#pop source/router/pagestack.js~pagestack#pop,pagestack#pop",
     "test-file/test/PageStack.js.html#lineNumber96",
-    "Page history Reload SPA",
+    "Page history Reload SPA from the Root path",
     "test"
   ],
   [
@@ -588,6 +594,12 @@ window.esdocSearchIndex = [
     "file"
   ],
   [
+    "source/router/cellrouter.js~cellrouter#boot",
+    "class/source/router/CellRouter.js~CellRouter.html#instance-method-boot",
+    "source/router/CellRouter.js~CellRouter#boot",
+    "method"
+  ],
+  [
     "source/router/cellrouter.js~cellrouter#connectedcallback",
     "class/source/router/CellRouter.js~CellRouter.html#instance-method-connectedCallback",
     "source/router/CellRouter.js~CellRouter#connectedCallback",
@@ -613,6 +625,12 @@ window.esdocSearchIndex = [
   ],
   [
     "source/router/cellrouter.js~cellrouter#mode",
+    "class/source/router/CellRouter.js~CellRouter.html#instance-set-mode",
+    "source/router/CellRouter.js~CellRouter#mode",
+    "member"
+  ],
+  [
+    "source/router/cellrouter.js~cellrouter#mode",
     "class/source/router/CellRouter.js~CellRouter.html#instance-get-mode",
     "source/router/CellRouter.js~CellRouter#mode",
     "member"
@@ -622,6 +640,18 @@ window.esdocSearchIndex = [
     "class/source/router/CellRouter.js~CellRouter.html#instance-method-navTo",
     "source/router/CellRouter.js~CellRouter#navTo",
     "method"
+  ],
+  [
+    "source/router/cellrouter.js~cellrouter#path",
+    "class/source/router/CellRouter.js~CellRouter.html#instance-get-path",
+    "source/router/CellRouter.js~CellRouter#path",
+    "member"
+  ],
+  [
+    "source/router/cellrouter.js~cellrouter#rooturl",
+    "class/source/router/CellRouter.js~CellRouter.html#instance-member-rootURL",
+    "source/router/CellRouter.js~CellRouter#rootURL",
+    "member"
   ],
   [
     "source/router/cellrouter.js~cellrouter#stack",

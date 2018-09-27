@@ -5,7 +5,7 @@
 
     <title>Demo</title>
 
-    <script src="../node_modules/babel-polyfill/dist/polyfill.min.js"></script>
+    <script src="../node_modules/@babel/polyfill/dist/polyfill.min.js"></script>
     <script src="https://cdn.bootcss.com/webcomponentsjs/1.2.0/webcomponents-lite.js"></script>
     <script src="https://cdn.bootcss.com/webcomponentsjs/1.2.0/custom-elements-es5-adapter.js"></script>
     <script src="../node_modules/web-cell/dist/web-cell.js"></script>
@@ -17,7 +17,7 @@
         <cell-page path="page-hello"></cell-page>
         <cell-page path="page-welcome"></cell-page>
     </cell-loader>
-    <cell-router mode="path">
+    <cell-router>
         <cell-route path="test" tag="page-hello"></cell-route>
         <cell-route path="example" tag="page-welcome"></cell-route>
     </cell-router>
@@ -29,7 +29,7 @@
         Loading...
     </main>
     <script>
-        const CellRouter = customElements.get('cell-router');
+        const CellRouter = self['cell-router'].default;
 
         function log(parameter, to, from) {
 

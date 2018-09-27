@@ -4,20 +4,22 @@
 (function (factory) {
 
     if ((typeof define === 'function')  &&  define.amd)
-        define('Source', ["web-cell"], factory);
+        define('cell-router', ["web-cell"], factory);
     else if (typeof module === 'object')
         return  module.exports = factory(require('web-cell'));
     else
-        return  this['Source'] = factory(this['web-cell']);
+        return  this['cell-router'] = factory(this['web-cell']);
 
 })(function (web_cell) {
 
 function merge(base, path) {
+  return (base + '/' + path).replace(/\/\//g, '/').replace(/[^/.]+\/\.\.\//g, '').replace(/\.\//g, function (match, index, input) {
+    return input[index - 1] === '.' ? match : '';
+  });
+}
 
-    return (base + '/' + path).replace(/\/\//g, '/').replace(/[^/.]+\/\.\.\//g, '').replace(/\.\//g, function (match, index, input) {
-
-        return input[index - 1] === '.' ? match : '';
-    });
+function outPackage(name) {
+  return /^[^./]/.test(name);
 }
 
     var require = _require_.bind(null, './');
@@ -25,7 +27,7 @@ function merge(base, path) {
     function _require_(base, path) {
 
         var module = _module_[
-                /^\w/.test( path )  ?  path  :  ('./' + merge(base, path))
+                outPackage( path )  ?  path  :  ('./' + merge(base, path))
             ],
             exports;
 
@@ -52,1112 +54,1137 @@ function merge(base, path) {
         return module.exports;
     }
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
-function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
+function _wrapNativeSuper(Class) { var _cache = typeof Map === "function" ? new Map() : undefined; _wrapNativeSuper = function _wrapNativeSuper(Class) { if (Class === null || !_isNativeFunction(Class)) return Class; if (typeof Class !== "function") { throw new TypeError("Super expression must either be null or a function"); } if (typeof _cache !== "undefined") { if (_cache.has(Class)) return _cache.get(Class); _cache.set(Class, Wrapper); } function Wrapper() { return _construct(Class, arguments, _getPrototypeOf(this).constructor); } Wrapper.prototype = Object.create(Class.prototype, { constructor: { value: Wrapper, enumerable: false, writable: true, configurable: true } }); return _setPrototypeOf(Wrapper, Class); }; return _wrapNativeSuper(Class); }
+
+function isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+
+function _construct(Parent, args, Class) { if (isNativeReflectConstruct()) { _construct = Reflect.construct; } else { _construct = function _construct(Parent, args, Class) { var a = [null]; a.push.apply(a, args); var Constructor = Function.bind.apply(Parent, a); var instance = new Constructor(); if (Class) _setPrototypeOf(instance, Class.prototype); return instance; }; } return _construct.apply(null, arguments); }
+
+function _isNativeFunction(fn) { return Function.toString.call(fn).indexOf("[native code]") !== -1; }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
 var _module_ = {
-    './router/PageStack': {
-        base: './router',
-        dependency: [],
-        factory: function factory(require, exports, module) {
-            Object.defineProperty(exports, "__esModule", {
-                value: true
-            });
+  './router/PageStack': {
+    base: './router',
+    dependency: [],
+    factory: function factory(require, exports, module) {
+      Object.defineProperty(exports, "__esModule", {
+        value: true
+      });
+      exports.default = void 0;
 
-            var _CellLoader = require('../loader/CellLoader');
+      var _CellLoader = _interopRequireDefault(require('../loader/CellLoader'));
 
-            var _CellLoader2 = _interopRequireDefault(_CellLoader);
+      function _interopRequireDefault(obj) {
+        return obj && obj.__esModule ? obj : {
+          default: obj
+        };
+      }
+      /**
+       * Page DOM storage
+       */
 
-            function _interopRequireDefault(obj) {
-                return obj && obj.__esModule ? obj : { default: obj };
+
+      var PageStack =
+      /*#__PURE__*/
+      function () {
+        /**
+         * @param {string} container     - CSS selector of Page container
+         * @param {string} [mode='hash'] - History path mode (`hash` or `path`)
+         */
+        function PageStack(container, mode) {
+          var _this = this;
+
+          _classCallCheck(this, PageStack);
+
+          /**
+           * Page count
+           *
+           * @type {number}
+           */
+          this.length = 1;
+          /**
+           * Index of last page
+           *
+           * @type {number}
+           */
+
+          this.last = 0;
+          /**
+           * State of last page
+           *
+           * @type {HistoryState}
+           */
+
+          this.lastState = {
+            tag: '',
+            path: '',
+            title: document.title,
+            index: this.last
+          };
+          /**
+           * Page container
+           *
+           * @type {Element}
+           */
+
+          this.container = document.querySelector(container);
+          /**
+           * History path mode (`hash` or `path`)
+           *
+           * @type {string}
+           */
+
+          this.mode = mode || 'hash';
+          history.replaceState(this.lastState, document.title, '');
+          window.addEventListener('popstate',
+          /*#__PURE__*/
+          function () {
+            var _ref = _asyncToGenerator(
+            /*#__PURE__*/
+            regeneratorRuntime.mark(function _callee(event) {
+              return regeneratorRuntime.wrap(function _callee$(_context) {
+                while (1) {
+                  switch (_context.prev = _context.next) {
+                    case 0:
+                      if (!event.state) {
+                        _context.next = 3;
+                        break;
+                      }
+
+                      _context.next = 3;
+                      return _this.pop(event.state);
+
+                    case 3:
+                    case "end":
+                      return _context.stop();
+                  }
+                }
+              }, _callee, this);
+            }));
+
+            return function (_x) {
+              return _ref.apply(this, arguments);
+            };
+          }());
+        }
+        /**
+         * @protected
+         *
+         * @param {string}       event      - Name of a Custom event
+         * @param {boolean}      cancelable - Whether this event can be canceled
+         * @param {HistoryState} from       - Meta of leaving page
+         * @param {HistoryState} to         - Meta of entering page
+         *
+         * @return {boolean} Whether `event.preventDefault()` invoked
+         */
+
+
+        _createClass(PageStack, [{
+          key: "dispatch",
+          value: function dispatch(event, cancelable, from, to) {
+            return this.container.dispatchEvent(new CustomEvent(event, {
+              bubbles: true,
+              cancelable: cancelable,
+              detail: {
+                from: from,
+                to: to
+              }
+            }));
+          }
+          /**
+           * @protected
+           *
+           * @return {PageStack}
+           */
+
+        }, {
+          key: "cache",
+          value: function cache() {
+            var _this$this$last;
+
+            this[this.last] = this[this.last] || document.createDocumentFragment();
+
+            (_this$this$last = this[this.last]).append.apply(_this$this$last, _toConsumableArray(this.container.childNodes));
+
+            return this;
+          }
+          /**
+           * @protected
+           *
+           * @param {string} tag     - Tag name of a Page component
+           * @param {string} path    - Route path
+           * @param {string} [title]
+           */
+
+        }, {
+          key: "record",
+          value: function record(tag, path, title) {
+            title = title || document.title;
+            this.lastState = {
+              tag: tag,
+              path: path,
+              title: title,
+              index: this.last = this.length++
+            };
+            history.pushState(this.lastState, title, (this.mode === 'hash' ? '#' : '') + path);
+            document.title = title;
+          }
+          /**
+           * @param {string} tag     - Tag name of a Page component
+           * @param {string} path    - Route path
+           * @param {string} [title]
+           *
+           * @emits {PageChangeEvent}
+           * @emits {PageChangedEvent}
+           */
+
+        }, {
+          key: "push",
+          value: function () {
+            var _push = _asyncToGenerator(
+            /*#__PURE__*/
+            regeneratorRuntime.mark(function _callee2(tag, path, title) {
+              var previous, next;
+              return regeneratorRuntime.wrap(function _callee2$(_context2) {
+                while (1) {
+                  switch (_context2.prev = _context2.next) {
+                    case 0:
+                      if (!tag.includes('-')) {
+                        _context2.next = 3;
+                        break;
+                      }
+
+                      _context2.next = 3;
+                      return _CellLoader.default.load(tag);
+
+                    case 3:
+                      previous = history.state, next = {
+                        tag: document.createElement(tag),
+                        path: path,
+                        title: title
+                      };
+                      previous.tag = this.container.children[0] || '';
+
+                      if (this.dispatch('pagechange', true, previous, next)) {
+                        _context2.next = 7;
+                        break;
+                      }
+
+                      return _context2.abrupt("return");
+
+                    case 7:
+                      this.cache();
+                      this.container.append(next.tag);
+                      this.record(tag, path, title);
+                      this.dispatch('pagechanged', false, previous, next);
+
+                    case 11:
+                    case "end":
+                      return _context2.stop();
+                  }
+                }
+              }, _callee2, this);
+            }));
+
+            return function push(_x2, _x3, _x4) {
+              return _push.apply(this, arguments);
+            };
+          }()
+          /**
+           * @protected
+           *
+           * @param {HistoryState} state - `state` property of {@link PopStateEvent}
+           */
+
+        }, {
+          key: "pop",
+          value: function () {
+            var _pop = _asyncToGenerator(
+            /*#__PURE__*/
+            regeneratorRuntime.mark(function _callee3(state) {
+              var tag;
+              return regeneratorRuntime.wrap(function _callee3$(_context3) {
+                while (1) {
+                  switch (_context3.prev = _context3.next) {
+                    case 0:
+                      this.length = Math.max(this.length, state.index + 1);
+                      this.lastState.tag = this.container.children[0] || '';
+                      tag = this.cache()[this.last = state.index];
+
+                      if (tag) {
+                        _context3.next = 9;
+                        break;
+                      }
+
+                      tag = state.tag;
+
+                      if (!tag.includes('-')) {
+                        _context3.next = 8;
+                        break;
+                      }
+
+                      _context3.next = 8;
+                      return _CellLoader.default.load(tag);
+
+                    case 8:
+                      tag = document.createElement(tag);
+
+                    case 9:
+                      this.container.append(tag);
+                      state.tag = this.container.children[0];
+                      this.dispatch('pagechanged', false, this.lastState, this.lastState = state);
+
+                    case 12:
+                    case "end":
+                      return _context3.stop();
+                  }
+                }
+              }, _callee3, this);
+            }));
+
+            return function pop(_x5) {
+              return _pop.apply(this, arguments);
+            };
+          }()
+        }]);
+
+        return PageStack;
+      }();
+      /**
+       * @typedef {Object} HistoryState
+       *
+       * @property {string|Element} tag   - Page component
+       * @property {string}         path  - Route path
+       * @property {string}         title
+       * @property {number}         index - Stack index of a page
+       */
+
+      /**
+       * Before changing a page
+       *
+       * @typedef {CustomEvent} PageChangeEvent
+       *
+       * @property {boolean}       bubbles     - `true`
+       * @property {boolean}       cancelable  - `true`
+       * @property {Object}        detail
+       * @property {HistoryState}  detail.from - Leaving page
+       * @property {HistoryState}  detail.to   - Entering page
+       */
+
+      /**
+       * After changing a page
+       *
+       * @typedef {CustomEvent} PageChangedEvent
+       *
+       * @property {boolean}       bubbles     - `true`
+       * @property {boolean}       cancelable  - `false`
+       * @property {Object}        detail
+       * @property {HistoryState}  detail.from - Leaving page
+       * @property {HistoryState}  detail.to   - Entering page
+       */
+
+
+      exports.default = PageStack;
+    }
+  },
+  './router/RouteMap': {
+    base: './router',
+    dependency: [],
+    factory: function factory(require, exports, module) {
+      Object.defineProperty(exports, "__esModule", {
+        value: true
+      });
+      exports.default = void 0;
+      /**
+       * Route map
+       */
+
+      var RouteMap =
+      /*#__PURE__*/
+      function () {
+        function RouteMap() {
+          _classCallCheck(this, RouteMap);
+
+          /**
+           * @protected
+           *
+           * @type {Map}
+           */
+          this.map = new Map();
+        }
+        /**
+         * @param {string|RegExp}  route   - **Plain path**, **Path with colon parameters** or
+         *                                   **Regular expression**
+         * @param {*|RouteHandler} handler
+         *
+         * @return {RouteMap} This route map
+         */
+
+
+        _createClass(RouteMap, [{
+          key: "set",
+          value: function set(route, handler) {
+            var pattern = {
+              route: route
+            };
+            if (route instanceof RegExp) pattern.route = route + '', pattern.pattern = route;else {
+              if (/\/:[^/]+/.test(route)) {
+                pattern.parameter = [];
+                route = route.replace(/\/:([^/]+)/g, function (_, name) {
+                  return pattern.parameter.push(name) && '/([^/]+)';
+                });
+              }
+
+              pattern.pattern = new RegExp("^".concat(route));
+            }
+            this.map.set(pattern, handler);
+            return this;
+          }
+          /**
+           * @param {string} route
+           *
+           * @return {RouteMap} This route map
+           */
+
+        }, {
+          key: "delete",
+          value: function _delete(route) {
+            var _iteratorNormalCompletion = true;
+            var _didIteratorError = false;
+            var _iteratorError = undefined;
+
+            try {
+              for (var _iterator = this.map.keys()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                var item = _step.value;
+                if (item.route === route) this.map.delete(item);
+              }
+            } catch (err) {
+              _didIteratorError = true;
+              _iteratorError = err;
+            } finally {
+              try {
+                if (!_iteratorNormalCompletion && _iterator.return != null) {
+                  _iterator.return();
+                }
+              } finally {
+                if (_didIteratorError) {
+                  throw _iteratorError;
+                }
+              }
             }
 
-            /**
-             * Page DOM storage
-             */
-
-            var PageStack = function () {
-                /**
-                 * @param {string} container     - CSS selector of Page container
-                 * @param {string} [mode='hash'] - History path mode (`hash` or `path`)
-                 */
-                function PageStack(container, mode) {
-                    var _this = this;
-
-                    _classCallCheck(this, PageStack);
-
-                    /**
-                     * Page count
-                     *
-                     * @type {number}
-                     */
-                    this.length = 1;
-
-                    /**
-                     * Index of last page
-                     *
-                     * @type {number}
-                     */
-                    this.last = 0;
-
-                    /**
-                     * State of last page
-                     *
-                     * @type {HistoryState}
-                     */
-                    this.lastState = {
-                        tag: '', path: '', title: document.title, index: this.last
-                    };
-
-                    /**
-                     * Page container
-                     *
-                     * @type {Element}
-                     */
-                    this.container = document.querySelector(container);
-
-                    /**
-                     * History path mode (`hash` or `path`)
-                     *
-                     * @type {string}
-                     */
-                    this.mode = mode || 'hash';
-
-                    history.replaceState(this.lastState, document.title, '');
-
-                    window.addEventListener('popstate', function () {
-                        var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(event) {
-                            return regeneratorRuntime.wrap(function _callee$(_context) {
-                                while (1) {
-                                    switch (_context.prev = _context.next) {
-                                        case 0:
-                                            if (!event.state) {
-                                                _context.next = 3;
-                                                break;
-                                            }
-
-                                            _context.next = 3;
-                                            return _this.pop(event.state);
-
-                                        case 3:
-                                        case 'end':
-                                            return _context.stop();
-                                    }
-                                }
-                            }, _callee, _this);
-                        }));
-
-                        return function (_x) {
-                            return _ref.apply(this, arguments);
-                        };
-                    }());
-                }
-
-                /**
-                 * @protected
-                 *
-                 * @param {string}       event      - Name of a Custom event
-                 * @param {boolean}      cancelable - Whether this event can be canceled
-                 * @param {HistoryState} from       - Meta of leaving page
-                 * @param {HistoryState} to         - Meta of entering page
-                 *
-                 * @return {boolean} Whether `event.preventDefault()` invoked
-                 */
-
-
-                _createClass(PageStack, [{
-                    key: 'dispatch',
-                    value: function dispatch(event, cancelable, from, to) {
-
-                        return this.container.dispatchEvent(new CustomEvent(event, {
-                            bubbles: true,
-                            cancelable: cancelable,
-                            detail: { from: from, to: to }
-                        }));
-                    }
-
-                    /**
-                     * @protected
-                     *
-                     * @return {PageStack}
-                     */
-
-                }, {
-                    key: 'cache',
-                    value: function cache() {
-                        var _last;
-
-                        this[this.last] = this[this.last] || document.createDocumentFragment();
-
-                        (_last = this[this.last]).append.apply(_last, _toConsumableArray(this.container.childNodes));
-
-                        return this;
-                    }
-
-                    /**
-                     * @protected
-                     *
-                     * @param {string} tag     - Tag name of a Page component
-                     * @param {string} path    - Route path
-                     * @param {string} [title]
-                     */
-
-                }, {
-                    key: 'record',
-                    value: function record(tag, path, title) {
-
-                        title = title || document.title;
-
-                        this.lastState = { tag: tag, path: path, title: title, index: this.last = this.length++ };
-
-                        history.pushState(this.lastState, title, (this.mode === 'hash' ? '#' : '') + path);
-
-                        document.title = title;
-                    }
-
-                    /**
-                     * @param {string} tag     - Tag name of a Page component
-                     * @param {string} path    - Route path
-                     * @param {string} [title]
-                     *
-                     * @emits {PageChangeEvent}
-                     * @emits {PageChangedEvent}
-                     */
-
-                }, {
-                    key: 'push',
-                    value: function () {
-                        var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(tag, path, title) {
-                            var previous, next;
-                            return regeneratorRuntime.wrap(function _callee2$(_context2) {
-                                while (1) {
-                                    switch (_context2.prev = _context2.next) {
-                                        case 0:
-                                            if (!tag.includes('-')) {
-                                                _context2.next = 3;
-                                                break;
-                                            }
-
-                                            _context2.next = 3;
-                                            return _CellLoader2.default.load(tag);
-
-                                        case 3:
-                                            previous = history.state, next = { tag: document.createElement(tag), path: path, title: title };
-
-
-                                            previous.tag = this.container.children[0] || '';
-
-                                            if (this.dispatch('pagechange', true, previous, next)) {
-                                                _context2.next = 7;
-                                                break;
-                                            }
-
-                                            return _context2.abrupt('return');
-
-                                        case 7:
-
-                                            this.cache();
-
-                                            this.container.append(next.tag);
-
-                                            this.record(tag, path, title);
-
-                                            this.dispatch('pagechanged', false, previous, next);
-
-                                        case 11:
-                                        case 'end':
-                                            return _context2.stop();
-                                    }
-                                }
-                            }, _callee2, this);
-                        }));
-
-                        function push(_x2, _x3, _x4) {
-                            return _ref2.apply(this, arguments);
-                        }
-
-                        return push;
-                    }()
-
-                    /**
-                     * @protected
-                     *
-                     * @param {HistoryState} state - `state` property of {@link PopStateEvent}
-                     */
-
-                }, {
-                    key: 'pop',
-                    value: function () {
-                        var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(state) {
-                            var tag;
-                            return regeneratorRuntime.wrap(function _callee3$(_context3) {
-                                while (1) {
-                                    switch (_context3.prev = _context3.next) {
-                                        case 0:
-
-                                            this.length = Math.max(this.length, state.index + 1);
-
-                                            this.lastState.tag = this.container.children[0] || '';
-
-                                            tag = this.cache()[this.last = state.index];
-
-                                            if (tag) {
-                                                _context3.next = 9;
-                                                break;
-                                            }
-
-                                            tag = state.tag;
-
-                                            if (!tag.includes('-')) {
-                                                _context3.next = 8;
-                                                break;
-                                            }
-
-                                            _context3.next = 8;
-                                            return _CellLoader2.default.load(tag);
-
-                                        case 8:
-
-                                            tag = document.createElement(tag);
-
-                                        case 9:
-
-                                            this.container.append(tag);
-
-                                            state.tag = this.container.children[0];
-
-                                            this.dispatch('pagechanged', false, this.lastState, this.lastState = state);
-
-                                        case 12:
-                                        case 'end':
-                                            return _context3.stop();
-                                    }
-                                }
-                            }, _callee3, this);
-                        }));
-
-                        function pop(_x5) {
-                            return _ref3.apply(this, arguments);
-                        }
-
-                        return pop;
-                    }()
-                }]);
-
-                return PageStack;
-            }();
-
-            exports.default = PageStack; /**
-                                          * @typedef {Object} HistoryState
-                                          *
-                                          * @property {string|Element} tag   - Page component
-                                          * @property {string}         path  - Route path
-                                          * @property {string}         title
-                                          * @property {number}         index - Stack index of a page
-                                          */
-
-            /**
-             * Before changing a page
-             *
-             * @typedef {CustomEvent} PageChangeEvent
-             *
-             * @property {boolean}       bubbles     - `true`
-             * @property {boolean}       cancelable  - `true`
-             * @property {Object}        detail
-             * @property {HistoryState}  detail.from - Leaving page
-             * @property {HistoryState}  detail.to   - Entering page
-             */
-
-            /**
-             * After changing a page
-             *
-             * @typedef {CustomEvent} PageChangedEvent
-             *
-             * @property {boolean}       bubbles     - `true`
-             * @property {boolean}       cancelable  - `false`
-             * @property {Object}        detail
-             * @property {HistoryState}  detail.from - Leaving page
-             * @property {HistoryState}  detail.to   - Entering page
-             */
-        }
-    },
-    './router/RouteMap': {
-        base: './router',
-        dependency: [],
-        factory: function factory(require, exports, module) {
-            Object.defineProperty(exports, "__esModule", {
-                value: true
-            });
-            /**
-             * Route map
-             */
-
-            var RouteMap = function () {
-                function RouteMap() {
-                    _classCallCheck(this, RouteMap);
-
-                    /**
-                     * @protected
-                     *
-                     * @type {Map}
-                     */
-                    this.map = new Map();
-                }
-
-                /**
-                 * @param {string|RegExp}  route   - **Plain path**, **Path with colon parameters** or
-                 *                                   **Regular expression**
-                 * @param {*|RouteHandler} handler
-                 *
-                 * @return {RouteMap} This route map
-                 */
-
-
-                _createClass(RouteMap, [{
-                    key: 'set',
-                    value: function set(route, handler) {
-
-                        var pattern = { route: route };
-
-                        if (route instanceof RegExp) pattern.route = route + '', pattern.pattern = route;else {
-                            if (/\/:[^/]+/.test(route)) {
-
-                                pattern.parameter = [];
-
-                                route = route.replace(/\/:([^/]+)/g, function (_, name) {
-                                    return pattern.parameter.push(name) && '/([^/]+)';
-                                });
-                            }
-
-                            pattern.pattern = new RegExp('^' + route);
-                        }
-
-                        this.map.set(pattern, handler);
-
-                        return this;
-                    }
-
-                    /**
-                     * @param {string} route
-                     *
-                     * @return {RouteMap} This route map
-                     */
-
-                }, {
-                    key: 'delete',
-                    value: function _delete(route) {
-                        var _iteratorNormalCompletion = true;
-                        var _didIteratorError = false;
-                        var _iteratorError = undefined;
-
-                        try {
-
-                            for (var _iterator = this.map.keys()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                                var item = _step.value;
-                                if (item.route === route) this.map.delete(item);
-                            }
-                        } catch (err) {
-                            _didIteratorError = true;
-                            _iteratorError = err;
-                        } finally {
-                            try {
-                                if (!_iteratorNormalCompletion && _iterator.return) {
-                                    _iterator.return();
-                                }
-                            } finally {
-                                if (_didIteratorError) {
-                                    throw _iteratorError;
-                                }
-                            }
-                        }
-
-                        return this;
-                    }
-
-                    /**
-                     * @param {string} path   - Route path
-                     * @param {...*}   [data] - Extra data
-                     *
-                     * @return {*}
-                     */
-
-                }, {
-                    key: 'trigger',
-                    value: function trigger(path) {
-                        for (var _len = arguments.length, data = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-                            data[_key - 1] = arguments[_key];
-                        }
-
-                        var _iteratorNormalCompletion2 = true;
-                        var _didIteratorError2 = false;
-                        var _iteratorError2 = undefined;
-
-                        try {
-
-                            for (var _iterator2 = this.map.entries()[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-                                var route = _step2.value;
-
-
-                                var match = path.match(route[0].pattern);
-
-                                if (!match) continue;
-
-                                if (!(route[1] instanceof Function)) return route[1];
-
-                                var parameter = {},
-                                    index = 1;
-
-                                if (route[0].parameter) {
-                                    var _iteratorNormalCompletion3 = true;
-                                    var _didIteratorError3 = false;
-                                    var _iteratorError3 = undefined;
-
-                                    try {
-                                        for (var _iterator3 = route[0].parameter[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-                                            var key = _step3.value;
-                                            parameter[key] = match[index++];
-                                        }
-                                    } catch (err) {
-                                        _didIteratorError3 = true;
-                                        _iteratorError3 = err;
-                                    } finally {
-                                        try {
-                                            if (!_iteratorNormalCompletion3 && _iterator3.return) {
-                                                _iterator3.return();
-                                            }
-                                        } finally {
-                                            if (_didIteratorError3) {
-                                                throw _iteratorError3;
-                                            }
-                                        }
-                                    }
-                                } else parameter = match.slice(1);
-
-                                return route[1].apply(route, [parameter].concat(data));
-                            }
-                        } catch (err) {
-                            _didIteratorError2 = true;
-                            _iteratorError2 = err;
-                        } finally {
-                            try {
-                                if (!_iteratorNormalCompletion2 && _iterator2.return) {
-                                    _iterator2.return();
-                                }
-                            } finally {
-                                if (_didIteratorError2) {
-                                    throw _iteratorError2;
-                                }
-                            }
-                        }
-                    }
-                }]);
-
-                return RouteMap;
-            }();
-
-            exports.default = RouteMap; /**
-                                         * Route handler
-                                         *
-                                         * @typedef {function(parameter: Object, data: ...*)} RouteHandler
-                                         */
-        }
-    },
-    './router/CellRoute': {
-        base: './router',
-        dependency: [],
-        factory: function factory(require, exports, module) {
-            Object.defineProperty(exports, "__esModule", {
-                value: true
-            });
-
-            var _webCell = require('web-cell');
-
-            var _RouteMap = require('./RouteMap');
-
-            var _RouteMap2 = _interopRequireDefault(_RouteMap);
-
-            function _interopRequireDefault(obj) {
-                return obj && obj.__esModule ? obj : { default: obj };
+            return this;
+          }
+          /**
+           * @param {string} path   - Route path
+           * @param {...*}   [data] - Extra data
+           *
+           * @return {*}
+           */
+
+        }, {
+          key: "trigger",
+          value: function trigger(path) {
+            for (var _len = arguments.length, data = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+              data[_key - 1] = arguments[_key];
             }
 
-            var path_tag = new WeakMap(),
-                route_map = new _RouteMap2.default();
+            var _iteratorNormalCompletion2 = true;
+            var _didIteratorError2 = false;
+            var _iteratorError2 = undefined;
 
-            /**
-             * Route entry
-             */
+            try {
+              for (var _iterator2 = this.map.entries()[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                var route = _step2.value;
+                var match = path.match(route[0].pattern);
+                if (!match) continue;
+                if (!(route[1] instanceof Function)) return route[1];
+                var parameter = {},
+                    index = 1;
 
-            var CellRoute = function (_HTMLElement) {
-                _inherits(CellRoute, _HTMLElement);
+                if (route[0].parameter) {
+                  var _iteratorNormalCompletion3 = true;
+                  var _didIteratorError3 = false;
+                  var _iteratorError3 = undefined;
 
-                function CellRoute() {
-                    _classCallCheck(this, CellRoute);
+                  try {
+                    for (var _iterator3 = route[0].parameter[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+                      var key = _step3.value;
+                      parameter[key] = match[index++];
+                    }
+                  } catch (err) {
+                    _didIteratorError3 = true;
+                    _iteratorError3 = err;
+                  } finally {
+                    try {
+                      if (!_iteratorNormalCompletion3 && _iterator3.return != null) {
+                        _iterator3.return();
+                      }
+                    } finally {
+                      if (_didIteratorError3) {
+                        throw _iteratorError3;
+                      }
+                    }
+                  }
+                } else parameter = match.slice(1);
 
-                    return _possibleConstructorReturn(this, (CellRoute.__proto__ || Object.getPrototypeOf(CellRoute)).call(this));
+                return route[1].apply(route, [parameter].concat(data));
+              }
+            } catch (err) {
+              _didIteratorError2 = true;
+              _iteratorError2 = err;
+            } finally {
+              try {
+                if (!_iteratorNormalCompletion2 && _iterator2.return != null) {
+                  _iterator2.return();
                 }
+              } finally {
+                if (_didIteratorError2) {
+                  throw _iteratorError2;
+                }
+              }
+            }
+          }
+        }]);
 
-                _createClass(CellRoute, [{
-                    key: 'connectedCallback',
-                    value: function connectedCallback() {
+        return RouteMap;
+      }();
+      /**
+       * Route handler
+       *
+       * @typedef {function(parameter: Object, data: ...*)} RouteHandler
+       */
 
-                        if (this.parentNode.tagName !== 'CELL-ROUTER') throw new DOMError('<cell-route /> must be a child of <cell-router />');
 
-                        var path = this.getAttribute('path'),
-                            tag = this.getAttribute('tag');
+      exports.default = RouteMap;
+    }
+  },
+  './router/CellRoute': {
+    base: './router',
+    dependency: [],
+    factory: function factory(require, exports, module) {
+      Object.defineProperty(exports, "__esModule", {
+        value: true
+      });
+      exports.default = void 0;
 
-                        path_tag.set(this, { path: path, tag: tag });
+      var _webCell = require('web-cell');
 
-                        route_map.set(path, tag);
-                    }
+      var _RouteMap = _interopRequireDefault(require('./RouteMap'));
 
-                    /**
-                     * @type {string}
-                     */
+      function _interopRequireDefault(obj) {
+        return obj && obj.__esModule ? obj : {
+          default: obj
+        };
+      }
 
-                }, {
-                    key: 'path',
-                    get: function get() {
-                        return path_tag.get(this).path;
-                    }
+      var path_tag = new WeakMap(),
+          route_map = new _RouteMap.default();
+      /**
+       * Route entry
+       */
 
-                    /**
-                     * Tag name of a Page component
-                     *
-                     * @type {string}
-                     */
+      var CellRoute =
+      /*#__PURE__*/
+      function (_HTMLElement) {
+        _inherits(CellRoute, _HTMLElement);
 
-                }, {
-                    key: 'tag',
-                    get: function get() {
-                        return path_tag.get(this).tag;
-                    }
+        function CellRoute() {
+          _classCallCheck(this, CellRoute);
 
-                    /**
-                     * @protected
-                     *
-                     * @type {RouteMap}
-                     */
-
-                }], [{
-                    key: 'map',
-                    get: function get() {
-                        return route_map;
-                    }
-                }]);
-
-                return CellRoute;
-            }(HTMLElement);
-
-            exports.default = CellRoute;
-            (0, _webCell.component)(CellRoute);
+          return _possibleConstructorReturn(this, _getPrototypeOf(CellRoute).call(this));
         }
-    },
-    './router/CellRouter': {
-        base: './router',
-        dependency: [],
-        factory: function factory(require, exports, module) {
-            Object.defineProperty(exports, "__esModule", {
-                value: true
+
+        _createClass(CellRoute, [{
+          key: "connectedCallback",
+          value: function connectedCallback() {
+            if (this.parentNode.tagName !== 'CELL-ROUTER') throw new DOMError('<cell-route /> must be a child of <cell-router />');
+            var path = this.getAttribute('path'),
+                tag = this.getAttribute('tag');
+            path_tag.set(this, {
+              path: path,
+              tag: tag
             });
+            route_map.set(path, tag);
+          }
+          /**
+           * @type {string}
+           */
 
-            var _webCell = require('web-cell');
+        }, {
+          key: "path",
+          get: function get() {
+            return path_tag.get(this).path;
+          }
+          /**
+           * Tag name of a Page component
+           *
+           * @type {string}
+           */
 
-            var _CellRoute = require('./CellRoute');
+        }, {
+          key: "tag",
+          get: function get() {
+            return path_tag.get(this).tag;
+          }
+          /**
+           * @protected
+           *
+           * @type {RouteMap}
+           */
 
-            var _CellRoute2 = _interopRequireDefault(_CellRoute);
+        }], [{
+          key: "map",
+          get: function get() {
+            return route_map;
+          }
+        }]);
 
-            var _RouteMap = require('./RouteMap');
+        return CellRoute;
+      }(_wrapNativeSuper(HTMLElement));
 
-            var _RouteMap2 = _interopRequireDefault(_RouteMap);
+      exports.default = CellRoute;
+      (0, _webCell.component)(CellRoute);
+    }
+  },
+  './router/CellRouter': {
+    base: './router',
+    dependency: [],
+    factory: function factory(require, exports, module) {
+      Object.defineProperty(exports, "__esModule", {
+        value: true
+      });
+      exports.default = void 0;
 
-            var _PageStack = require('./PageStack');
+      var _webCell = require('web-cell');
 
-            var _PageStack2 = _interopRequireDefault(_PageStack);
+      var _CellRoute = _interopRequireDefault(require('./CellRoute'));
 
-            function _interopRequireDefault(obj) {
-                return obj && obj.__esModule ? obj : { default: obj };
+      var _RouteMap = _interopRequireDefault(require('./RouteMap'));
+
+      var _PageStack = _interopRequireDefault(require('./PageStack'));
+
+      function _interopRequireDefault(obj) {
+        return obj && obj.__esModule ? obj : {
+          default: obj
+        };
+      }
+
+      var on = _webCell.Component.prototype.on,
+          route_map = new _RouteMap.default();
+      var path_mode = {
+        hash: 1,
+        path: 1
+      };
+      var page;
+      /**
+       * Routes elements wrapper
+       */
+
+      var CellRouter =
+      /*#__PURE__*/
+      function (_HTMLElement2) {
+        _inherits(CellRouter, _HTMLElement2);
+
+        function CellRouter() {
+          var _this2;
+
+          _classCallCheck(this, CellRouter);
+
+          _this2 = _possibleConstructorReturn(this, _getPrototypeOf(CellRouter).call(this));
+          /**
+           * @type {string}
+           */
+
+          _this2.rootURL = document.URL.split(/\?|#/)[0];
+          /**
+           * @type {boolean}
+           */
+
+          _this2.loading = false;
+          return _this2;
+        }
+        /**
+         * History path mode (`hash` or `path`)
+         *
+         * @type {string}
+         */
+
+
+        _createClass(CellRouter, [{
+          key: "boot",
+
+          /**
+           * @private
+           */
+          value: function () {
+            var _boot = _asyncToGenerator(
+            /*#__PURE__*/
+            regeneratorRuntime.mark(function _callee4() {
+              var path;
+              return regeneratorRuntime.wrap(function _callee4$(_context4) {
+                while (1) {
+                  switch (_context4.prev = _context4.next) {
+                    case 0:
+                      page = new _PageStack.default('main', this.mode);
+                      on.call(page.container, 'pagechanged', function (event) {
+                        var data = event.detail;
+                        route_map.trigger(data.to.path, data.to, data.from);
+                      });
+
+                      if (!(this.mode !== 'hash' || !this.path)) {
+                        _context4.next = 4;
+                        break;
+                      }
+
+                      return _context4.abrupt("return");
+
+                    case 4:
+                      path = this.path;
+                      history.replaceState({}, document.title, window.location.pathname);
+                      _context4.next = 8;
+                      return this.navTo(path);
+
+                    case 8:
+                    case "end":
+                      return _context4.stop();
+                  }
+                }
+              }, _callee4, this);
+            }));
+
+            return function boot() {
+              return _boot.apply(this, arguments);
+            };
+          }()
+        }, {
+          key: "connectedCallback",
+          value: function connectedCallback() {
+            on.call(document, 'DOMContentLoaded', this.boot.bind(this));
+            var router = this;
+            on.call(document.body, 'click', 'a[href]', function (event) {
+              if (!router.loading && (this.target || '_self') === '_self') {
+                event.preventDefault();
+                router.navTo(this);
+              }
+            });
+          }
+          /**
+           * Key for path, Value for tag
+           *
+           * @type {object}
+           */
+
+        }, {
+          key: "navTo",
+
+          /**
+           * @param {String|URL|Element} link - An URL or Element with `href` attribute
+           */
+          value: function () {
+            var _navTo = _asyncToGenerator(
+            /*#__PURE__*/
+            regeneratorRuntime.mark(function _callee5(link) {
+              var path, tag;
+              return regeneratorRuntime.wrap(function _callee5$(_context5) {
+                while (1) {
+                  switch (_context5.prev = _context5.next) {
+                    case 0:
+                      this.loading = true;
+                      if (!(link instanceof HTMLElement)) link = Object.assign(document.createElement('a'), {
+                        href: (new URL(link, window.location) + '').replace(this.rootURL, '')
+                      });
+                      path = link.getAttribute('href');
+                      tag = _CellRoute.default.map.trigger(path);
+
+                      if (!tag) {
+                        _context5.next = 7;
+                        break;
+                      }
+
+                      _context5.next = 7;
+                      return page.push(tag, path, link.title || link.textContent.trim());
+
+                    case 7:
+                      this.loading = false;
+
+                    case 8:
+                    case "end":
+                      return _context5.stop();
+                  }
+                }
+              }, _callee5, this);
+            }));
+
+            return function navTo(_x6) {
+              return _navTo.apply(this, arguments);
+            };
+          }()
+          /**
+           * Register route handler
+           *
+           * @param {string|RegExp} path    - **Plain path**, **Path with colon parameters** or
+           *                                  **Regular expression**
+           * @param {RouteHandler}  handler
+           *
+           * @return {Function} This class
+           */
+
+        }, {
+          key: "mode",
+          get: function get() {
+            var value = this.getAttribute('mode');
+            return value in path_mode ? value : 'hash';
+          },
+          set: function set(value) {
+            if (value in path_mode) this.setAttribute('mode', page.mode = value + '');
+          }
+          /**
+           * Current route path
+           *
+           * @type {string}
+           */
+
+        }, {
+          key: "path",
+          get: function get() {
+            return this.mode === 'hash' ? window.location.hash.slice(1) : document.URL.slice(this.rootURL.length);
+          }
+        }, {
+          key: "map",
+          get: function get() {
+            var route = {};
+            var _iteratorNormalCompletion4 = true;
+            var _didIteratorError4 = false;
+            var _iteratorError4 = undefined;
+
+            try {
+              for (var _iterator4 = this.children[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+                var child = _step4.value;
+                if (child instanceof _CellRoute.default) route[child.path] = child.tag;
+              }
+            } catch (err) {
+              _didIteratorError4 = true;
+              _iteratorError4 = err;
+            } finally {
+              try {
+                if (!_iteratorNormalCompletion4 && _iterator4.return != null) {
+                  _iterator4.return();
+                }
+              } finally {
+                if (_didIteratorError4) {
+                  throw _iteratorError4;
+                }
+              }
             }
 
-            var on = _webCell.Component.prototype.on,
-                route_map = new _RouteMap2.default();
+            return route;
+          }
+          /**
+           * @protected
+           *
+           * @type {PageStack}
+           */
 
-            var page;
+        }, {
+          key: "stack",
+          get: function get() {
+            return page;
+          }
+        }], [{
+          key: "route",
+          value: function route(path, handler) {
+            route_map.set(path, handler);
+            return this;
+          }
+        }]);
 
-            /**
-             * Routes elements wrapper
-             */
+        return CellRouter;
+      }(_wrapNativeSuper(HTMLElement));
 
-            var CellRouter = function (_HTMLElement2) {
-                _inherits(CellRouter, _HTMLElement2);
+      exports.default = CellRouter;
+      (0, _webCell.component)(CellRouter);
+    }
+  },
+  './loader/CellPage': {
+    base: './loader',
+    dependency: [],
+    factory: function factory(require, exports, module) {
+      Object.defineProperty(exports, "__esModule", {
+        value: true
+      });
+      exports.default = void 0;
 
-                function CellRouter() {
-                    _classCallCheck(this, CellRouter);
+      var _webCell = require('web-cell');
 
-                    /**
-                     * @type {boolean}
-                     */
-                    var _this3 = _possibleConstructorReturn(this, (CellRouter.__proto__ || Object.getPrototypeOf(CellRouter)).call(this));
+      var ESM = !document.querySelector('script[src$="custom-elements-es5-adapter.js"]'),
+          page_data = new WeakMap();
 
-                    _this3.loading = false;
-                    return _this3;
-                }
+      var CellPage =
+      /*#__PURE__*/
+      function (_HTMLElement3) {
+        _inherits(CellPage, _HTMLElement3);
 
-                _createClass(CellRouter, [{
-                    key: 'connectedCallback',
-                    value: function connectedCallback() {
-                        var _this4 = this;
+        function CellPage() {
+          _classCallCheck(this, CellPage);
 
-                        document.addEventListener('DOMContentLoaded', function () {
-
-                            page = new _PageStack2.default('main', _this4.getAttribute('mode'));
-
-                            on.call(page.container, 'pagechanged', function (event) {
-
-                                var data = event.detail;
-
-                                route_map.trigger(data.to.path, data.to, data.from);
-                            });
-                        });
-
-                        var router = this;
-
-                        on.call(document.body, 'click', 'a[href]', function () {
-                            var _ref4 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(event) {
-                                return regeneratorRuntime.wrap(function _callee4$(_context4) {
-                                    while (1) {
-                                        switch (_context4.prev = _context4.next) {
-                                            case 0:
-                                                if (!(this.loading || (this.target || '_self') !== '_self')) {
-                                                    _context4.next = 2;
-                                                    break;
-                                                }
-
-                                                return _context4.abrupt('return');
-
-                                            case 2:
-
-                                                event.preventDefault();
-
-                                                this.loading = true;
-
-                                                _context4.next = 6;
-                                                return router.navTo(this);
-
-                                            case 6:
-
-                                                this.loading = false;
-
-                                            case 7:
-                                            case 'end':
-                                                return _context4.stop();
-                                        }
-                                    }
-                                }, _callee4, this);
-                            }));
-
-                            return function (_x6) {
-                                return _ref4.apply(this, arguments);
-                            };
-                        }());
-                    }
-
-                    /**
-                     * `path` or `hash`
-                     *
-                     * @type {string}
-                     */
-
-                }, {
-                    key: 'navTo',
-
-
-                    /**
-                     * @protected
-                     *
-                     * @param {Element} link - A `<a href="" />`
-                     */
-                    value: function () {
-                        var _ref5 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5(link) {
-                            var path, tag;
-                            return regeneratorRuntime.wrap(function _callee5$(_context5) {
-                                while (1) {
-                                    switch (_context5.prev = _context5.next) {
-                                        case 0:
-                                            path = link.getAttribute('href');
-                                            tag = _CellRoute2.default.map.trigger(path);
-
-                                            if (!tag) {
-                                                _context5.next = 5;
-                                                break;
-                                            }
-
-                                            _context5.next = 5;
-                                            return page.push(tag, path, link.title || link.textContent.trim());
-
-                                        case 5:
-                                        case 'end':
-                                            return _context5.stop();
-                                    }
-                                }
-                            }, _callee5, this);
-                        }));
-
-                        function navTo(_x7) {
-                            return _ref5.apply(this, arguments);
-                        }
-
-                        return navTo;
-                    }()
-
-                    /**
-                     * Register route handler
-                     *
-                     * @param {string|RegExp} path    - **Plain path**, **Path with colon parameters** or
-                     *                                  **Regular expression**
-                     * @param {RouteHandler}  handler
-                     *
-                     * @return {Function} This class
-                     */
-
-                }, {
-                    key: 'mode',
-                    get: function get() {
-                        return page.mode;
-                    }
-
-                    /**
-                     * Key for path, Value for tag
-                     *
-                     * @type {object}
-                     */
-
-                }, {
-                    key: 'map',
-                    get: function get() {
-
-                        var route = {};
-
-                        var _iteratorNormalCompletion4 = true;
-                        var _didIteratorError4 = false;
-                        var _iteratorError4 = undefined;
-
-                        try {
-                            for (var _iterator4 = this.children[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-                                var child = _step4.value;
-                                if (child instanceof _CellRoute2.default) route[child.path] = child.tag;
-                            }
-                        } catch (err) {
-                            _didIteratorError4 = true;
-                            _iteratorError4 = err;
-                        } finally {
-                            try {
-                                if (!_iteratorNormalCompletion4 && _iterator4.return) {
-                                    _iterator4.return();
-                                }
-                            } finally {
-                                if (_didIteratorError4) {
-                                    throw _iteratorError4;
-                                }
-                            }
-                        }
-
-                        return route;
-                    }
-
-                    /**
-                     * @protected
-                     *
-                     * @type {PageStack}
-                     */
-
-                }, {
-                    key: 'stack',
-                    get: function get() {
-                        return page;
-                    }
-                }], [{
-                    key: 'route',
-                    value: function route(path, handler) {
-
-                        route_map.set(path, handler);
-
-                        return this;
-                    }
-                }]);
-
-                return CellRouter;
-            }(HTMLElement);
-
-            exports.default = CellRouter;
-            (0, _webCell.component)(CellRouter);
+          return _possibleConstructorReturn(this, _getPrototypeOf(CellPage).call(this));
         }
-    },
-    './loader/CellPage': {
-        base: './loader',
-        dependency: [],
-        factory: function factory(require, exports, module) {
-            Object.defineProperty(exports, "__esModule", {
-                value: true
+
+        _createClass(CellPage, [{
+          key: "connectedCallback",
+          value: function connectedCallback() {
+            var loader = this.parentNode;
+            if (loader.tagName === 'CELL-LOADER') page_data.set(this, {
+              path: new URL(this.getAttribute('path') || '', loader.base) + ''
+            });else throw new DOMError('<cell-page /> must be a child of <cell-loader />');
+          }
+          /**
+           * URL of this component
+           *
+           * @type {string}
+           */
+
+        }, {
+          key: "load",
+
+          /**
+           * @return {Promise}
+           */
+          value: function load() {
+            var _this3 = this;
+
+            return this.loaded ? Promise.resolve() : new Promise(function (resolve, reject) {
+              return document.head.append(Object.assign(document.createElement('script'), {
+                onload: resolve,
+                onerror: reject,
+                type: ESM ? 'module' : 'text/javascript',
+                src: "".concat(_this3.path, ".js")
+              }));
             });
+          }
+        }, {
+          key: "path",
+          get: function get() {
+            return page_data.get(this).path;
+          }
+          /**
+           * Tag name of this component
+           *
+           * @type {string}
+           */
 
-            var _webCell = require('web-cell');
+        }, {
+          key: "name",
+          get: function get() {
+            return this.path.split('/').slice(-1)[0];
+          }
+          /**
+           * @type {boolean}
+           */
 
-            var ESM = !document.querySelector('script[src$="custom-elements-es5-adapter.js"]'),
-                page_data = new WeakMap();
+        }, {
+          key: "loaded",
+          get: function get() {
+            return !!window.customElements.get(this.name);
+          }
+        }]);
 
-            var CellPage = function (_HTMLElement3) {
-                _inherits(CellPage, _HTMLElement3);
+        return CellPage;
+      }(_wrapNativeSuper(HTMLElement));
 
-                function CellPage() {
-                    _classCallCheck(this, CellPage);
+      exports.default = CellPage;
+      (0, _webCell.component)(CellPage);
+    }
+  },
+  './loader/CellLoader': {
+    base: './loader',
+    dependency: [],
+    factory: function factory(require, exports, module) {
+      Object.defineProperty(exports, "__esModule", {
+        value: true
+      });
+      exports.default = void 0;
 
-                    return _possibleConstructorReturn(this, (CellPage.__proto__ || Object.getPrototypeOf(CellPage)).call(this));
-                }
+      var _webCell = require('web-cell');
 
-                _createClass(CellPage, [{
-                    key: 'connectedCallback',
-                    value: function connectedCallback() {
+      var _CellPage = _interopRequireDefault(require('./CellPage'));
 
-                        var loader = this.parentNode;
+      function _interopRequireDefault(obj) {
+        return obj && obj.__esModule ? obj : {
+          default: obj
+        };
+      }
 
-                        if (loader.tagName === 'CELL-LOADER') page_data.set(this, {
-                            path: new URL(this.getAttribute('path') || '', loader.base) + ''
-                        });else throw new DOMError('<cell-page /> must be a child of <cell-loader />');
-                    }
+      var loader = new Map();
+      /**
+       * Page components loader
+       */
 
-                    /**
-                     * URL of this component
-                     *
-                     * @type {string}
-                     */
+      var CellLoader =
+      /*#__PURE__*/
+      function (_HTMLElement4) {
+        _inherits(CellLoader, _HTMLElement4);
 
-                }, {
-                    key: 'load',
+        function CellLoader() {
+          _classCallCheck(this, CellLoader);
 
-
-                    /**
-                     * @return {Promise}
-                     */
-                    value: function load() {
-                        var _this6 = this;
-
-                        return this.loaded ? Promise.resolve() : new Promise(function (resolve, reject) {
-                            return document.head.append(Object.assign(document.createElement('script'), {
-                                onload: resolve,
-                                onerror: reject,
-                                type: ESM ? 'module' : 'text/javascript',
-                                src: _this6.path + '.js'
-                            }));
-                        });
-                    }
-                }, {
-                    key: 'path',
-                    get: function get() {
-                        return page_data.get(this).path;
-                    }
-
-                    /**
-                     * Tag name of this component
-                     *
-                     * @type {string}
-                     */
-
-                }, {
-                    key: 'name',
-                    get: function get() {
-                        return this.path.split('/').slice(-1)[0];
-                    }
-
-                    /**
-                     * @type {boolean}
-                     */
-
-                }, {
-                    key: 'loaded',
-                    get: function get() {
-                        return !!window.customElements.get(this.name);
-                    }
-                }]);
-
-                return CellPage;
-            }(HTMLElement);
-
-            exports.default = CellPage;
-            (0, _webCell.component)(CellPage);
+          return _possibleConstructorReturn(this, _getPrototypeOf(CellLoader).call(this));
         }
-    },
-    './loader/CellLoader': {
-        base: './loader',
-        dependency: [],
-        factory: function factory(require, exports, module) {
-            Object.defineProperty(exports, "__esModule", {
-                value: true
+
+        _createClass(CellLoader, [{
+          key: "connectedCallback",
+          value: function connectedCallback() {
+            loader.set(this, {
+              base: new URL(this.getAttribute('base'), this.baseURI) + ''
             });
+          }
+        }, {
+          key: "disconnectedCallback",
+          value: function disconnectedCallback() {
+            loader.delete(this);
+          }
+          /**
+           * URL base for loading
+           *
+           * @type {string}
+           */
 
-            var _webCell = require('web-cell');
+        }, {
+          key: "base",
+          get: function get() {
+            return loader.get(this).base;
+          }
+          /**
+           * `<cell-page />` children
+           *
+           * @type {CellPage[]}
+           */
 
-            var _CellPage = require('./CellPage');
+        }, {
+          key: "pageList",
+          get: function get() {
+            return _toConsumableArray(this.children).filter(function (element) {
+              return element instanceof _CellPage.default;
+            });
+          }
+          /**
+           * All `<cell-page />`s in this page
+           *
+           * @type {CellPage[]}
+           */
 
-            var _CellPage2 = _interopRequireDefault(_CellPage);
+        }], [{
+          key: "load",
 
-            function _interopRequireDefault(obj) {
-                return obj && obj.__esModule ? obj : { default: obj };
-            }
+          /**
+           * @param {string} tag - Tag name of a Page component
+           *
+           * @return {Promise}
+           */
+          value: function load(tag) {
+            return this.pageList.filter(function (page) {
+              return page.name === tag;
+            })[0].load();
+          }
+        }, {
+          key: "pageList",
+          get: function get() {
+            var _ref2;
 
-            var loader = new Map();
+            return (_ref2 = []).concat.apply(_ref2, _toConsumableArray(_toConsumableArray(loader.keys()).map(function (item) {
+              return item.pageList;
+            })));
+          }
+        }]);
 
-            /**
-             * Page components loader
-             */
+        return CellLoader;
+      }(_wrapNativeSuper(HTMLElement));
 
-            var CellLoader = function (_HTMLElement4) {
-                _inherits(CellLoader, _HTMLElement4);
-
-                function CellLoader() {
-                    _classCallCheck(this, CellLoader);
-
-                    return _possibleConstructorReturn(this, (CellLoader.__proto__ || Object.getPrototypeOf(CellLoader)).call(this));
-                }
-
-                _createClass(CellLoader, [{
-                    key: 'connectedCallback',
-                    value: function connectedCallback() {
-
-                        loader.set(this, {
-                            base: new URL(this.getAttribute('base'), this.baseURI) + ''
-                        });
-                    }
-                }, {
-                    key: 'disconnectedCallback',
-                    value: function disconnectedCallback() {
-                        loader.delete(this);
-                    }
-
-                    /**
-                     * URL base for loading
-                     *
-                     * @type {string}
-                     */
-
-                }, {
-                    key: 'base',
-                    get: function get() {
-                        return loader.get(this).base;
-                    }
-
-                    /**
-                     * `<cell-page />` children
-                     *
-                     * @type {CellPage[]}
-                     */
-
-                }, {
-                    key: 'pageList',
-                    get: function get() {
-
-                        return [].concat(_toConsumableArray(this.children)).filter(function (element) {
-                            return element instanceof _CellPage2.default;
-                        });
-                    }
-
-                    /**
-                     * All `<cell-page />`s in this page
-                     *
-                     * @type {CellPage[]}
-                     */
-
-                }], [{
-                    key: 'load',
-
-
-                    /**
-                     * @param {string} tag - Tag name of a Page component
-                     *
-                     * @return {Promise}
-                     */
-                    value: function load(tag) {
-
-                        return this.pageList.filter(function (page) {
-                            return page.name === tag;
-                        })[0].load();
-                    }
-                }, {
-                    key: 'pageList',
-                    get: function get() {
-                        var _ref6;
-
-                        return (_ref6 = []).concat.apply(_ref6, _toConsumableArray([].concat(_toConsumableArray(loader.keys())).map(function (item) {
-                            return item.pageList;
-                        })));
-                    }
-                }]);
-
-                return CellLoader;
-            }(HTMLElement);
-
-            exports.default = CellLoader;
-            (0, _webCell.component)(CellLoader);
+      exports.default = CellLoader;
+      (0, _webCell.component)(CellLoader);
+    }
+  },
+  './index': {
+    base: '.',
+    dependency: [],
+    factory: function factory(require, exports, module) {
+      Object.defineProperty(exports, "__esModule", {
+        value: true
+      });
+      Object.defineProperty(exports, "CellLoader", {
+        enumerable: true,
+        get: function get() {
+          return _CellLoader.default;
         }
-    },
-    './index': {
-        base: '.',
-        dependency: [],
-        factory: function factory(require, exports, module) {
-            Object.defineProperty(exports, "__esModule", {
-                value: true
-            });
-
-            var _CellLoader = require('./loader/CellLoader');
-
-            Object.defineProperty(exports, 'CellLoader', {
-                enumerable: true,
-                get: function get() {
-                    return _interopRequireDefault(_CellLoader).default;
-                }
-            });
-
-            var _CellPage = require('./loader/CellPage');
-
-            Object.defineProperty(exports, 'CellPage', {
-                enumerable: true,
-                get: function get() {
-                    return _interopRequireDefault(_CellPage).default;
-                }
-            });
-
-            var _CellRouter = require('./router/CellRouter');
-
-            Object.defineProperty(exports, 'CellRouter', {
-                enumerable: true,
-                get: function get() {
-                    return _interopRequireDefault(_CellRouter).default;
-                }
-            });
-
-            var _CellRoute = require('./router/CellRoute');
-
-            Object.defineProperty(exports, 'CellRoute', {
-                enumerable: true,
-                get: function get() {
-                    return _interopRequireDefault(_CellRoute).default;
-                }
-            });
-
-            function _interopRequireDefault(obj) {
-                return obj && obj.__esModule ? obj : { default: obj };
-            }
+      });
+      Object.defineProperty(exports, "CellPage", {
+        enumerable: true,
+        get: function get() {
+          return _CellPage.default;
         }
-    },
-    'web-cell': { exports: web_cell }
+      });
+      Object.defineProperty(exports, "default", {
+        enumerable: true,
+        get: function get() {
+          return _CellRouter.default;
+        }
+      });
+      Object.defineProperty(exports, "CellRoute", {
+        enumerable: true,
+        get: function get() {
+          return _CellRoute.default;
+        }
+      });
+
+      var _CellLoader = _interopRequireDefault(require('./loader/CellLoader'));
+
+      var _CellPage = _interopRequireDefault(require('./loader/CellPage'));
+
+      var _CellRouter = _interopRequireDefault(require('./router/CellRouter'));
+
+      var _CellRoute = _interopRequireDefault(require('./router/CellRoute'));
+
+      function _interopRequireDefault(obj) {
+        return obj && obj.__esModule ? obj : {
+          default: obj
+        };
+      }
+    }
+  },
+  'web-cell': {
+    exports: web_cell
+  }
 };
 
     return require('./index');

@@ -1,6 +1,6 @@
 {
   "name": "cell-router",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Router component based on WebCell",
   "keywords": [
     "web-component",
@@ -10,6 +10,7 @@
   ],
   "author": "shiy2008@gmail.com",
   "license": "LGPL-3.0",
+  "homepage": "https://easywebapp.github.io/cell-router/",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/EasyWebApp/cell-router.git"
@@ -17,7 +18,6 @@
   "bugs": {
     "url": "https://github.com/EasyWebApp/cell-router/issues"
   },
-  "homepage": "https://easywebapp.github.io/cell-router/",
   "main": "source/index.js",
   "browser": "dist/source.js",
   "directories": {
@@ -25,50 +25,40 @@
     "test": "test/"
   },
   "scripts": {
-    "lint": "eslint source/",
-    "build": "web-cell pack  &&  esdoc",
-    "prepublishOnly": "npm run build",
-    "help": "web-server docs/ -o",
     "build-test": "cd test  &&  web-cell pack",
     "start": "npm run build-test  &&  web-cell preview",
-    "check": "web-cell pack  &&  mocha",
-    "test": "npm run check -- --exit",
-    "debug": "npm run check -- --inspect-brk",
-    "precommit": "npm run lint  &&  npm test"
+    "lint": "eslint source/ test/*.js --fix",
+    "test": "mocha --exit",
+    "debug": "mocha --inspect-brk",
+    "build": "npm run lint  &&  web-cell pack  &&  npm test",
+    "prepublishOnly": "npm run build",
+    "precommit": "npm run build  &&  esdoc  &&  git add .",
+    "help": "web-server docs/ -o"
   },
   "dependencies": {
-    "web-cell": "^0.9.4"
+    "web-cell": "^0.9.9"
   },
   "devDependencies": {
-    "babel-plugin-transform-runtime": "^6.23.0",
-    "babel-polyfill": "^6.26.0",
-    "babel-preset-env": "^1.7.0",
-    "babel-register": "^6.26.0",
-    "babel-runtime": "^6.26.0",
+    "@babel/core": "^7.1.0",
+    "@babel/polyfill": "^7.0.0",
+    "@babel/preset-env": "^7.1.0",
+    "@babel/register": "^7.0.0",
     "esdoc": "^1.1.0",
     "esdoc-external-webapi-plugin": "^1.0.0",
     "esdoc-standard-plugin": "^1.0.0",
-    "eslint": "^5.0.1",
+    "eslint": "^5.6.0",
     "husky": "^0.14.3",
-    "koapache": "^0.2.3",
+    "koapache": "^1.0.4",
     "mocha": "^5.2.0",
-    "puppeteer-browser": "^0.3.1",
-    "should": "^13.2.1",
+    "puppeteer-browser": "^0.3.4",
+    "should": "^13.2.3",
     "should-sinon": "0.0.6",
-    "sinon": "^6.1.0",
-    "web-cell-cli": "^0.4.1"
+    "sinon": "^6.3.4",
+    "web-cell-cli": "^0.5.0"
   },
   "babel": {
     "presets": [
-      "env"
-    ],
-    "plugins": [
-      [
-        "transform-runtime",
-        {
-          "polyfill": false
-        }
-      ]
+      "@babel/preset-env"
     ]
   }
 }

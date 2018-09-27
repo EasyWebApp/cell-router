@@ -58,20 +58,25 @@
 
 })(function () {
 
-function merge(base, path) {
+    function merge(base, path) {
 
-    return (base + &apos;/&apos; + path).replace(/\/\//g, &apos;/&apos;).replace(/[^/.]+\/\.\.\//g, &apos;&apos;).replace(/\.\//g, function (match, index, input) {
+        return (base + &apos;/&apos; + path).replace(/\/\//g, &apos;/&apos;).replace(/[^/.]+\/\.\.\//g, &apos;&apos;).replace(/\.\//g, function (match, index, input) {
 
-        return input[index - 1] === &apos;.&apos; ? match : &apos;&apos;;
-    });
-}
+            return input[index - 1] === &apos;.&apos; ? match : &apos;&apos;;
+        });
+    }
+
+    function outPackage(name) {
+        return (/^[^./]/.test(name)
+        );
+    }
 
     var require = _require_.bind(null, &apos;./&apos;);
 
     function _require_(base, path) {
 
         var module = _module_[
-                /^\w/.test( path )  ?  path  :  (&apos;./&apos; + merge(base, path))
+                outPackage( path )  ?  path  :  (&apos;./&apos; + merge(base, path))
             ],
             exports;
 
@@ -98,41 +103,41 @@ function merge(base, path) {
         return module.exports;
     }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError(&quot;Cannot call a class as a function&quot;); } }
+    function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError(&apos;Cannot call a class as a function&apos;); } }
 
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError(&quot;this hasn&apos;t been initialised - super() hasn&apos;t been called&quot;); } return call &amp;&amp; (typeof call === &quot;object&quot; || typeof call === &quot;function&quot;) ? call : self; }
+    function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError(&apos;this hasn\&apos;t been initialised - super() hasn\&apos;t been called&apos;); } return call &amp;&amp; (typeof call === &apos;object&apos; || typeof call === &apos;function&apos;) ? call : self; }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== &quot;function&quot; &amp;&amp; superClass !== null) { throw new TypeError(&quot;Super expression must either be null or a function, not &quot; + typeof superClass); } subClass.prototype = Object.create(superClass &amp;&amp; superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+    function _inherits(subClass, superClass) { if (typeof superClass !== &apos;function&apos; &amp;&amp; superClass !== null) { throw new TypeError(&apos;Super expression must either be null or a function, not &apos; + typeof superClass); } subClass.prototype = Object.create(superClass &amp;&amp; superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var _module_ = {
-    &apos;./index&apos;: {
-        base: &apos;.&apos;,
-        dependency: [],
-        factory: function factory(require, exports, module) {
-            Object.defineProperty(exports, &quot;__esModule&quot;, {
-                value: true
-            });
+    var _module_ = {
+        &apos;./index&apos;: {
+            base: &apos;.&apos;,
+            dependency: [],
+            factory: function factory(require, exports, module) {
+                Object.defineProperty(exports, &apos;__esModule&apos;, {
+                    value: true
+                });
 
-            var PageHello = function (_HTMLElement) {
-                _inherits(PageHello, _HTMLElement);
+                var PageHello = function (_HTMLElement) {
+                    _inherits(PageHello, _HTMLElement);
 
-                function PageHello() {
-                    var _this;
+                    function PageHello() {
+                        var _this;
 
-                    _classCallCheck(this, PageHello);
+                        _classCallCheck(this, PageHello);
 
-                    (_this = _possibleConstructorReturn(this, (PageHello.__proto__ || Object.getPrototypeOf(PageHello)).call(this)), _this).attachShadow({ mode: &apos;open&apos; }).append(&apos;Hello, Web components!&apos;);
-                    return _this;
-                }
+                        (_this = _possibleConstructorReturn(this, (PageHello.__proto__ || Object.getPrototypeOf(PageHello)).call(this)), _this).attachShadow({ mode: &apos;open&apos; }).append(&apos;Hello, Web components!&apos;);
+                        return _this;
+                    }
 
-                return PageHello;
-            }(HTMLElement);
+                    return PageHello;
+                }(HTMLElement);
 
-            exports.default = PageHello;
-            customElements.define(&apos;page-hello&apos;, PageHello);
+                exports.default = PageHello;
+                customElements.define(&apos;page-hello&apos;, PageHello);
+            }
         }
-    }
-};
+    };
 
     return require(&apos;./index&apos;);
 });</code></pre>
