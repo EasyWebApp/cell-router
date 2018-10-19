@@ -7,6 +7,7 @@ const ESM = (! document.querySelector(
 
 
 
+@component()
 export default  class CellPage extends HTMLElement {
 
     constructor() {  super();  }
@@ -63,6 +64,3 @@ export default  class CellPage extends HTMLElement {
             ));
     }
 }
-
-
-component( CellPage );

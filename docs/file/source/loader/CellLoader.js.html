@@ -51,6 +51,8 @@ import CellPage from &apos;./CellPage&apos;;
 const loader = new Map();
 
 
+
+@component()
 /**
  * Page components loader
  */
@@ -104,9 +106,6 @@ export default  class CellLoader extends HTMLElement {
         return  this.pageList.filter(page =&gt; page.name === tag)[0].load();
     }
 }
-
-
-component( CellLoader );
 </code></pre>
 
 </div>

@@ -37,91 +37,91 @@ window.esdocSearchIndex = [
   ],
   [
     "pagestack source/router/pagestack.js~pagestack,pagestack",
-    "test-file/test/PageStack.js.html#lineNumber34",
+    "test-file/test/PageStack.test.js.html#lineNumber34",
     "Page history",
     "test"
   ],
   [
     "pagestack#pop source/router/pagestack.js~pagestack#pop,pagestack#pop",
-    "test-file/test/PageStack.js.html#lineNumber72",
+    "test-file/test/PageStack.test.js.html#lineNumber72",
     "Page history Back to a old page",
     "test"
   ],
   [
     "pagestack#constructor source/router/pagestack.js~pagestack#constructor,pagestack#constructor",
-    "test-file/test/PageStack.js.html#lineNumber41",
+    "test-file/test/PageStack.test.js.html#lineNumber41",
     "Page history Boot SPA",
     "test"
   ],
   [
     "pagestack#cache pagestack#record pagestack#push source/router/pagestack.js~pagestack#cache,pagestack#cache source/router/pagestack.js~pagestack#record,pagestack#record source/router/pagestack.js~pagestack#push,pagestack#push",
-    "test-file/test/PageStack.js.html#lineNumber52",
+    "test-file/test/PageStack.test.js.html#lineNumber52",
     "Page history Go to a new page",
     "test"
   ],
   [
     "cellrouter.route source/router/cellrouter.js~cellrouter.route,cellrouter.route",
-    "test-file/test/PageStack.js.html#lineNumber108",
+    "test-file/test/PageStack.test.js.html#lineNumber108",
     "Page history Handle route based on Custom events",
     "test"
   ],
   [
     "cellrouter#boot source/router/cellrouter.js~cellrouter#boot,cellrouter#boot",
-    "test-file/test/PageStack.js.html#lineNumber126",
+    "test-file/test/PageStack.test.js.html#lineNumber126",
     "Page history Reload SPA from a Sub path",
     "test"
   ],
   [
     "pagestack#pop source/router/pagestack.js~pagestack#pop,pagestack#pop",
-    "test-file/test/PageStack.js.html#lineNumber96",
+    "test-file/test/PageStack.test.js.html#lineNumber96",
     "Page history Reload SPA from the Root path",
     "test"
   ],
   [
     "routemap source/router/routemap.js~routemap,routemap",
-    "test-file/test/RouteMap.js.html#lineNumber9",
+    "test-file/test/RouteMap.test.js.html#lineNumber9",
     "Route map",
     "test"
   ],
   [
     "routemap#set source/router/routemap.js~routemap#set,routemap#set",
-    "test-file/test/RouteMap.js.html#lineNumber15",
+    "test-file/test/RouteMap.test.js.html#lineNumber15",
     "Route map Register route handler",
     "test"
   ],
   [
     "",
-    "test-file/test/RouteMap.js.html#lineNumber27",
+    "test-file/test/RouteMap.test.js.html#lineNumber27",
     "Route map Register route handler Path with colon parameters",
     "test"
   ],
   [
     "",
-    "test-file/test/RouteMap.js.html#lineNumber17",
+    "test-file/test/RouteMap.test.js.html#lineNumber17",
     "Route map Register route handler Plain path",
     "test"
   ],
   [
     "",
-    "test-file/test/RouteMap.js.html#lineNumber38",
+    "test-file/test/RouteMap.test.js.html#lineNumber38",
     "Route map Register route handler Regular expression",
     "test"
   ],
   [
     "routemap#trigger source/router/routemap.js~routemap#trigger,routemap#trigger",
-    "test-file/test/RouteMap.js.html#lineNumber51",
+    "test-file/test/RouteMap.test.js.html#lineNumber51",
     "Route map Trigger route",
     "test"
   ],
   [
     "routemap#delete source/router/routemap.js~routemap#delete,routemap#delete",
-    "test-file/test/RouteMap.js.html#lineNumber63",
+    "test-file/test/RouteMap.test.js.html#lineNumber63",
     "Route map Trigger route Path with colon parameters",
     "test"
   ],
   [
     "",
-    "test-file/test/RouteMap.js.html#lineNumber53",
+    "test-file/test/RouteMap.test.js.html#lineNumber53",
     "Route map Trigger route Plain path",
     "test"
   ],
@@ -625,13 +625,13 @@ window.esdocSearchIndex = [
   ],
   [
     "source/router/cellrouter.js~cellrouter#mode",
-    "class/source/router/CellRouter.js~CellRouter.html#instance-set-mode",
+    "class/source/router/CellRouter.js~CellRouter.html#instance-get-mode",
     "source/router/CellRouter.js~CellRouter#mode",
     "member"
   ],
   [
     "source/router/cellrouter.js~cellrouter#mode",
-    "class/source/router/CellRouter.js~CellRouter.html#instance-get-mode",
+    "class/source/router/CellRouter.js~CellRouter.html#instance-set-mode",
     "source/router/CellRouter.js~CellRouter#mode",
     "member"
   ],
@@ -804,45 +804,15 @@ window.esdocSearchIndex = [
     "method"
   ],
   [
-    "test/pagestack.js",
-    "test-file/test/PageStack.js.html",
-    "test/PageStack.js",
+    "test/pagestack.test.js",
+    "test-file/test/PageStack.test.js.html",
+    "test/PageStack.test.js",
     "testFile"
   ],
   [
-    "test/routemap.js",
-    "test-file/test/RouteMap.js.html",
-    "test/RouteMap.js",
-    "testFile"
-  ],
-  [
-    "test/dist/index.js",
-    "test-file/test/dist/index.js.html",
-    "test/dist/index.js",
-    "testFile"
-  ],
-  [
-    "test/dist/page-hello.js",
-    "test-file/test/dist/page-hello.js.html",
-    "test/dist/page-hello.js",
-    "testFile"
-  ],
-  [
-    "test/dist/page-welcome.js",
-    "test-file/test/dist/page-welcome.js.html",
-    "test/dist/page-welcome.js",
-    "testFile"
-  ],
-  [
-    "test/source/page-hello/index.js",
-    "test-file/test/source/page-hello/index.js.html",
-    "test/source/page-hello/index.js",
-    "testFile"
-  ],
-  [
-    "test/source/page-welcome/index.js",
-    "test-file/test/source/page-welcome/index.js.html",
-    "test/source/page-welcome/index.js",
+    "test/routemap.test.js",
+    "test-file/test/RouteMap.test.js.html",
+    "test/RouteMap.test.js",
     "testFile"
   ]
 ]

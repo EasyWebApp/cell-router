@@ -16,6 +16,8 @@ const path_mode = {
 var page;
 
 
+
+@component()
 /**
  * Routes elements wrapper
  */
@@ -165,6 +167,3 @@ export default  class CellRouter extends HTMLElement {
         return this;
     }
 }
-
-
-component( CellRouter );

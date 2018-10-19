@@ -5,6 +5,8 @@ import RouteMap from './RouteMap';
 const path_tag = new WeakMap(), route_map = new RouteMap();
 
 
+
+@component()
 /**
  * Route entry
  */
@@ -45,6 +47,3 @@ export default  class CellRoute extends HTMLElement {
      */
     static get map() {  return route_map;  }
 }
-
-
-component( CellRoute );

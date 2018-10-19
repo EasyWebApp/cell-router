@@ -2,8 +2,8 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <base data-ice="baseUrl" href="../../../../">
-  <title data-ice="title">test/source/page-hello/index.js | cell-router</title>
+  <base data-ice="baseUrl" href="../../">
+  <title data-ice="title">test/PageStack.test.js | cell-router</title>
   <link type="text/css" rel="stylesheet" href="css/style.css">
   <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
   <script src="script/prettify/prettify.js"></script>
@@ -43,16 +43,141 @@
 </div>
 </nav>
 
-<div class="content" data-ice="content"><h1 data-ice="title">test/source/page-hello/index.js</h1>
-<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">export default  class PageHello extends HTMLElement {
+<div class="content" data-ice="content"><h1 data-ice="title">test/PageStack.test.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import PuppeteerBrowser from &apos;puppeteer-browser&apos;;
 
-    constructor() {
+var page;
 
-        super().attachShadow({mode: &apos;open&apos;}).append(&apos;Hello, Web components!&apos;);
-    }
+function consoleData() {
+
+    return  new Promise(
+        resolve  =&gt;  page.on(&apos;console&apos;,  message =&gt; resolve( message.text() ))
+    );
 }
 
-customElements.define(&apos;page-hello&apos;, PageHello);
+function waitForNav() {
+
+    return  page.waitForSelector(&apos;cell-router&apos;,  router =&gt; (! router.loading));
+}
+
+function firstPage() {
+
+    return  page.$eval(&apos;cell-router&apos;,  router =&gt; {
+
+        const stack = router.stack;
+
+        return [
+            stack[0].nodeType, stack.length, stack.last,
+            stack.container.children[0].constructor.name
+        ];
+    }).should.be.fulfilledWith([11, 2, 1, &apos;PageHello&apos;]);
+}
+
+
+/**
+ * @test {PageStack}
+ */
+describe(&apos;Page history&apos;,  () =&gt; {
+
+    before(async () =&gt; page = await PuppeteerBrowser.getPage(&apos;&apos;, &apos;test/&apos;));
+
+    /**
+     * @test {PageStack#constructor}
+     */
+    it(&apos;Boot SPA&apos;,  () =&gt; page.evaluate(() =&gt; [
+        history.length, document.title, history.state
+    ]).should.be.fulfilledWith([
+        2,  &apos;Demo&apos;,  {tag: &apos;&apos;, path: &apos;&apos;, title: &apos;Demo&apos;, index: 0}
+    ]));
+
+    /**
+     * @test {PageStack#cache}
+     * @test {PageStack#record}
+     * @test {PageStack#push}
+     */
+    it(&apos;Go to a new page&apos;,  async () =&gt; {
+
+        await page.click(&apos;nav &gt; a&apos;);
+
+        await waitForNav();
+
+        (await page.$eval(&apos;cell-router&apos;,  router =&gt; [
+            history.length, router.path, document.title, history.state
+        ])).should.be.eql([
+            3, &apos;test&apos;, &apos;Test&apos;, {
+                tag: &apos;page-hello&apos;,  path: &apos;test&apos;,  title: &apos;Test&apos;,  index: 1
+            }
+        ]);
+
+        await firstPage();
+    });
+
+    /**
+     * @test {PageStack#pop}
+     */
+    it(&apos;Back to a old page&apos;,  async () =&gt; {
+
+        await page.goBack();
+
+        (await page.$eval(&apos;cell-router&apos;,  router =&gt; {
+
+            const stack = router.stack;
+
+            const state = stack.lastState;
+
+            delete state.tag;
+
+            return [
+                stack.last, state,
+                stack[1].nodeType, stack.container.innerHTML.trim()
+            ];
+        })).should.be.eql([
+            0,  {path: &apos;&apos;, title: &apos;Demo&apos;, index: 0},  11,  &apos;Loading...&apos;
+        ]);
+    });
+
+    /**
+     * @test {PageStack#pop}
+     */
+    it(&apos;Reload SPA from the Root path&apos;,  async () =&gt; {
+
+        await page.reload();
+
+        await page.goForward();    await waitForNav();
+
+        await firstPage();
+    });
+
+    /**
+     * @test {CellRouter.route}
+     */
+    it(&apos;Handle route based on Custom events&apos;,  async () =&gt; {
+
+        var data = consoleData();
+
+        await page.click(&apos;nav &gt; a:last-child&apos;);
+
+        (await data).should.be.equal(&apos;PAGE-WELCOME PAGE-HELLO&apos;);
+
+        data = consoleData();
+
+        await page.goBack();
+
+        (await data).should.be.equal(&apos;PAGE-HELLO PAGE-WELCOME&apos;);
+    });
+
+    /**
+     * @test {CellRouter#boot}
+     */
+    it(&apos;Reload SPA from a Sub path&apos;,  async () =&gt; {
+
+        await page.reload();
+
+        await waitForNav();
+
+        await firstPage();
+    });
+});
 </code></pre>
 
 </div>

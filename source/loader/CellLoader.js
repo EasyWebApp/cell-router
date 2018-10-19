@@ -5,6 +5,8 @@ import CellPage from './CellPage';
 const loader = new Map();
 
 
+
+@component()
 /**
  * Page components loader
  */
@@ -58,6 +60,3 @@ export default  class CellLoader extends HTMLElement {
         return  this.pageList.filter(page => page.name === tag)[0].load();
     }
 }
-
-
-component( CellLoader );
