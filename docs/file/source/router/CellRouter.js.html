@@ -44,7 +44,7 @@
 </nav>
 
 <div class="content" data-ice="content"><h1 data-ice="title">source/router/CellRouter.js</h1>
-<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import {component, Component} from &apos;web-cell&apos;;
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import {component, delegate, documentReady} from &apos;web-cell&apos;;
 
 import CellRoute from &apos;./CellRoute&apos;;
 
@@ -52,12 +52,11 @@ import RouteMap from &apos;./RouteMap&apos;;
 
 import PageStack from &apos;./PageStack&apos;;
 
-const on = Component.prototype.on, route_map = new RouteMap();
-
 const path_mode = {
-    hash:  1,
-    path:  1
-};
+        hash:  1,
+        path:  1
+    },
+    route_map = new RouteMap();
 
 var page;
 
@@ -114,14 +113,26 @@ export default  class CellRouter extends HTMLElement {
             document.URL.slice( this.rootURL.length );
     }
 
-    /**
-     * @private
-     */
-    async boot() {
+    async connectedCallback() {
+
+        const router = this;
+
+        document.body.addEventListener(
+            &apos;click&apos;,  delegate(&apos;a[href]&apos;,  function (event) {
+                if (
+                    !router.loading  &amp;&amp;
+                    ((this.target || &apos;_self&apos;)  ===  &apos;_self&apos;)
+                ) {
+                    event.preventDefault();   router.navTo( this );
+                }
+            })
+        );
+
+        await documentReady;
 
         page = new PageStack(&apos;main&apos;, this.mode);
 
-        on.call(page.container,  &apos;pagechanged&apos;,  event =&gt; {
+        page.container.addEventListener(&apos;pagechanged&apos;,  event =&gt; {
 
             const data = event.detail;
 
@@ -135,21 +146,6 @@ export default  class CellRouter extends HTMLElement {
         history.replaceState({ }, document.title, window.location.pathname);
 
         await this.navTo( path );
-    }
-
-    connectedCallback() {
-
-        on.call(document,  &apos;DOMContentLoaded&apos;,  this.boot.bind( this ));
-
-        const router = this;
-
-        on.call(document.body,  &apos;click&apos;,  &apos;a[href]&apos;,  function (event) {
-
-            if (!router.loading  &amp;&amp;  ((this.target || &apos;_self&apos;)  ===  &apos;_self&apos;)) {
-
-                event.preventDefault();   router.navTo( this );
-            }
-        });
     }
 
     /**

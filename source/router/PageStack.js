@@ -1,3 +1,5 @@
+import { trigger } from 'web-cell';
+
 import CellLoader from '../loader/CellLoader';
 
 
@@ -67,11 +69,7 @@ export default  class PageStack {
      */
     dispatch(event, cancelable, from, to) {
 
-        return  this.container.dispatchEvent(new CustomEvent(event, {
-            bubbles:     true,
-            cancelable:  cancelable,
-            detail:      {from, to}
-        }));
+        return  trigger(this.container, event, {from, to}, true, cancelable);
     }
 
     /**

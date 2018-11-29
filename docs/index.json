@@ -1193,7 +1193,7 @@
     "__docId__": 85,
     "kind": "file",
     "name": "source/router/CellRouter.js",
-    "content": "import {component, Component} from 'web-cell';\n\nimport CellRoute from './CellRoute';\n\nimport RouteMap from './RouteMap';\n\nimport PageStack from './PageStack';\n\nconst on = Component.prototype.on, route_map = new RouteMap();\n\nconst path_mode = {\n    hash:  1,\n    path:  1\n};\n\nvar page;\n\n\n\n@component()\n/**\n * Routes elements wrapper\n */\nexport default  class CellRouter extends HTMLElement {\n\n    constructor() {\n\n        super();\n\n        /**\n         * @type {string}\n         */\n        this.rootURL = document.URL.split( /\\?|#/ )[0];\n\n        /**\n         * @type {boolean}\n         */\n        this.loading = false;\n    }\n\n    /**\n     * History path mode (`hash` or `path`)\n     *\n     * @type {string}\n     */\n    get mode() {\n\n        const value = this.getAttribute('mode');\n\n        return  (value in path_mode)  ?  value  :  'hash';\n    }\n\n    set mode(value) {\n\n        if (value in path_mode)\n            this.setAttribute('mode',  page.mode = value + '');\n    }\n\n    /**\n     * Current route path\n     *\n     * @type {string}\n     */\n    get path() {\n\n        return  (this.mode === 'hash')  ?\n            window.location.hash.slice( 1 )  :\n            document.URL.slice( this.rootURL.length );\n    }\n\n    /**\n     * @private\n     */\n    async boot() {\n\n        page = new PageStack('main', this.mode);\n\n        on.call(page.container,  'pagechanged',  event => {\n\n            const data = event.detail;\n\n            route_map.trigger(data.to.path, data.to, data.from);\n        });\n\n        if ((this.mode !== 'hash')  ||  !this.path)  return;\n\n        const path = this.path;\n\n        history.replaceState({ }, document.title, window.location.pathname);\n\n        await this.navTo( path );\n    }\n\n    connectedCallback() {\n\n        on.call(document,  'DOMContentLoaded',  this.boot.bind( this ));\n\n        const router = this;\n\n        on.call(document.body,  'click',  'a[href]',  function (event) {\n\n            if (!router.loading  &&  ((this.target || '_self')  ===  '_self')) {\n\n                event.preventDefault();   router.navTo( this );\n            }\n        });\n    }\n\n    /**\n     * Key for path, Value for tag\n     *\n     * @type {object}\n     */\n    get map() {\n\n        const route = { };\n\n        for (let child of this.children)\n            if (child instanceof CellRoute)  route[ child.path ] = child.tag;\n\n        return route;\n    }\n\n    /**\n     * @protected\n     *\n     * @type {PageStack}\n     */\n    get stack() {  return page;  }\n\n    /**\n     * @param {String|URL|Element} link - An URL or Element with `href` attribute\n     */\n    async navTo(link) {\n\n        this.loading = true;\n\n        if (!(link instanceof HTMLElement))\n            link = Object.assign(document.createElement('a'), {\n                href:  (new URL(link, window.location) + '')\n                    .replace(this.rootURL, '')\n            });\n\n        const path = link.getAttribute('href');\n\n        const tag = CellRoute.map.trigger( path );\n\n        if ( tag )\n            await page.push(tag,  path,  link.title || link.textContent.trim());\n\n        this.loading = false;\n    }\n\n    /**\n     * Register route handler\n     *\n     * @param {string|RegExp} path    - **Plain path**, **Path with colon parameters** or\n     *                                  **Regular expression**\n     * @param {RouteHandler}  handler\n     *\n     * @return {Function} This class\n     */\n    static route(path, handler) {\n\n        route_map.set(path, handler);\n\n        return this;\n    }\n}\n",
+    "content": "import {component, delegate, documentReady} from 'web-cell';\n\nimport CellRoute from './CellRoute';\n\nimport RouteMap from './RouteMap';\n\nimport PageStack from './PageStack';\n\nconst path_mode = {\n        hash:  1,\n        path:  1\n    },\n    route_map = new RouteMap();\n\nvar page;\n\n\n\n@component()\n/**\n * Routes elements wrapper\n */\nexport default  class CellRouter extends HTMLElement {\n\n    constructor() {\n\n        super();\n\n        /**\n         * @type {string}\n         */\n        this.rootURL = document.URL.split( /\\?|#/ )[0];\n\n        /**\n         * @type {boolean}\n         */\n        this.loading = false;\n    }\n\n    /**\n     * History path mode (`hash` or `path`)\n     *\n     * @type {string}\n     */\n    get mode() {\n\n        const value = this.getAttribute('mode');\n\n        return  (value in path_mode)  ?  value  :  'hash';\n    }\n\n    set mode(value) {\n\n        if (value in path_mode)\n            this.setAttribute('mode',  page.mode = value + '');\n    }\n\n    /**\n     * Current route path\n     *\n     * @type {string}\n     */\n    get path() {\n\n        return  (this.mode === 'hash')  ?\n            window.location.hash.slice( 1 )  :\n            document.URL.slice( this.rootURL.length );\n    }\n\n    async connectedCallback() {\n\n        const router = this;\n\n        document.body.addEventListener(\n            'click',  delegate('a[href]',  function (event) {\n                if (\n                    !router.loading  &&\n                    ((this.target || '_self')  ===  '_self')\n                ) {\n                    event.preventDefault();   router.navTo( this );\n                }\n            })\n        );\n\n        await documentReady;\n\n        page = new PageStack('main', this.mode);\n\n        page.container.addEventListener('pagechanged',  event => {\n\n            const data = event.detail;\n\n            route_map.trigger(data.to.path, data.to, data.from);\n        });\n\n        if ((this.mode !== 'hash')  ||  !this.path)  return;\n\n        const path = this.path;\n\n        history.replaceState({ }, document.title, window.location.pathname);\n\n        await this.navTo( path );\n    }\n\n    /**\n     * Key for path, Value for tag\n     *\n     * @type {object}\n     */\n    get map() {\n\n        const route = { };\n\n        for (let child of this.children)\n            if (child instanceof CellRoute)  route[ child.path ] = child.tag;\n\n        return route;\n    }\n\n    /**\n     * @protected\n     *\n     * @type {PageStack}\n     */\n    get stack() {  return page;  }\n\n    /**\n     * @param {String|URL|Element} link - An URL or Element with `href` attribute\n     */\n    async navTo(link) {\n\n        this.loading = true;\n\n        if (!(link instanceof HTMLElement))\n            link = Object.assign(document.createElement('a'), {\n                href:  (new URL(link, window.location) + '')\n                    .replace(this.rootURL, '')\n            });\n\n        const path = link.getAttribute('href');\n\n        const tag = CellRoute.map.trigger( path );\n\n        if ( tag )\n            await page.push(tag,  path,  link.title || link.textContent.trim());\n\n        this.loading = false;\n    }\n\n    /**\n     * Register route handler\n     *\n     * @param {string|RegExp} path    - **Plain path**, **Path with colon parameters** or\n     *                                  **Regular expression**\n     * @param {RouteHandler}  handler\n     *\n     * @return {Function} This class\n     */\n    static route(path, handler) {\n\n        route_map.set(path, handler);\n\n        return this;\n    }\n}\n",
     "static": true,
     "longname": "d:/OpenSource/cell-router/source/router/CellRouter.js",
     "access": "public",
@@ -1202,27 +1202,6 @@
   },
   {
     "__docId__": 86,
-    "kind": "variable",
-    "name": "on",
-    "memberof": "source/router/CellRouter.js",
-    "static": true,
-    "longname": "source/router/CellRouter.js~on",
-    "access": "public",
-    "export": false,
-    "importPath": "cell-router/source/router/CellRouter.js",
-    "importStyle": null,
-    "description": null,
-    "lineNumber": 9,
-    "undocument": true,
-    "type": {
-      "types": [
-        "*"
-      ]
-    },
-    "ignore": true
-  },
-  {
-    "__docId__": 87,
     "kind": "variable",
     "name": "path_mode",
     "memberof": "source/router/CellRouter.js",
@@ -1233,7 +1212,7 @@
     "importPath": "cell-router/source/router/CellRouter.js",
     "importStyle": null,
     "description": null,
-    "lineNumber": 11,
+    "lineNumber": 9,
     "undocument": true,
     "type": {
       "types": [
@@ -1243,7 +1222,7 @@
     "ignore": true
   },
   {
-    "__docId__": 88,
+    "__docId__": 87,
     "kind": "class",
     "name": "CellRouter",
     "memberof": "source/router/CellRouter.js",
@@ -1254,7 +1233,7 @@
     "importPath": "cell-router/source/router/CellRouter.js",
     "importStyle": "CellRouter",
     "description": "Routes elements wrapper",
-    "lineNumber": 24,
+    "lineNumber": 23,
     "decorators": [
       {
         "name": "component",
@@ -1267,7 +1246,7 @@
     ]
   },
   {
-    "__docId__": 89,
+    "__docId__": 88,
     "kind": "constructor",
     "name": "constructor",
     "memberof": "source/router/CellRouter.js~CellRouter",
@@ -1277,11 +1256,11 @@
     "longname": "source/router/CellRouter.js~CellRouter#constructor",
     "access": "public",
     "description": null,
-    "lineNumber": 26,
+    "lineNumber": 25,
     "undocument": true
   },
   {
-    "__docId__": 90,
+    "__docId__": 89,
     "kind": "member",
     "name": "rootURL",
     "memberof": "source/router/CellRouter.js~CellRouter",
@@ -1289,7 +1268,7 @@
     "longname": "source/router/CellRouter.js~CellRouter#rootURL",
     "access": "public",
     "description": "",
-    "lineNumber": 33,
+    "lineNumber": 32,
     "type": {
       "nullable": null,
       "types": [
@@ -1300,7 +1279,7 @@
     }
   },
   {
-    "__docId__": 91,
+    "__docId__": 90,
     "kind": "member",
     "name": "loading",
     "memberof": "source/router/CellRouter.js~CellRouter",
@@ -1308,7 +1287,7 @@
     "longname": "source/router/CellRouter.js~CellRouter#loading",
     "access": "public",
     "description": "",
-    "lineNumber": 38,
+    "lineNumber": 37,
     "type": {
       "nullable": null,
       "types": [
@@ -1319,7 +1298,7 @@
     }
   },
   {
-    "__docId__": 92,
+    "__docId__": 91,
     "kind": "get",
     "name": "mode",
     "memberof": "source/router/CellRouter.js~CellRouter",
@@ -1329,7 +1308,7 @@
     "longname": "source/router/CellRouter.js~CellRouter#mode",
     "access": "public",
     "description": "History path mode (`hash` or `path`)",
-    "lineNumber": 46,
+    "lineNumber": 45,
     "type": {
       "nullable": null,
       "types": [
@@ -1340,7 +1319,7 @@
     }
   },
   {
-    "__docId__": 93,
+    "__docId__": 92,
     "kind": "set",
     "name": "mode",
     "memberof": "source/router/CellRouter.js~CellRouter",
@@ -1350,11 +1329,11 @@
     "longname": "source/router/CellRouter.js~CellRouter#mode",
     "access": "public",
     "description": null,
-    "lineNumber": 53,
+    "lineNumber": 52,
     "undocument": true
   },
   {
-    "__docId__": 94,
+    "__docId__": 93,
     "kind": "get",
     "name": "path",
     "memberof": "source/router/CellRouter.js~CellRouter",
@@ -1364,7 +1343,7 @@
     "longname": "source/router/CellRouter.js~CellRouter#path",
     "access": "public",
     "description": "Current route path",
-    "lineNumber": 64,
+    "lineNumber": 63,
     "type": {
       "nullable": null,
       "types": [
@@ -1375,38 +1354,23 @@
     }
   },
   {
-    "__docId__": 95,
-    "kind": "method",
-    "name": "boot",
-    "memberof": "source/router/CellRouter.js~CellRouter",
-    "generator": false,
-    "async": true,
-    "static": false,
-    "longname": "source/router/CellRouter.js~CellRouter#boot",
-    "access": "private",
-    "description": "",
-    "lineNumber": 74,
-    "params": [],
-    "return": null
-  },
-  {
-    "__docId__": 96,
+    "__docId__": 94,
     "kind": "method",
     "name": "connectedCallback",
     "memberof": "source/router/CellRouter.js~CellRouter",
     "generator": false,
-    "async": false,
+    "async": true,
     "static": false,
     "longname": "source/router/CellRouter.js~CellRouter#connectedCallback",
     "access": "public",
     "description": null,
-    "lineNumber": 94,
+    "lineNumber": 70,
     "undocument": true,
     "params": [],
     "return": null
   },
   {
-    "__docId__": 97,
+    "__docId__": 95,
     "kind": "get",
     "name": "map",
     "memberof": "source/router/CellRouter.js~CellRouter",
@@ -1416,7 +1380,7 @@
     "longname": "source/router/CellRouter.js~CellRouter#map",
     "access": "public",
     "description": "Key for path, Value for tag",
-    "lineNumber": 114,
+    "lineNumber": 110,
     "type": {
       "nullable": null,
       "types": [
@@ -1427,7 +1391,7 @@
     }
   },
   {
-    "__docId__": 98,
+    "__docId__": 96,
     "kind": "get",
     "name": "stack",
     "memberof": "source/router/CellRouter.js~CellRouter",
@@ -1437,7 +1401,7 @@
     "longname": "source/router/CellRouter.js~CellRouter#stack",
     "access": "protected",
     "description": "",
-    "lineNumber": 129,
+    "lineNumber": 125,
     "type": {
       "nullable": null,
       "types": [
@@ -1448,7 +1412,7 @@
     }
   },
   {
-    "__docId__": 99,
+    "__docId__": 97,
     "kind": "method",
     "name": "navTo",
     "memberof": "source/router/CellRouter.js~CellRouter",
@@ -1458,7 +1422,7 @@
     "longname": "source/router/CellRouter.js~CellRouter#navTo",
     "access": "public",
     "description": "",
-    "lineNumber": 134,
+    "lineNumber": 130,
     "params": [
       {
         "nullable": null,
@@ -1476,7 +1440,7 @@
     "return": null
   },
   {
-    "__docId__": 102,
+    "__docId__": 100,
     "kind": "method",
     "name": "route",
     "memberof": "source/router/CellRouter.js~CellRouter",
@@ -1486,7 +1450,7 @@
     "longname": "source/router/CellRouter.js~CellRouter.route",
     "access": "public",
     "description": "Register route handler",
-    "lineNumber": 163,
+    "lineNumber": 159,
     "params": [
       {
         "nullable": null,
@@ -1520,10 +1484,10 @@
     }
   },
   {
-    "__docId__": 103,
+    "__docId__": 101,
     "kind": "file",
     "name": "source/router/PageStack.js",
-    "content": "import CellLoader from '../loader/CellLoader';\n\n\n/**\n * Page DOM storage\n */\nexport default  class PageStack {\n    /**\n     * @param {string} container     - CSS selector of Page container\n     * @param {string} [mode='hash'] - History path mode (`hash` or `path`)\n     */\n    constructor(container, mode) {\n        /**\n         * Page count\n         *\n         * @type {number}\n         */\n        this.length = 1;\n\n        /**\n         * Index of last page\n         *\n         * @type {number}\n         */\n        this.last = 0;\n\n        /**\n         * State of last page\n         *\n         * @type {HistoryState}\n         */\n        this.lastState = {\n            tag: '',  path: '',  title: document.title,  index: this.last\n        };\n\n        /**\n         * Page container\n         *\n         * @type {Element}\n         */\n        this.container = document.querySelector( container );\n\n        /**\n         * History path mode (`hash` or `path`)\n         *\n         * @type {string}\n         */\n        this.mode = mode || 'hash';\n\n        history.replaceState(this.lastState, document.title, '');\n\n        window.addEventListener('popstate',  async event => {\n\n            if ( event.state )  await this.pop( event.state );\n        });\n    }\n\n    /**\n     * @protected\n     *\n     * @param {string}       event      - Name of a Custom event\n     * @param {boolean}      cancelable - Whether this event can be canceled\n     * @param {HistoryState} from       - Meta of leaving page\n     * @param {HistoryState} to         - Meta of entering page\n     *\n     * @return {boolean} Whether `event.preventDefault()` invoked\n     */\n    dispatch(event, cancelable, from, to) {\n\n        return  this.container.dispatchEvent(new CustomEvent(event, {\n            bubbles:     true,\n            cancelable:  cancelable,\n            detail:      {from, to}\n        }));\n    }\n\n    /**\n     * @protected\n     *\n     * @return {PageStack}\n     */\n    cache() {\n\n        this[this.last] = this[this.last] || document.createDocumentFragment();\n\n        this[this.last].append(... this.container.childNodes);\n\n        return this;\n    }\n\n    /**\n     * @protected\n     *\n     * @param {string} tag     - Tag name of a Page component\n     * @param {string} path    - Route path\n     * @param {string} [title]\n     */\n    record(tag, path, title) {\n\n        title = title || document.title;\n\n        this.lastState = {tag,  path,  title,  index: this.last = this.length++};\n\n        history.pushState(\n            this.lastState,  title,  ((this.mode === 'hash') ? '#' : '') + path\n        );\n\n        document.title = title;\n    }\n\n    /**\n     * @param {string} tag     - Tag name of a Page component\n     * @param {string} path    - Route path\n     * @param {string} [title]\n     *\n     * @emits {PageChangeEvent}\n     * @emits {PageChangedEvent}\n     */\n    async push(tag, path, title) {\n\n        if ( tag.includes('-') )  await CellLoader.load( tag );\n\n        const previous = history.state,\n            next = {tag: document.createElement( tag ),  path,  title};\n\n        previous.tag = this.container.children[0] || '';\n\n        if (! this.dispatch('pagechange', true, previous, next))  return;\n\n        this.cache();\n\n        this.container.append( next.tag );\n\n        this.record(tag, path, title);\n\n        this.dispatch('pagechanged', false, previous, next);\n    }\n\n    /**\n     * @protected\n     *\n     * @param {HistoryState} state - `state` property of {@link PopStateEvent}\n     */\n    async pop(state) {\n\n        this.length = Math.max(this.length,  state.index + 1);\n\n        this.lastState.tag = this.container.children[0] || '';\n\n        var tag = this.cache()[this.last = state.index];\n\n        if (! tag) {\n\n            tag = state.tag;\n\n            if ( tag.includes('-'))  await CellLoader.load( tag );\n\n            tag = document.createElement( tag );\n        }\n\n        this.container.append( tag );\n\n        state.tag = this.container.children[0];\n\n        this.dispatch(\n            'pagechanged',  false,  this.lastState,  this.lastState = state\n        );\n    }\n}\n\n/**\n * @typedef {Object} HistoryState\n *\n * @property {string|Element} tag   - Page component\n * @property {string}         path  - Route path\n * @property {string}         title\n * @property {number}         index - Stack index of a page\n */\n\n/**\n * Before changing a page\n *\n * @typedef {CustomEvent} PageChangeEvent\n *\n * @property {boolean}       bubbles     - `true`\n * @property {boolean}       cancelable  - `true`\n * @property {Object}        detail\n * @property {HistoryState}  detail.from - Leaving page\n * @property {HistoryState}  detail.to   - Entering page\n */\n\n/**\n * After changing a page\n *\n * @typedef {CustomEvent} PageChangedEvent\n *\n * @property {boolean}       bubbles     - `true`\n * @property {boolean}       cancelable  - `false`\n * @property {Object}        detail\n * @property {HistoryState}  detail.from - Leaving page\n * @property {HistoryState}  detail.to   - Entering page\n */\n",
+    "content": "import { trigger } from 'web-cell';\n\nimport CellLoader from '../loader/CellLoader';\n\n\n/**\n * Page DOM storage\n */\nexport default  class PageStack {\n    /**\n     * @param {string} container     - CSS selector of Page container\n     * @param {string} [mode='hash'] - History path mode (`hash` or `path`)\n     */\n    constructor(container, mode) {\n        /**\n         * Page count\n         *\n         * @type {number}\n         */\n        this.length = 1;\n\n        /**\n         * Index of last page\n         *\n         * @type {number}\n         */\n        this.last = 0;\n\n        /**\n         * State of last page\n         *\n         * @type {HistoryState}\n         */\n        this.lastState = {\n            tag: '',  path: '',  title: document.title,  index: this.last\n        };\n\n        /**\n         * Page container\n         *\n         * @type {Element}\n         */\n        this.container = document.querySelector( container );\n\n        /**\n         * History path mode (`hash` or `path`)\n         *\n         * @type {string}\n         */\n        this.mode = mode || 'hash';\n\n        history.replaceState(this.lastState, document.title, '');\n\n        window.addEventListener('popstate',  async event => {\n\n            if ( event.state )  await this.pop( event.state );\n        });\n    }\n\n    /**\n     * @protected\n     *\n     * @param {string}       event      - Name of a Custom event\n     * @param {boolean}      cancelable - Whether this event can be canceled\n     * @param {HistoryState} from       - Meta of leaving page\n     * @param {HistoryState} to         - Meta of entering page\n     *\n     * @return {boolean} Whether `event.preventDefault()` invoked\n     */\n    dispatch(event, cancelable, from, to) {\n\n        return  trigger(this.container, event, {from, to}, true, cancelable);\n    }\n\n    /**\n     * @protected\n     *\n     * @return {PageStack}\n     */\n    cache() {\n\n        this[this.last] = this[this.last] || document.createDocumentFragment();\n\n        this[this.last].append(... this.container.childNodes);\n\n        return this;\n    }\n\n    /**\n     * @protected\n     *\n     * @param {string} tag     - Tag name of a Page component\n     * @param {string} path    - Route path\n     * @param {string} [title]\n     */\n    record(tag, path, title) {\n\n        title = title || document.title;\n\n        this.lastState = {tag,  path,  title,  index: this.last = this.length++};\n\n        history.pushState(\n            this.lastState,  title,  ((this.mode === 'hash') ? '#' : '') + path\n        );\n\n        document.title = title;\n    }\n\n    /**\n     * @param {string} tag     - Tag name of a Page component\n     * @param {string} path    - Route path\n     * @param {string} [title]\n     *\n     * @emits {PageChangeEvent}\n     * @emits {PageChangedEvent}\n     */\n    async push(tag, path, title) {\n\n        if ( tag.includes('-') )  await CellLoader.load( tag );\n\n        const previous = history.state,\n            next = {tag: document.createElement( tag ),  path,  title};\n\n        previous.tag = this.container.children[0] || '';\n\n        if (! this.dispatch('pagechange', true, previous, next))  return;\n\n        this.cache();\n\n        this.container.append( next.tag );\n\n        this.record(tag, path, title);\n\n        this.dispatch('pagechanged', false, previous, next);\n    }\n\n    /**\n     * @protected\n     *\n     * @param {HistoryState} state - `state` property of {@link PopStateEvent}\n     */\n    async pop(state) {\n\n        this.length = Math.max(this.length,  state.index + 1);\n\n        this.lastState.tag = this.container.children[0] || '';\n\n        var tag = this.cache()[this.last = state.index];\n\n        if (! tag) {\n\n            tag = state.tag;\n\n            if ( tag.includes('-'))  await CellLoader.load( tag );\n\n            tag = document.createElement( tag );\n        }\n\n        this.container.append( tag );\n\n        state.tag = this.container.children[0];\n\n        this.dispatch(\n            'pagechanged',  false,  this.lastState,  this.lastState = state\n        );\n    }\n}\n\n/**\n * @typedef {Object} HistoryState\n *\n * @property {string|Element} tag   - Page component\n * @property {string}         path  - Route path\n * @property {string}         title\n * @property {number}         index - Stack index of a page\n */\n\n/**\n * Before changing a page\n *\n * @typedef {CustomEvent} PageChangeEvent\n *\n * @property {boolean}       bubbles     - `true`\n * @property {boolean}       cancelable  - `true`\n * @property {Object}        detail\n * @property {HistoryState}  detail.from - Leaving page\n * @property {HistoryState}  detail.to   - Entering page\n */\n\n/**\n * After changing a page\n *\n * @typedef {CustomEvent} PageChangedEvent\n *\n * @property {boolean}       bubbles     - `true`\n * @property {boolean}       cancelable  - `false`\n * @property {Object}        detail\n * @property {HistoryState}  detail.from - Leaving page\n * @property {HistoryState}  detail.to   - Entering page\n */\n",
     "static": true,
     "longname": "d:/OpenSource/cell-router/source/router/PageStack.js",
     "access": "public",
@@ -1531,7 +1495,7 @@
     "lineNumber": 1
   },
   {
-    "__docId__": 104,
+    "__docId__": 102,
     "kind": "class",
     "name": "PageStack",
     "memberof": "source/router/PageStack.js",
@@ -1542,11 +1506,11 @@
     "importPath": "cell-router/source/router/PageStack.js",
     "importStyle": "PageStack",
     "description": "Page DOM storage",
-    "lineNumber": 7,
+    "lineNumber": 9,
     "interface": false
   },
   {
-    "__docId__": 105,
+    "__docId__": 103,
     "kind": "typedef",
     "name": "HistoryState",
     "memberof": "source/router/PageStack.js",
@@ -1606,7 +1570,7 @@
     }
   },
   {
-    "__docId__": 106,
+    "__docId__": 104,
     "kind": "typedef",
     "name": "PageChangeEvent",
     "memberof": "source/router/PageStack.js",
@@ -1675,7 +1639,7 @@
     }
   },
   {
-    "__docId__": 107,
+    "__docId__": 105,
     "kind": "typedef",
     "name": "PageChangedEvent",
     "memberof": "source/router/PageStack.js",
@@ -1744,7 +1708,7 @@
     }
   },
   {
-    "__docId__": 108,
+    "__docId__": 106,
     "kind": "constructor",
     "name": "constructor",
     "memberof": "source/router/PageStack.js~PageStack",
@@ -1754,7 +1718,7 @@
     "longname": "source/router/PageStack.js~PageStack#constructor",
     "access": "public",
     "description": "",
-    "lineNumber": 12,
+    "lineNumber": 14,
     "params": [
       {
         "nullable": null,
@@ -1781,7 +1745,7 @@
     ]
   },
   {
-    "__docId__": 109,
+    "__docId__": 107,
     "kind": "member",
     "name": "length",
     "memberof": "source/router/PageStack.js~PageStack",
@@ -1789,7 +1753,7 @@
     "longname": "source/router/PageStack.js~PageStack#length",
     "access": "public",
     "description": "Page count",
-    "lineNumber": 18,
+    "lineNumber": 20,
     "type": {
       "nullable": null,
       "types": [
@@ -1800,7 +1764,7 @@
     }
   },
   {
-    "__docId__": 110,
+    "__docId__": 108,
     "kind": "member",
     "name": "last",
     "memberof": "source/router/PageStack.js~PageStack",
@@ -1808,7 +1772,7 @@
     "longname": "source/router/PageStack.js~PageStack#last",
     "access": "public",
     "description": "Index of last page",
-    "lineNumber": 25,
+    "lineNumber": 27,
     "type": {
       "nullable": null,
       "types": [
@@ -1819,7 +1783,7 @@
     }
   },
   {
-    "__docId__": 111,
+    "__docId__": 109,
     "kind": "member",
     "name": "lastState",
     "memberof": "source/router/PageStack.js~PageStack",
@@ -1827,7 +1791,7 @@
     "longname": "source/router/PageStack.js~PageStack#lastState",
     "access": "public",
     "description": "State of last page",
-    "lineNumber": 32,
+    "lineNumber": 34,
     "type": {
       "nullable": null,
       "types": [
@@ -1838,7 +1802,7 @@
     }
   },
   {
-    "__docId__": 112,
+    "__docId__": 110,
     "kind": "member",
     "name": "container",
     "memberof": "source/router/PageStack.js~PageStack",
@@ -1846,7 +1810,7 @@
     "longname": "source/router/PageStack.js~PageStack#container",
     "access": "public",
     "description": "Page container",
-    "lineNumber": 41,
+    "lineNumber": 43,
     "type": {
       "nullable": null,
       "types": [
@@ -1857,7 +1821,7 @@
     }
   },
   {
-    "__docId__": 113,
+    "__docId__": 111,
     "kind": "member",
     "name": "mode",
     "memberof": "source/router/PageStack.js~PageStack",
@@ -1865,7 +1829,7 @@
     "longname": "source/router/PageStack.js~PageStack#mode",
     "access": "public",
     "description": "History path mode (`hash` or `path`)",
-    "lineNumber": 48,
+    "lineNumber": 50,
     "type": {
       "nullable": null,
       "types": [
@@ -1876,7 +1840,7 @@
     }
   },
   {
-    "__docId__": 114,
+    "__docId__": 112,
     "kind": "method",
     "name": "dispatch",
     "memberof": "source/router/PageStack.js~PageStack",
@@ -1886,7 +1850,7 @@
     "longname": "source/router/PageStack.js~PageStack#dispatch",
     "access": "protected",
     "description": "",
-    "lineNumber": 68,
+    "lineNumber": 70,
     "params": [
       {
         "nullable": null,
@@ -1939,7 +1903,7 @@
     }
   },
   {
-    "__docId__": 115,
+    "__docId__": 113,
     "kind": "method",
     "name": "cache",
     "memberof": "source/router/PageStack.js~PageStack",
@@ -1949,7 +1913,7 @@
     "longname": "source/router/PageStack.js~PageStack#cache",
     "access": "protected",
     "description": "",
-    "lineNumber": 82,
+    "lineNumber": 80,
     "return": {
       "nullable": null,
       "types": [
@@ -1961,7 +1925,7 @@
     "params": []
   },
   {
-    "__docId__": 116,
+    "__docId__": 114,
     "kind": "member",
     "name": "[.last]",
     "memberof": "source/router/PageStack.js~PageStack",
@@ -1969,7 +1933,7 @@
     "longname": "source/router/PageStack.js~PageStack#[.last]",
     "access": "public",
     "description": null,
-    "lineNumber": 84,
+    "lineNumber": 82,
     "undocument": true,
     "type": {
       "types": [
@@ -1978,7 +1942,7 @@
     }
   },
   {
-    "__docId__": 117,
+    "__docId__": 115,
     "kind": "method",
     "name": "record",
     "memberof": "source/router/PageStack.js~PageStack",
@@ -1988,7 +1952,7 @@
     "longname": "source/router/PageStack.js~PageStack#record",
     "access": "protected",
     "description": "",
-    "lineNumber": 98,
+    "lineNumber": 96,
     "params": [
       {
         "nullable": null,
@@ -2024,7 +1988,7 @@
     "return": null
   },
   {
-    "__docId__": 119,
+    "__docId__": 117,
     "kind": "method",
     "name": "push",
     "memberof": "source/router/PageStack.js~PageStack",
@@ -2034,7 +1998,7 @@
     "longname": "source/router/PageStack.js~PageStack#push",
     "access": "public",
     "description": "",
-    "lineNumber": 119,
+    "lineNumber": 117,
     "params": [
       {
         "nullable": null,
@@ -2084,7 +2048,7 @@
     "return": null
   },
   {
-    "__docId__": 120,
+    "__docId__": 118,
     "kind": "method",
     "name": "pop",
     "memberof": "source/router/PageStack.js~PageStack",
@@ -2094,7 +2058,7 @@
     "longname": "source/router/PageStack.js~PageStack#pop",
     "access": "protected",
     "description": "",
-    "lineNumber": 144,
+    "lineNumber": 142,
     "params": [
       {
         "nullable": null,
@@ -2110,7 +2074,7 @@
     "return": null
   },
   {
-    "__docId__": 122,
+    "__docId__": 120,
     "kind": "file",
     "name": "source/router/RouteMap.js",
     "content": "/**\n * Route map\n */\nexport default  class RouteMap {\n\n    constructor() {\n        /**\n         * @protected\n         *\n         * @type {Map}\n         */\n        this.map = new Map();\n    }\n\n    /**\n     * @param {string|RegExp}  route   - **Plain path**, **Path with colon parameters** or\n     *                                   **Regular expression**\n     * @param {*|RouteHandler} handler\n     *\n     * @return {RouteMap} This route map\n     */\n    set(route, handler) {\n\n        const pattern = { route };\n\n        if (route instanceof RegExp)\n            pattern.route = route + '',  pattern.pattern = route;\n        else {\n            if (/\\/:[^/]+/.test( route )) {\n\n                pattern.parameter = [ ];\n\n                route = route.replace(\n                    /\\/:([^/]+)/g,\n                    (_, name)  =>  pattern.parameter.push( name ) && '/([^/]+)'\n                );\n            }\n\n            pattern.pattern = new RegExp(`^${route}`);\n        }\n\n        this.map.set(pattern, handler);\n\n        return this;\n    }\n\n    /**\n     * @param {string} route\n     *\n     * @return {RouteMap} This route map\n     */\n    delete(route) {\n\n        for (let item of this.map.keys())\n            if (item.route === route)  this.map.delete( item );\n\n        return this;\n    }\n\n    /**\n     * @param {string} path   - Route path\n     * @param {...*}   [data] - Extra data\n     *\n     * @return {*}\n     */\n    trigger(path, ...data) {\n\n        for (let route of this.map.entries()) {\n\n            let match = path.match( route[0].pattern );\n\n            if (! match)  continue;\n\n            if (! (route[1] instanceof Function))  return route[1];\n\n            let parameter = { }, index = 1;\n\n            if ( route[0].parameter )\n                for (let key of route[0].parameter)\n                    parameter[ key ] = match[ index++ ];\n            else\n                parameter = match.slice(1);\n\n            return  route[1](parameter, ...data);\n        }\n    }\n}\n\n/**\n * Route handler\n *\n * @typedef {function(parameter: Object, data: ...*)} RouteHandler\n */\n",
@@ -2121,7 +2085,7 @@
     "lineNumber": 1
   },
   {
-    "__docId__": 123,
+    "__docId__": 121,
     "kind": "class",
     "name": "RouteMap",
     "memberof": "source/router/RouteMap.js",
@@ -2136,7 +2100,7 @@
     "interface": false
   },
   {
-    "__docId__": 124,
+    "__docId__": 122,
     "kind": "typedef",
     "name": "RouteHandler",
     "memberof": "source/router/RouteMap.js",
@@ -2153,7 +2117,7 @@
     }
   },
   {
-    "__docId__": 125,
+    "__docId__": 123,
     "kind": "constructor",
     "name": "constructor",
     "memberof": "source/router/RouteMap.js~RouteMap",
@@ -2167,7 +2131,7 @@
     "undocument": true
   },
   {
-    "__docId__": 126,
+    "__docId__": 124,
     "kind": "member",
     "name": "map",
     "memberof": "source/router/RouteMap.js~RouteMap",
@@ -2186,7 +2150,7 @@
     }
   },
   {
-    "__docId__": 127,
+    "__docId__": 125,
     "kind": "method",
     "name": "set",
     "memberof": "source/router/RouteMap.js~RouteMap",
@@ -2231,7 +2195,7 @@
     }
   },
   {
-    "__docId__": 128,
+    "__docId__": 126,
     "kind": "method",
     "name": "delete",
     "memberof": "source/router/RouteMap.js~RouteMap",
@@ -2264,7 +2228,7 @@
     }
   },
   {
-    "__docId__": 129,
+    "__docId__": 127,
     "kind": "method",
     "name": "trigger",
     "memberof": "source/router/RouteMap.js~RouteMap",
@@ -2316,14 +2280,14 @@
   },
   {
     "kind": "packageJSON",
-    "content": "{\n  \"name\": \"cell-router\",\n  \"version\": \"0.7.0\",\n  \"description\": \"Router component based on WebCell\",\n  \"keywords\": [\n    \"web-component\",\n    \"router\",\n    \"web-cell\",\n    \"web-app\"\n  ],\n  \"author\": \"shiy2008@gmail.com\",\n  \"license\": \"LGPL-3.0\",\n  \"homepage\": \"https://easywebapp.github.io/cell-router/\",\n  \"repository\": {\n    \"type\": \"git\",\n    \"url\": \"git+https://github.com/EasyWebApp/cell-router.git\"\n  },\n  \"bugs\": {\n    \"url\": \"https://github.com/EasyWebApp/cell-router/issues\"\n  },\n  \"main\": \"source/index.js\",\n  \"browser\": \"dist/source.js\",\n  \"directories\": {\n    \"lib\": \"source/\",\n    \"test\": \"test/\"\n  },\n  \"scripts\": {\n    \"build-test\": \"cd test  &&  web-cell pack\",\n    \"start\": \"npm run build-test  &&  web-cell preview\",\n    \"lint\": \"eslint source/ test/*.js --fix\",\n    \"test\": \"mocha --exit\",\n    \"debug\": \"mocha --inspect-brk\",\n    \"build\": \"npm run lint  &&  web-cell pack  &&  npm test  &&  esdoc\",\n    \"prepublishOnly\": \"npm run build\",\n    \"help\": \"web-server docs/ -o\"\n  },\n  \"husky\": {\n    \"hooks\": {\n      \"pre-commit\": \"npm run build  &&  git add .\"\n    }\n  },\n  \"dependencies\": {\n    \"web-cell\": \"^0.10.7\"\n  },\n  \"devDependencies\": {\n    \"@babel/core\": \"^7.1.2\",\n    \"@babel/plugin-proposal-decorators\": \"^7.1.2\",\n    \"@babel/polyfill\": \"^7.0.0\",\n    \"@babel/preset-env\": \"^7.1.0\",\n    \"@babel/register\": \"^7.0.0\",\n    \"@webcomponents/webcomponentsjs\": \"^2.1.3\",\n    \"babel-eslint\": \"^10.0.1\",\n    \"esdoc\": \"^1.1.0\",\n    \"esdoc-ecmascript-proposal-plugin\": \"^1.0.0\",\n    \"esdoc-external-webapi-plugin\": \"^1.0.0\",\n    \"esdoc-standard-plugin\": \"^1.0.0\",\n    \"eslint\": \"^5.7.0\",\n    \"husky\": \"^1.1.2\",\n    \"koapache\": \"^1.0.4\",\n    \"mocha\": \"^5.2.0\",\n    \"puppeteer-browser\": \"^0.3.5\",\n    \"should\": \"^13.2.3\",\n    \"should-sinon\": \"0.0.6\",\n    \"sinon\": \"^7.0.0\",\n    \"web-cell-cli\": \"^0.6.0\"\n  },\n  \"babel\": {\n    \"presets\": [\n      \"@babel/preset-env\"\n    ],\n    \"plugins\": [\n      [\n        \"@babel/plugin-proposal-decorators\",\n        {\n          \"decoratorsBeforeExport\": true\n        }\n      ]\n    ]\n  }\n}\n",
+    "content": "{\n  \"name\": \"cell-router\",\n  \"version\": \"0.7.1\",\n  \"description\": \"Router component based on WebCell\",\n  \"keywords\": [\n    \"web-component\",\n    \"router\",\n    \"web-cell\",\n    \"web-app\"\n  ],\n  \"author\": \"shiy2008@gmail.com\",\n  \"license\": \"LGPL-3.0\",\n  \"homepage\": \"https://easywebapp.github.io/cell-router/\",\n  \"repository\": {\n    \"type\": \"git\",\n    \"url\": \"git+https://github.com/EasyWebApp/cell-router.git\"\n  },\n  \"bugs\": {\n    \"url\": \"https://github.com/EasyWebApp/cell-router/issues\"\n  },\n  \"main\": \"source/index.js\",\n  \"browser\": \"dist/source.js\",\n  \"directories\": {\n    \"lib\": \"source/\",\n    \"test\": \"test/\"\n  },\n  \"scripts\": {\n    \"build-test\": \"cd test  &&  web-cell pack\",\n    \"start\": \"npm run build-test  &&  web-cell preview\",\n    \"lint\": \"eslint source/ test/*.js --fix\",\n    \"test\": \"mocha --exit\",\n    \"debug\": \"mocha --inspect-brk\",\n    \"build\": \"npm run lint  &&  web-cell pack  &&  npm test  &&  esdoc\",\n    \"prepublishOnly\": \"npm run build\",\n    \"help\": \"web-server docs/ -o\"\n  },\n  \"husky\": {\n    \"hooks\": {\n      \"pre-commit\": \"npm run build  &&  git add .\"\n    }\n  },\n  \"dependencies\": {\n    \"web-cell\": \"^0.10.10\"\n  },\n  \"devDependencies\": {\n    \"@babel/core\": \"^7.1.6\",\n    \"@babel/plugin-proposal-decorators\": \"^7.1.6\",\n    \"@babel/polyfill\": \"^7.0.0\",\n    \"@babel/preset-env\": \"^7.1.6\",\n    \"@babel/register\": \"^7.0.0\",\n    \"@webcomponents/webcomponentsjs\": \"^2.2.1\",\n    \"babel-eslint\": \"^10.0.1\",\n    \"esdoc\": \"^1.1.0\",\n    \"esdoc-ecmascript-proposal-plugin\": \"^1.0.0\",\n    \"esdoc-external-webapi-plugin\": \"^1.0.0\",\n    \"esdoc-standard-plugin\": \"^1.0.0\",\n    \"eslint\": \"^5.9.0\",\n    \"husky\": \"^1.2.0\",\n    \"koapache\": \"^1.0.4\",\n    \"mocha\": \"^5.2.0\",\n    \"puppeteer-browser\": \"^0.3.7\",\n    \"should\": \"^13.2.3\",\n    \"should-sinon\": \"0.0.6\",\n    \"sinon\": \"^7.1.1\",\n    \"web-cell-cli\": \"^0.7.5\"\n  },\n  \"babel\": {\n    \"presets\": [\n      \"@babel/preset-env\"\n    ],\n    \"plugins\": [\n      [\n        \"@babel/plugin-proposal-decorators\",\n        {\n          \"decoratorsBeforeExport\": true\n        }\n      ]\n    ]\n  }\n}\n",
     "longname": "d:\\OpenSource\\cell-router\\package.json",
     "name": "package.json",
     "static": true,
     "access": "public"
   },
   {
-    "__docId__": 130,
+    "__docId__": 128,
     "kind": "testFile",
     "name": "test/PageStack.test.js",
     "content": "import PuppeteerBrowser from 'puppeteer-browser';\n\nvar page;\n\nfunction consoleData() {\n\n    return  new Promise(\n        resolve  =>  page.on('console',  message => resolve( message.text() ))\n    );\n}\n\nfunction waitForNav() {\n\n    return  page.waitForSelector('cell-router',  router => (! router.loading));\n}\n\nfunction firstPage() {\n\n    return  page.$eval('cell-router',  router => {\n\n        const stack = router.stack;\n\n        return [\n            stack[0].nodeType, stack.length, stack.last,\n            stack.container.children[0].constructor.name\n        ];\n    }).should.be.fulfilledWith([11, 2, 1, 'PageHello']);\n}\n\n\n/**\n * @test {PageStack}\n */\ndescribe('Page history',  () => {\n\n    before(async () => page = await PuppeteerBrowser.getPage('', 'test/'));\n\n    /**\n     * @test {PageStack#constructor}\n     */\n    it('Boot SPA',  () => page.evaluate(() => [\n        history.length, document.title, history.state\n    ]).should.be.fulfilledWith([\n        2,  'Demo',  {tag: '', path: '', title: 'Demo', index: 0}\n    ]));\n\n    /**\n     * @test {PageStack#cache}\n     * @test {PageStack#record}\n     * @test {PageStack#push}\n     */\n    it('Go to a new page',  async () => {\n\n        await page.click('nav > a');\n\n        await waitForNav();\n\n        (await page.$eval('cell-router',  router => [\n            history.length, router.path, document.title, history.state\n        ])).should.be.eql([\n            3, 'test', 'Test', {\n                tag: 'page-hello',  path: 'test',  title: 'Test',  index: 1\n            }\n        ]);\n\n        await firstPage();\n    });\n\n    /**\n     * @test {PageStack#pop}\n     */\n    it('Back to a old page',  async () => {\n\n        await page.goBack();\n\n        (await page.$eval('cell-router',  router => {\n\n            const stack = router.stack;\n\n            const state = stack.lastState;\n\n            delete state.tag;\n\n            return [\n                stack.last, state,\n                stack[1].nodeType, stack.container.innerHTML.trim()\n            ];\n        })).should.be.eql([\n            0,  {path: '', title: 'Demo', index: 0},  11,  'Loading...'\n        ]);\n    });\n\n    /**\n     * @test {PageStack#pop}\n     */\n    it('Reload SPA from the Root path',  async () => {\n\n        await page.reload();\n\n        await page.goForward();    await waitForNav();\n\n        await firstPage();\n    });\n\n    /**\n     * @test {CellRouter.route}\n     */\n    it('Handle route based on Custom events',  async () => {\n\n        var data = consoleData();\n\n        await page.click('nav > a:last-child');\n\n        (await data).should.be.equal('PAGE-WELCOME PAGE-HELLO');\n\n        data = consoleData();\n\n        await page.goBack();\n\n        (await data).should.be.equal('PAGE-HELLO PAGE-WELCOME');\n    });\n\n    /**\n     * @test {CellRouter#boot}\n     */\n    it('Reload SPA from a Sub path',  async () => {\n\n        await page.reload();\n\n        await waitForNav();\n\n        await firstPage();\n    });\n});\n",
@@ -2334,7 +2298,7 @@
     "lineNumber": 1
   },
   {
-    "__docId__": 131,
+    "__docId__": 129,
     "kind": "test",
     "name": "describe0",
     "testId": 0,
@@ -2350,7 +2314,7 @@
     ]
   },
   {
-    "__docId__": 132,
+    "__docId__": 130,
     "kind": "test",
     "name": "it1",
     "testId": 1,
@@ -2366,7 +2330,7 @@
     ]
   },
   {
-    "__docId__": 133,
+    "__docId__": 131,
     "kind": "test",
     "name": "it2",
     "testId": 2,
@@ -2384,7 +2348,7 @@
     ]
   },
   {
-    "__docId__": 134,
+    "__docId__": 132,
     "kind": "test",
     "name": "it3",
     "testId": 3,
@@ -2400,7 +2364,7 @@
     ]
   },
   {
-    "__docId__": 135,
+    "__docId__": 133,
     "kind": "test",
     "name": "it4",
     "testId": 4,
@@ -2416,7 +2380,7 @@
     ]
   },
   {
-    "__docId__": 136,
+    "__docId__": 134,
     "kind": "test",
     "name": "it5",
     "testId": 5,
@@ -2432,7 +2396,7 @@
     ]
   },
   {
-    "__docId__": 137,
+    "__docId__": 135,
     "kind": "test",
     "name": "it6",
     "testId": 6,
@@ -2448,7 +2412,7 @@
     ]
   },
   {
-    "__docId__": 138,
+    "__docId__": 136,
     "kind": "testFile",
     "name": "test/RouteMap.test.js",
     "content": "import RouteMap from '../source/router/RouteMap';\n\nimport {spy} from 'sinon';\n\n\n/**\n * @test {RouteMap}\n */\ndescribe('Route map',  () => {\n\n    const router = new RouteMap(), handler = spy();\n    /**\n     * @test {RouteMap#set}\n     */\n    describe('Register route handler',  () => {\n\n        it('Plain path',  () => {\n\n            router.set('test', handler);\n\n            Array.from( router.map.keys() )[0].should.be.eql({\n                route:    'test',\n                pattern:  /^test/\n            });\n        });\n\n        it('Path with colon parameters',  () => {\n\n            router.set('test/:id/example/:name', handler);\n\n            Array.from( router.map.keys() )[1].should.be.eql({\n                route:      'test/:id/example/:name',\n                pattern:    /^test\\/([^/]+)\\/example\\/([^/]+)/,\n                parameter:  ['id', 'name']\n            });\n        });\n\n        it('Regular expression',  () => {\n\n            router.set(/^sample\\/([^/]+)/, handler);\n\n            router.trigger('sample/1');\n\n            handler.should.be.calledWith( ['1'] );\n        });\n    });\n\n    /**\n     * @test {RouteMap#trigger}\n     */\n    describe('Trigger route',  () => {\n\n        it('Plain path',  () => {\n\n            router.trigger('test');\n\n            handler.should.be.calledWith([ ]);\n        });\n\n        /**\n         * @test {RouteMap#delete}\n         */\n        it('Path with colon parameters',  () => {\n\n            router.delete('test').trigger('test/1/example/sample',  { });\n\n            handler.should.be.calledWith({id: '1', name: 'sample'},  { });\n        });\n    });\n});\n",
@@ -2459,7 +2423,7 @@
     "lineNumber": 1
   },
   {
-    "__docId__": 139,
+    "__docId__": 137,
     "kind": "test",
     "name": "describe7",
     "testId": 7,
@@ -2475,7 +2439,7 @@
     ]
   },
   {
-    "__docId__": 140,
+    "__docId__": 138,
     "kind": "test",
     "name": "describe8",
     "testId": 8,
@@ -2491,7 +2455,7 @@
     ]
   },
   {
-    "__docId__": 141,
+    "__docId__": 139,
     "kind": "test",
     "name": "it9",
     "testId": 9,
@@ -2504,7 +2468,7 @@
     "lineNumber": 17
   },
   {
-    "__docId__": 142,
+    "__docId__": 140,
     "kind": "test",
     "name": "it10",
     "testId": 10,
@@ -2517,7 +2481,7 @@
     "lineNumber": 27
   },
   {
-    "__docId__": 143,
+    "__docId__": 141,
     "kind": "test",
     "name": "it11",
     "testId": 11,
@@ -2530,7 +2494,7 @@
     "lineNumber": 38
   },
   {
-    "__docId__": 144,
+    "__docId__": 142,
     "kind": "test",
     "name": "describe12",
     "testId": 12,
@@ -2546,7 +2510,7 @@
     ]
   },
   {
-    "__docId__": 145,
+    "__docId__": 143,
     "kind": "test",
     "name": "it13",
     "testId": 13,
@@ -2559,7 +2523,7 @@
     "lineNumber": 53
   },
   {
-    "__docId__": 146,
+    "__docId__": 144,
     "kind": "test",
     "name": "it14",
     "testId": 14,

@@ -66,7 +66,7 @@ window.esdocSearchIndex = [
     "test"
   ],
   [
-    "cellrouter#boot source/router/cellrouter.js~cellrouter#boot,cellrouter#boot",
+    "cellrouter#boot cellrouter#boot,cellrouter#boot",
     "test-file/test/PageStack.test.js.html#lineNumber126",
     "Page history Reload SPA from a Sub path",
     "test"
@@ -594,12 +594,6 @@ window.esdocSearchIndex = [
     "file"
   ],
   [
-    "source/router/cellrouter.js~cellrouter#boot",
-    "class/source/router/CellRouter.js~CellRouter.html#instance-method-boot",
-    "source/router/CellRouter.js~CellRouter#boot",
-    "method"
-  ],
-  [
     "source/router/cellrouter.js~cellrouter#connectedcallback",
     "class/source/router/CellRouter.js~CellRouter.html#instance-method-connectedCallback",
     "source/router/CellRouter.js~CellRouter#connectedCallback",
@@ -625,13 +619,13 @@ window.esdocSearchIndex = [
   ],
   [
     "source/router/cellrouter.js~cellrouter#mode",
-    "class/source/router/CellRouter.js~CellRouter.html#instance-get-mode",
+    "class/source/router/CellRouter.js~CellRouter.html#instance-set-mode",
     "source/router/CellRouter.js~CellRouter#mode",
     "member"
   ],
   [
     "source/router/cellrouter.js~cellrouter#mode",
-    "class/source/router/CellRouter.js~CellRouter.html#instance-set-mode",
+    "class/source/router/CellRouter.js~CellRouter.html#instance-get-mode",
     "source/router/CellRouter.js~CellRouter#mode",
     "member"
   ],

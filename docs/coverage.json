@@ -1,7 +1,7 @@
 {
-  "coverage": "68.96%",
-  "expectCount": 58,
-  "actualCount": 40,
+  "coverage": "69.64%",
+  "expectCount": 56,
+  "actualCount": 39,
   "files": {
     "source/loader/CellLoader.js": {
       "expectCount": 9,
@@ -33,21 +33,20 @@
       ]
     },
     "source/router/CellRouter.js": {
-      "expectCount": 15,
-      "actualCount": 10,
+      "expectCount": 13,
+      "actualCount": 9,
       "undocumentLines": [
         9,
-        11,
-        26,
-        53,
-        94
+        25,
+        52,
+        70
       ]
     },
     "source/router/PageStack.js": {
       "expectCount": 13,
       "actualCount": 12,
       "undocumentLines": [
-        84
+        82
       ]
     },
     "source/router/RouteMap.js": {

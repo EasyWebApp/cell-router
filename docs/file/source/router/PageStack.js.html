@@ -44,7 +44,9 @@
 </nav>
 
 <div class="content" data-ice="content"><h1 data-ice="title">source/router/PageStack.js</h1>
-<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import CellLoader from &apos;../loader/CellLoader&apos;;
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import { trigger } from &apos;web-cell&apos;;
+
+import CellLoader from &apos;../loader/CellLoader&apos;;
 
 
 /**
@@ -113,11 +115,7 @@ export default  class PageStack {
      */
     dispatch(event, cancelable, from, to) {
 
-        return  this.container.dispatchEvent(new CustomEvent(event, {
-            bubbles:     true,
-            cancelable:  cancelable,
-            detail:      {from, to}
-        }));
+        return  trigger(this.container, event, {from, to}, true, cancelable);
     }
 
     /**

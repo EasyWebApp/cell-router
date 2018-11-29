@@ -22,13 +22,18 @@ function outPackage(name) {
   return /^[^./]/.test(name);
 }
 
-    var require = (typeof this.require === 'function') ?
-        this.require  :  function (name) {
+    var require = (typeof module === 'object') ?
+        function () {
 
-            if (self[name] != null)  return self[name];
+            return  module.require.apply(module, arguments);
+        } : (
+            this.require  ||  function (name) {
 
-            throw ReferenceError('Can\'t find "' + name + '" module');
-        };
+                if (self[name] != null)  return self[name];
+
+                throw ReferenceError('Can\'t find "' + name + '" module');
+            }
+        );
 
     var _include_ = include.bind(null, './');
 
@@ -141,6 +146,7 @@ function _decorate(decorators, factory, superClass) {
 }
 
 function _createElementDescriptor(def) {
+    var key = _toPropertyKey(def.key);
     var descriptor;
     if (def.kind === 'method') {
         descriptor = {
@@ -149,6 +155,10 @@ function _createElementDescriptor(def) {
             configurable: true,
             enumerable: false
         };
+        Object.defineProperty(def.value, 'name', {
+            value: _typeof(key) === 'symbol' ? '' : key,
+            configurable: true
+        });
     } else if (def.kind === 'get') {
         descriptor = { get: def.value, configurable: true, enumerable: false };
     } else if (def.kind === 'set') {
@@ -158,7 +168,7 @@ function _createElementDescriptor(def) {
     }
     var element = {
         kind: def.kind === 'field' ? 'field' : 'method',
-        key: def.key,
+        key: key,
         placement: def.static
             ? 'static'
             : def.kind === 'field'
@@ -403,8 +413,7 @@ function _toElementDescriptor(elementObject) {
                 '"'
         );
     }
-    var key = elementObject.key;
-    if (typeof key !== 'string' && _typeof(key) !== 'symbol') key = String(key);
+    var key = _toPropertyKey(elementObject.key);
     var placement = String(elementObject.placement);
     if (
         placement !== 'static' &&
@@ -511,6 +520,22 @@ function _runClassFinishers(constructor, finishers) {
         }
     }
     return constructor;
+}
+
+function _toPropertyKey(arg) {
+    var key = _toPrimitive(arg, 'string');
+    return _typeof(key) === 'symbol' ? key : String(key);
+}
+
+function _toPrimitive(input, hint) {
+    if (_typeof(input) !== 'object' || input === null) return input;
+    var prim = input[Symbol.toPrimitive];
+    if (prim !== undefined) {
+        var res = prim.call(input, hint || 'default');
+        if (_typeof(res) !== 'object') return res;
+        throw new TypeError('@@toPrimitive must return a primitive value.');
+    }
+    return (hint === 'string' ? String : Number)(input);
 }
 
 function _toArray(arr) {
@@ -631,6 +656,8 @@ var _module_ = {
                 value: true
             });
             exports.default = void 0;
+
+            var _webCell = require('web-cell');
 
             var _CellLoader = _interopRequireDefault(
                 require('../loader/CellLoader')
@@ -768,15 +795,15 @@ var _module_ = {
                                 from,
                                 to
                             ) {
-                                return this.container.dispatchEvent(
-                                    new CustomEvent(event, {
-                                        bubbles: true,
-                                        cancelable: cancelable,
-                                        detail: {
-                                            from: from,
-                                            to: to
-                                        }
-                                    })
+                                return (0, _webCell.trigger)(
+                                    this.container,
+                                    event,
+                                    {
+                                        from: from,
+                                        to: to
+                                    },
+                                    true,
+                                    cancelable
                                 );
                             }
                             /**
@@ -1437,12 +1464,11 @@ var _module_ = {
                       };
             }
 
-            var on = _webCell.Component.prototype.on,
-                route_map = new _RouteMap.default();
             var path_mode = {
-                hash: 1,
-                path: 1
-            };
+                    hash: 1,
+                    path: 1
+                },
+                route_map = new _RouteMap.default();
             var page;
 
             var /**
@@ -1527,13 +1553,13 @@ var _module_ = {
                             },
                             {
                                 kind: 'method',
-                                key: 'boot',
+                                key: 'connectedCallback',
                                 value: (function() {
                                     var _value2 = _asyncToGenerator(
                                         /*#__PURE__*/
                                         regeneratorRuntime.mark(
                                             function _callee4() {
-                                                var path;
+                                                var router, path;
                                                 return regeneratorRuntime.wrap(
                                                     function _callee4$(
                                                         _context4
@@ -1544,12 +1570,39 @@ var _module_ = {
                                                                     _context4.next)
                                                             ) {
                                                                 case 0:
+                                                                    router = this;
+                                                                    document.body.addEventListener(
+                                                                        'click',
+                                                                        (0,
+                                                                        _webCell.delegate)(
+                                                                            'a[href]',
+                                                                            function(
+                                                                                event
+                                                                            ) {
+                                                                                if (
+                                                                                    !router.loading &&
+                                                                                    (this
+                                                                                        .target ||
+                                                                                        '_self') ===
+                                                                                        '_self'
+                                                                                ) {
+                                                                                    event.preventDefault();
+                                                                                    router.navTo(
+                                                                                        this
+                                                                                    );
+                                                                                }
+                                                                            }
+                                                                        )
+                                                                    );
+                                                                    _context4.next = 4;
+                                                                    return _webCell.documentReady;
+
+                                                                case 4:
                                                                     page = new _PageStack.default(
                                                                         'main',
                                                                         this.mode
                                                                     );
-                                                                    on.call(
-                                                                        page.container,
+                                                                    page.container.addEventListener(
                                                                         'pagechanged',
                                                                         function(
                                                                             event
@@ -1575,7 +1628,7 @@ var _module_ = {
                                                                                 .path
                                                                         )
                                                                     ) {
-                                                                        _context4.next = 4;
+                                                                        _context4.next = 8;
                                                                         break;
                                                                     }
 
@@ -1583,7 +1636,7 @@ var _module_ = {
                                                                         'return'
                                                                     );
 
-                                                                case 4:
+                                                                case 8:
                                                                     path = this
                                                                         .path;
                                                                     history.replaceState(
@@ -1593,12 +1646,12 @@ var _module_ = {
                                                                             .location
                                                                             .pathname
                                                                     );
-                                                                    _context4.next = 8;
+                                                                    _context4.next = 12;
                                                                     return this.navTo(
                                                                         path
                                                                     );
 
-                                                                case 8:
+                                                                case 12:
                                                                 case 'end':
                                                                     return _context4.stop();
                                                             }
@@ -1615,33 +1668,6 @@ var _module_ = {
                                         return _value2.apply(this, arguments);
                                     };
                                 })()
-                            },
-                            {
-                                kind: 'method',
-                                key: 'connectedCallback',
-                                value: function value() {
-                                    on.call(
-                                        document,
-                                        'DOMContentLoaded',
-                                        this.boot.bind(this)
-                                    );
-                                    var router = this;
-                                    on.call(
-                                        document.body,
-                                        'click',
-                                        'a[href]',
-                                        function(event) {
-                                            if (
-                                                !router.loading &&
-                                                (this.target || '_self') ===
-                                                    '_self'
-                                            ) {
-                                                event.preventDefault();
-                                                router.navTo(this);
-                                            }
-                                        }
-                                    );
-                                }
                             },
                             {
                                 kind: 'get',

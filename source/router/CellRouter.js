@@ -1,4 +1,4 @@
-import {component, Component} from 'web-cell';
+import {component, delegate, documentReady} from 'web-cell';
 
 import CellRoute from './CellRoute';
 
@@ -6,12 +6,11 @@ import RouteMap from './RouteMap';
 
 import PageStack from './PageStack';
 
-const on = Component.prototype.on, route_map = new RouteMap();
-
 const path_mode = {
-    hash:  1,
-    path:  1
-};
+        hash:  1,
+        path:  1
+    },
+    route_map = new RouteMap();
 
 var page;
 
@@ -68,14 +67,26 @@ export default  class CellRouter extends HTMLElement {
             document.URL.slice( this.rootURL.length );
     }
 
-    /**
-     * @private
-     */
-    async boot() {
+    async connectedCallback() {
+
+        const router = this;
+
+        document.body.addEventListener(
+            'click',  delegate('a[href]',  function (event) {
+                if (
+                    !router.loading  &&
+                    ((this.target || '_self')  ===  '_self')
+                ) {
+                    event.preventDefault();   router.navTo( this );
+                }
+            })
+        );
+
+        await documentReady;
 
         page = new PageStack('main', this.mode);
 
-        on.call(page.container,  'pagechanged',  event => {
+        page.container.addEventListener('pagechanged',  event => {
 
             const data = event.detail;
 
@@ -89,21 +100,6 @@ export default  class CellRouter extends HTMLElement {
         history.replaceState({ }, document.title, window.location.pathname);
 
         await this.navTo( path );
-    }
-
-    connectedCallback() {
-
-        on.call(document,  'DOMContentLoaded',  this.boot.bind( this ));
-
-        const router = this;
-
-        on.call(document.body,  'click',  'a[href]',  function (event) {
-
-            if (!router.loading  &&  ((this.target || '_self')  ===  '_self')) {
-
-                event.preventDefault();   router.navTo( this );
-            }
-        });
     }
 
     /**
