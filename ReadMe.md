@@ -3,6 +3,8 @@
 Router component based on [WebCell](https://web-cell.tk/)
 
 [![NPM Dependency](https://david-dm.org/EasyWebApp/cell-router.svg)](https://david-dm.org/EasyWebApp/cell-router)
+[![Build Status](https://travis-ci.com/EasyWebApp/cell-router.svg?branch=master)](https://travis-ci.com/EasyWebApp/cell-router)
+[![](https://data.jsdelivr.com/v1/package/npm/cell-router/badge?style=rounded)](https://www.jsdelivr.com/package/npm/cell-router)
 
 [![NPM](https://nodei.co/npm/cell-router.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/cell-router/)
 
@@ -33,6 +35,6 @@ then write your **SPA index page** follow [the example](https://github.com/EasyW
 
 ## API Document
 
- - Online: [URL](https://easywebapp.github.io/cell-router/) or `npm docs`
+ - Online: [URL](https://web-cell.tk/cell-router/) or `npm docs`
 
  - Offline: `npm run help`

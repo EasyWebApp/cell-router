@@ -60,5 +60,7 @@ typings/
 # next.js build output
 .next
 
-# Test build
+# Package building
+dist/
 test/dist/
+docs/
