@@ -1,7 +1,7 @@
 --require @babel/register
 --require @babel/polyfill
 --require should
---require should-sinon
---no-timeouts
+--require web-cell/dist/polyfill
+--timeout 5000
 --colors
 --inline-diffs

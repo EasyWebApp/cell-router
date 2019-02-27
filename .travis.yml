@@ -12,7 +12,7 @@ cache:
 install:
     - npm install
 script:
-    - npm run docs
+    - npm run build
     - cd ${FOLDER}
     - git init
     - git config user.name ${UID}
