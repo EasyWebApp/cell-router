@@ -1,6 +1,6 @@
 # Cell Router
 
-Decorator based Router component framework, powered by [WebCell](https://web-cell.tk/)
+Decorator-based Router component framework, powered by [WebCell](https://web-cell.tk/)
 
 [![NPM Dependency](https://david-dm.org/EasyWebApp/cell-router.svg)](https://david-dm.org/EasyWebApp/cell-router)
 [![Build Status](https://travis-ci.com/EasyWebApp/cell-router.svg?branch=master)](https://travis-ci.com/EasyWebApp/cell-router)
@@ -20,7 +20,7 @@ Decorator based Router component framework, powered by [WebCell](https://web-cel
 
  - [x] **Page container**: Router component as a Page container
 
- - [x] **Route match**: Decorator based Register pattern
+ - [x] **Route match**: Decorator based Register pattern ([Express path style][1])
 
  - [ ] **Nested routers**
 
@@ -46,8 +46,8 @@ export default class AppRouter extends HTMLRouter {
     @load('/index')
     indexPage() {  return '<page-index />';  }
 
-    @load('/secret')
-    secretPage() {  return '<h1>Secret</h1>';  }
+    @load('/secret/:id')
+    secretPage(id) {  return `<h1>Secret ${id}</h1>`;  }
 
     @back('/secret')
     burnAfterRead() {  return false;  }
@@ -60,7 +60,7 @@ export default class AppRouter extends HTMLRouter {
 <!DocType HTML>
 <html>
     <head>
-        <script src="https://cdn.polyfill.io/v2/polyfill.js?features=Element.prototype.append,DocumentFragment.prototype.append"></script>
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=default%2CDocumentFragment.prototype.append%2CElement.prototype.append"></script>
         <script src="https://cdn.jsdelivr.net/npm/@babel/polyfill/dist/polyfill.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/@webcomponents/webcomponentsjs"></script>
         <script src="https://cdn.jsdelivr.net/npm/@webcomponents/webcomponentsjs/custom-elements-es5-adapter.js"></script>
@@ -119,3 +119,7 @@ export default class AppRouter extends HTMLRouter {
  - Online: [URL](https://web-cell.tk/cell-router/) or `npm docs`
 
  - Offline: `npm run help`
+
+
+
+ [1]: https://expressjs.com/en/guide/routing.html#route-parameters

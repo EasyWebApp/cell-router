@@ -6,5 +6,5 @@ import { component } from 'web-cell';
 })
 export default  class PageIndex extends HTMLElement {
 
-    constructor() {  super().buildDOM();  }
+    constructor() {  super().construct();  }
 }

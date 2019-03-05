@@ -1,24 +1,15 @@
-import { delegate } from 'web-cell';
-
-import { parseDOM } from 'dom-renderer';
+import { Component, delegate } from 'web-cell';
 
 import History from './History';
 
-import { loadModule } from './utility';
+import { loadDOM } from './utility';
 
 
 const router_history = Symbol('Router history'),
     route_handler = {
         load: new WeakMap(),
         back: new WeakMap()
-    },
-    { pathname } = self.location,
-    ESM = (! document.querySelector(
-        'script[src$="custom-elements-es5-adapter.js"]'
-    ));
-
-var main;
-
+    };
 
 /**
  * @abstract
@@ -36,24 +27,35 @@ export default  class HTMLRouter extends HTMLElement {
     }
 
     /**
+     * @param {Node} node
+     *
+     * @return {?HTMLRouter}
+     *
+     * @see https://web-cell.tk/WebCell/class/source/component/Component.js~Component.html#static-method-instanceOf
+     */
+    static instanceOf(node) {
+
+        return  Component.instanceOf.call(HTMLRouter, node);
+    }
+
+    /**
      * @protected
      */
     connectedCallback() {
 
-        const path = History.getPath( this.hash );
+        const path = History.getPath( this.hash ),
+            isTop = !HTMLRouter.instanceOf( this.parentNode );
         /**
          * @private
          *
          * @type {History}
          */
-        this[router_history] = new History(main ? path : '/',  this.hash);
+        this[router_history] = new History(isTop ? '/' : path,  this.hash);
 
         this.listen();
 
-        if (!main && this.hash && path)
+        if (isTop && this.hash && path)
             this.load(path,  (self.history.state || '').title);
-
-        main = this;
     }
 
     /**
@@ -66,8 +68,11 @@ export default  class HTMLRouter extends HTMLElement {
         document.addEventListener(
             'click',
             delegate('a[href]',  function (event) {
-
-                if ((this.target || '_self')  !==  '_self')  return;
+                if (
+                    ((this.target || '_self') !== '_self')  ||
+                    event.defaultPrevented
+                )
+                    return;
 
                 const path = that.pathOf( this.getAttribute('href') );
 
@@ -120,35 +125,43 @@ export default  class HTMLRouter extends HTMLElement {
     static get moduleBase() {  return 'dist/';  }
 
     /**
-     * @private
-     *
-     * @param {String} source
-     *
-     * @return {Node[]}
-     */
-    static async loadPage(source) {
-
-        const task = [ ];
-
-        source.replace(/<(\w+-\w+)[\s\S]*?>/g,  (_, tag) => {
-
-            if (! self.customElements.get( tag ))
-                task.push(loadModule(
-                    `${pathname}/${this.moduleBase}/${tag}.js`, ESM
-                ));
-        });
-
-        await Promise.all( task );
-
-        return  Array.from( parseDOM( source ).childNodes );
-    }
-
-    /**
      * @protected
      *
      * @param {Node[]} page
      */
     turnTo(page) {  this.innerHTML = '',  this.append.apply(this, page);  }
+
+    /**
+     * @param {String} path
+     *
+     * @return {RegExp}
+     */
+    static patternOf(path) {
+
+        return  RegExp('^' + path.replace(/:(\w+)/g, '(.+?)'));
+    }
+
+    /**
+     * @private
+     *
+     * @param {String} type
+     * @param {String} path
+     * @param {...*}   extra
+     *
+     * @return {String[]}
+     */
+    exec(type, path, ...extra) {
+
+        const map = route_handler[type].get( this.constructor );
+
+        for (let [pattern, handler]  of  map) {
+
+            let parameter = pattern.exec( path );
+
+            if ( parameter )
+                return  handler.apply(this,  parameter.slice(1).concat( extra ));
+        }
+    }
 
     /**
      * Go to a new Page
@@ -158,13 +171,11 @@ export default  class HTMLRouter extends HTMLElement {
      */
     async load(path, title) {
 
-        const handler = route_handler.load.get( this.constructor )[ path ];
-
-        const source = handler  &&  await handler.call( this );
+        const source = await this.exec('load', path);
 
         if (!(Object(source) instanceof String))  return;
 
-        const page = await HTMLRouter.loadPage( source ),
+        const page = await loadDOM(source, HTMLRouter.moduleBase),
             data = this[router_history].add(path, title, source);
 
         await this.turnTo(data.tree = page);
@@ -185,9 +196,7 @@ export default  class HTMLRouter extends HTMLElement {
 
         if (state.index === history.lastIndex)  return;
 
-        const handler = route_handler.back.get( this.constructor )[ state.path ];
-
-        if (handler  &&  (await handler.call(this, state) === false))
+        if (await this.exec('back', state.path, state) === false)
             return  history.rollback( state );
 
         history.lastIndex = state.index;
@@ -202,9 +211,9 @@ function route(type, path, meta) {
 
     meta.finisher = Class => {
 
-        const handler = route_handler[type].get( Class )  ||  { };
+        const handler = route_handler[type].get( Class )  ||  new Map();
 
-        handler[ path ] = meta.descriptor.value;
+        handler.set(HTMLRouter.patternOf( path ),  meta.descriptor.value);
 
         route_handler[type].set(Class, handler);
     };

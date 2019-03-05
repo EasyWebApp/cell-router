@@ -1,3 +1,6 @@
+import { parseDOM } from 'dom-renderer';
+
+
 /**
  * @param {String} raw
  *
@@ -32,4 +35,33 @@ export function loadModule(URI, ESM) {
 
         document.head.append( script );
     });
+}
+
+
+const { pathname } = self.location,
+    ESM = (! document.querySelector(
+        'script[src$="custom-elements-es5-adapter.js"]'
+    ));
+
+/**
+ * @param {String} source - HTML source code
+ * @param {String} [base] - Base path after `location.pathname`
+ *
+ * @return {Node[]}
+ */
+export async function loadDOM(source, base) {
+
+    const task = [ ];
+
+    source.replace(/<(\w+-\w+)[\s\S]*?>/g,  (_, tag) => {
+
+        if (! self.customElements.get( tag ))
+            task.push(loadModule(
+                `${pathname}/${base}/${tag}.js`, ESM
+            ));
+    });
+
+    await Promise.all( task );
+
+    return  Array.from( parseDOM( source ).childNodes );
 }

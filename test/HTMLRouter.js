@@ -37,7 +37,10 @@ describe('Router',  () => {
 
         await page.waitFor('app-router h1');
 
-        (await getPath()).should.be.equal('/secret');
+        (await getPath()).should.be.equal('/secret/1');
+
+        (await page.$eval('app-router h1',  title => title.textContent))
+            .should.be.equal('Secret 1');
 
         await page.goBack();
 
