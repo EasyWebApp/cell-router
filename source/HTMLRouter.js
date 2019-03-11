@@ -2,7 +2,7 @@ import { Component, delegate } from 'web-cell';
 
 import History from './History';
 
-import { loadDOM } from './utility';
+import { parseDOM } from 'dom-renderer';
 
 
 const router_history = Symbol('Router history'),
@@ -40,6 +40,8 @@ export default  class HTMLRouter extends HTMLElement {
 
     /**
      * @protected
+     *
+     * @return {Promise}
      */
     connectedCallback() {
 
@@ -52,44 +54,49 @@ export default  class HTMLRouter extends HTMLElement {
          */
         this[router_history] = new History(isTop ? '/' : path,  this.hash);
 
-        this.listen();
+        this.addEventListener('click', this.onClick);
 
-        if (isTop && this.hash && path)
-            this.load(path,  (self.history.state || '').title);
-    }
-
-    /**
-     * @private
-     */
-    listen() {
-
-        const that = this;
-
-        document.addEventListener(
-            'click',
-            delegate('a[href]',  function (event) {
-                if (
-                    ((this.target || '_self') !== '_self')  ||
-                    event.defaultPrevented
-                )
-                    return;
-
-                const path = that.pathOf( this.getAttribute('href') );
-
-                if (path != null) {
-
-                    event.preventDefault();
-
-                    that.load(path,  this.title || this.textContent.trim());
-                }
-            })
-        );
+        if ( isTop )  document.addEventListener('click', this.onClick);
 
         self.addEventListener(
             'popstate',  ({ state })  =>
                 ((state || '').index != null)  &&  this.back( state )
         );
+
+        if (isTop && this.hash && path)
+            return  this.load(path,  (self.history.state || '').title);
+
+        for (let path  in  route_handler.load.get( this.constructor ))
+            if (/^\/(index\/?)?$/.test( path ))
+                return  this.load( path );
     }
+
+    /**
+     * @protected
+     */
+    disconnectedCallback() {
+
+        document.removeEventListener('click', this.onClick);
+    }
+
+    /**
+     * @private
+     */
+    onClick = delegate('a[href]',  (event, target) => {
+        if (
+            ((target.target || '_self') !== '_self')  ||  event.defaultPrevented
+        )
+            return;
+
+        const path = this.pathOf( target.getAttribute('href') );
+
+        if (path != null) {
+
+            event.preventDefault();
+
+            this.load(path,  target.title || target.textContent.trim());
+        }
+    });
 
     /**
      * Base path of this router
@@ -154,12 +161,14 @@ export default  class HTMLRouter extends HTMLElement {
 
         const map = route_handler[type].get( this.constructor );
 
-        for (let [pattern, handler]  of  map) {
+        for (let route in map) {
 
-            let parameter = pattern.exec( path );
+            let parameter = map[route].pattern.exec( path );
 
             if ( parameter )
-                return  handler.apply(this,  parameter.slice(1).concat( extra ));
+                return map[route].handler.apply(
+                    this,  parameter.slice(1).concat( extra )
+                );
         }
     }
 
@@ -175,10 +184,11 @@ export default  class HTMLRouter extends HTMLElement {
 
         if (!(Object(source) instanceof String))  return;
 
-        const page = await loadDOM(source, HTMLRouter.moduleBase),
-            data = this[router_history].add(path, title, source);
+        const data = this[router_history].add(path, title, source);
 
-        await this.turnTo(data.tree = page);
+        await this.turnTo(
+            data.tree = Array.from( parseDOM( source ).childNodes )
+        );
     }
 
     /**
@@ -211,9 +221,12 @@ function route(type, path, meta) {
 
     meta.finisher = Class => {
 
-        const handler = route_handler[type].get( Class )  ||  new Map();
+        const handler = route_handler[type].get( Class )  ||  { };
 
-        handler.set(HTMLRouter.patternOf( path ),  meta.descriptor.value);
+        handler[path] = {
+            pattern:  HTMLRouter.patternOf( path ),
+            handler:  meta.descriptor.value
+        };
 
         route_handler[type].set(Class, handler);
     };

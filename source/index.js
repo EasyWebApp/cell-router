@@ -1,5 +1,3 @@
-export * from './utility';
-
 export { default as History } from './History';
 
 export { default } from './HTMLRouter';

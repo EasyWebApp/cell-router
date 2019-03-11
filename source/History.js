@@ -1,4 +1,4 @@
-import { clearPath } from './utility';
+import { clearPath } from 'web-cell';
 
 
 const { pathname } = self.location;

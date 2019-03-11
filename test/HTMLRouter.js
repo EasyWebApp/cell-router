@@ -16,12 +16,10 @@ describe('Router',  () => {
 
     before(async () => page = await PuppeteerBrowser.getPage('', 'test/'));
     /**
+     * @test {HTMLRouter#connectedCallback}
      * @test {HTMLRouter#load}
-     * @test {load}
      */
     it('Load a Page component',  async () => {
-
-        await page.click('a');
 
         await page.waitFor('page-index');
 

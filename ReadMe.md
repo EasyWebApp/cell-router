@@ -22,11 +22,11 @@ Decorator-based Router component framework, powered by [WebCell](https://web-cel
 
  - [x] **Route match**: Decorator based Register pattern ([Express path style][1])
 
- - [ ] **Nested routers**
-
- - [x] **Page loader**: auto detect **UMD** & **ES module**
+ - [x] Default route: `/` or `/index` will be loaded automatically
 
  - [x] **DOM cache**
+
+ - [ ] **Nested routers**
 
 
 

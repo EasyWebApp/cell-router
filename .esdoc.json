@@ -6,10 +6,14 @@
         {
             "name": "esdoc-standard-plugin",
             "option": {
+                "accessor": {
+                    "access": ["public", "protected"],
+                    "autoPrivate": false
+                },
                 "test": {
                     "source": "./test",
                     "interfaces": ["describe", "it"],
-                    "includes": ["\\.test\\.js$"]
+                    "includes": ["\\.js$"]
                 }
             }
         },
