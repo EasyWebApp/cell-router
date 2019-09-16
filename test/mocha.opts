@@ -2,6 +2,6 @@
 --require @babel/polyfill
 --require should
 --require web-cell/source/polyfill
---timeout 5000
+--timeout 4500
 --colors
 --inline-diffs

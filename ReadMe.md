@@ -1,6 +1,6 @@
 # Cell Router
 
-Decorator-based Router component framework, powered by [WebCell](https://web-cell.tk/)
+Decorator-based Router component framework, powered by [WebCell](https://web-cell.dev/)
 
 [![NPM Dependency](https://david-dm.org/EasyWebApp/cell-router.svg)](https://david-dm.org/EasyWebApp/cell-router)
 [![Build Status](https://travis-ci.com/EasyWebApp/cell-router.svg?branch=master)](https://travis-ci.com/EasyWebApp/cell-router)
@@ -116,7 +116,7 @@ export default class AppRouter extends HTMLRouter {
 
 ## API Document
 
- - Online: [URL](https://web-cell.tk/cell-router/) or `npm docs`
+ - Online: [URL](https://web-cell.dev/cell-router/) or `npm docs`
 
  - Offline: `npm run help`
 

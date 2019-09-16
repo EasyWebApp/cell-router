@@ -23,6 +23,9 @@ describe('Router',  () => {
 
         await page.waitFor('page-index');
 
+        (await page.$eval('page-index', page => page.shadowRoot != null))
+            .should.be.true();
+
         (await getPath()).should.be.equal('/index');
     });
 

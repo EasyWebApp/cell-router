@@ -1,4 +1,4 @@
-import { Component, delegate } from 'web-cell';
+import { Component, delegate, loadDOM } from 'web-cell';
 
 import History from './History';
 
@@ -31,7 +31,7 @@ export default  class HTMLRouter extends HTMLElement {
      *
      * @return {?HTMLRouter}
      *
-     * @see https://web-cell.tk/WebCell/class/source/component/Component.js~Component.html#static-method-instanceOf
+     * @see https://web-cell.dev/WebCell/class/source/component/Component.js~Component.html#static-method-instanceOf
      */
     static instanceOf(node) {
 
@@ -121,7 +121,7 @@ export default  class HTMLRouter extends HTMLElement {
 
         const base = this.base.replace(/\/$/, '');
 
-        if (! raw.indexOf( base ))  return raw.slice( base.length );
+        if (raw.startsWith( base ))  return raw.slice( base.length );
     }
 
     /**
@@ -184,11 +184,12 @@ export default  class HTMLRouter extends HTMLElement {
 
         if (!(Object(source) instanceof String))  return;
 
-        const data = this[router_history].add(path, title, source);
+        const tree = await loadDOM(
+                parseDOM( source ),  this.constructor.moduleBase || 'dist/'
+            ),
+            data = this[router_history].add(path, title, source);
 
-        await this.turnTo(
-            data.tree = Array.from( parseDOM( source ).childNodes )
-        );
+        await this.turnTo(data.tree = Array.from( tree.childNodes ));
     }
 
     /**
