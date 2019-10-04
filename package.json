@@ -1,55 +1,76 @@
 {
-  "name": "cell-router",
-  "version": "2.0.0-alpha.1",
-  "license": "AGPL-3.0",
-  "description": "",
-  "keywords": [],
-  "author": "shiy2008@gmail.com",
-  "homepage": "https://github.com/EasyWebApp/cell-router#readme",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/EasyWebApp/cell-router.git"
-  },
-  "bugs": {
-    "url": "https://github.com/EasyWebApp/cell-router/issues"
-  },
-  "main": "dist/index.js",
-  "module": "source/index.ts",
-  "devDependencies": {
-    "@types/jest": "^24.0.18",
-    "@types/jsdom": "^12.2.4",
-    "@types/mocha": "^5.2.7",
-    "husky": "^3.0.7",
-    "jest": "^24.9.0",
-    "jsdom": "^15.1.1",
-    "lint-staged": "^9.4.1",
-    "parcel-bundler": "^1.12.3",
-    "prettier": "^1.18.2",
-    "ts-jest": "^24.1.0",
-    "typescript": "^3.6.3"
-  },
-  "scripts": {
-    "test": "lint-staged  &&  jest",
-    "build": "parcel build source/index.ts"
-  },
-  "prettier": {
-    "singleQuote": true,
-    "tabWidth": 4
-  },
-  "jest": {
-    "preset": "ts-jest",
-    "testEnvironment": "node"
-  },
-  "lint-staged": {
-    "*.ts": [
-      "prettier --write",
-      "git add"
-    ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm test",
-      "pre-push": "npm run build"
+    "name": "cell-router",
+    "version": "2.0.0-beta.0",
+    "license": "LGPL-3.0",
+    "description": "Web Component Router based on WebCell & MobX",
+    "keywords": [
+        "Web",
+        "component",
+        "router",
+        "WebCell",
+        "MobX"
+    ],
+    "author": "shiy2008@gmail.com",
+    "homepage": "https://web-cell.dev/cell-router/",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/EasyWebApp/cell-router.git"
+    },
+    "bugs": {
+        "url": "https://github.com/EasyWebApp/cell-router/issues"
+    },
+    "source": "source/index.ts",
+    "types": "dist/index.d.ts",
+    "main": "dist/cell-router.umd.js",
+    "module": "dist/cell-router.js",
+    "peerDependencies": {
+        "mobx": "^5.14.0",
+        "mobx-web-cell": "^0.1.1",
+        "web-cell": "^2.0.0-beta.1"
+    },
+    "devDependencies": {
+        "@types/jest": "^24.0.18",
+        "@types/puppeteer-core": "^1.9.0",
+        "husky": "^3.0.8",
+        "jest": "^24.9.0",
+        "koapache": "^1.0.6",
+        "lint-staged": "^9.4.1",
+        "microbundle": "^0.11.0",
+        "mobx": "^5.14.0",
+        "mobx-web-cell": "^0.1.1",
+        "parcel-bundler": "^1.12.3",
+        "prettier": "^1.18.2",
+        "puppeteer-core": "^1.20.0",
+        "ts-jest": "^24.1.0",
+        "typescript": "^3.6.3",
+        "web-cell": "^2.0.0-beta.1"
+    },
+    "scripts": {
+        "debug": "cd test/  &&  parcel source/index.html",
+        "lint": "lint-staged",
+        "pack-test": "cd test/  &&  parcel build source/index.html",
+        "test": "npm run lint  &&  npm run pack-test  &&  jest --forceExit",
+        "build": "microbundle --external web-cell,mobx --globals web-cell=WebCell --name CellRouter",
+        "prepublishOnly": "npm test  &&  npm run build"
+    },
+    "prettier": {
+        "singleQuote": true,
+        "tabWidth": 4
+    },
+    "jest": {
+        "preset": "ts-jest",
+        "testEnvironment": "node"
+    },
+    "lint-staged": {
+        "*.{html,md,js,json,ts,tsx}": [
+            "prettier --write",
+            "git add"
+        ]
+    },
+    "husky": {
+        "hooks": {
+            "pre-commit": "npm run lint",
+            "pre-push": "npm test  &&  npm run build"
+        }
     }
-  }
 }
