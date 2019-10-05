@@ -1,5 +1,11 @@
 import { createCell, render } from 'web-cell';
 
-import PageRouter from './PageRouter';
+import SimpleRouter from './SimpleRouter';
+import NestedRouter from './NestedRouter';
 
-render(<PageRouter />);
+render(
+    <div>
+        <SimpleRouter />
+        <NestedRouter />
+    </div>
+);

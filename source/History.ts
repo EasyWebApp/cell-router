@@ -1,33 +1,59 @@
 import { observable } from 'mobx';
 
+const { location, history } = window;
+
+export enum HistoryMode {
+    hash = '#',
+    path = '/'
+}
+
 export default class History {
-    static get path() {
-        return window.location.hash.slice(1);
-    }
-    static get title() {
-        return (window.history.state || '').title || document.title;
-    }
+    protected mode: HistoryMode;
+    protected root = location.pathname.slice(1);
 
     @observable
-    path = History.path;
+    path: string;
 
-    constructor() {
-        const { title } = History;
+    constructor(mode: HistoryMode = HistoryMode.hash) {
+        this.mode = mode;
+        this.path =
+            mode === HistoryMode.path ? '' : location.hash.split('#')[1];
 
-        window.history.replaceState({ title }, (document.title = title));
+        var { title } = history.state || '';
 
-        window.addEventListener('popstate', () => {
-            document.title = History.title;
+        if (title) document.title = title;
+        else title = document.title;
 
-            this.path = History.path;
+        history.replaceState(
+            { mode, root: this.root, path: this.path, title },
+            title
+        );
+
+        window.addEventListener('popstate', ({ state }) => {
+            if (!state) return;
+
+            const { mode, root, path, title } = state;
+
+            if (mode !== this.mode || root !== this.root) return;
+
+            if (title) document.title = title;
+
+            this.path = path;
         });
     }
 
-    push(path: string, title = document.title, data?: any) {
-        window.history.pushState(
-            { ...data, title },
-            (document.title = title),
-            '#' + path
+    mount(path: string = location.pathname + location.hash) {
+        (this.root = path), (this.path = '');
+    }
+
+    push(path: string, title: string, data?: any) {
+        if (title) document.title = title;
+        else title = document.title;
+
+        history.pushState(
+            { ...data, mode: this.mode, root: this.root, path, title },
+            title,
+            (this.root + this.mode + path).replace(/\/{2,}/g, '/')
         );
 
         this.path = path;

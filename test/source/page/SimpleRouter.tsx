@@ -1,16 +1,16 @@
 import { createCell, component } from 'web-cell';
 import { observer } from 'mobx-web-cell';
-import { HTMLRouter } from '../../../source/';
+import { HTMLRouter } from '../../../source';
 
-import { history } from '../model';
+import { simpleHistory } from '../model';
 
 @observer
 @component({
-    tagName: 'page-router',
+    tagName: 'simple-router',
     renderTarget: 'children'
 })
-export default class PageRouter extends HTMLRouter {
-    protected history = history;
+export default class SimpleRouter extends HTMLRouter {
+    protected history = simpleHistory;
 
     render() {
         return (
@@ -23,7 +23,7 @@ export default class PageRouter extends HTMLRouter {
                         <a href="example">Example</a>
                     </li>
                 </ul>
-                <div>{history.path}</div>
+                <div>{simpleHistory.path}</div>
             </main>
         );
     }

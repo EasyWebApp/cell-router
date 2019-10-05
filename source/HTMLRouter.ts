@@ -10,10 +10,16 @@ export default abstract class HTMLRouter extends mixin() {
     constructor() {
         super();
 
-        this.addEventListener('click', delegate('a[href]', this.handleLink));
+        this.addEventListener(
+            'click',
+            delegate('a[href], area[href]', this.handleLink)
+        );
     }
 
-    handleLink = (event: MouseEvent, link: HTMLAnchorElement) => {
+    handleLink = (
+        event: MouseEvent,
+        link: HTMLAnchorElement | HTMLAreaElement
+    ) => {
         if ((link.target || '_self') !== '_self') return;
 
         event.preventDefault(), event.stopPropagation();
