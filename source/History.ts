@@ -1,4 +1,5 @@
 import { observable } from 'mobx';
+import { parseURL } from './utility';
 
 const { location, history } = window;
 
@@ -7,9 +8,9 @@ export enum HistoryMode {
     path = '/'
 }
 
-export default class History {
+export class History {
     protected mode: HistoryMode;
-    protected root = location.pathname.slice(1);
+    protected root = location.pathname;
 
     @observable
     path: string;
@@ -57,5 +58,9 @@ export default class History {
         );
 
         this.path = path;
+    }
+
+    get parsedPath() {
+        return parseURL(this.path);
     }
 }

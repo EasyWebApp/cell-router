@@ -1,10 +1,10 @@
 import { mixin, delegate } from 'web-cell';
 
-import History from './History';
+import { History } from './History';
 
 const NonRoute = /^((\w+:)?\/\/|#|javascript:)/;
 
-export default abstract class HTMLRouter extends mixin() {
+export abstract class HTMLRouter extends mixin() {
     protected abstract history: History;
 
     constructor() {
