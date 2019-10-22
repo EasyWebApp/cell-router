@@ -58,6 +58,14 @@ import { HTMLRouter } from 'cell-router/source';
 
 import { history } from '../model';
 
+function Test({ path }) {
+    return <span>{path}</span>;
+}
+
+function Example({ path }) {
+    return <span>{path}</span>;
+}
+
 @observer
 @component({
     tagName: 'page-router',
@@ -77,7 +85,15 @@ export default class PageRouter extends HTMLRouter {
                         <a href="example">Example</a>
                     </li>
                 </ul>
-                <div>{history.path}</div>
+                <div>
+                    {matchRoutes(
+                        [
+                            { paths: ['test'], component: Test },
+                            { paths: ['example'], component: Example }
+                        ],
+                        history.path
+                    )}
+                </div>
             </main>
         );
     }

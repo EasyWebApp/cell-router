@@ -1,39 +1,45 @@
 import { createCell, component } from 'web-cell';
 import { observer } from 'mobx-web-cell';
-import { HTMLRouter } from '../../../source';
+import { HTMLRouter, matchRoutes } from '../../../source';
 
-import { nestedHistory, simpleHistory } from '../model';
-import SimpleRouter from './SimpleRouter';
+import { subHistory } from '../model';
+
+function Sample({ path }) {
+    return <span>{path}</span>;
+}
+
+function Temp({ path }) {
+    return <span>{path}</span>;
+}
 
 @observer
 @component({
-    tagName: 'nested-router',
+    tagName: 'sub-router',
     renderTarget: 'children'
 })
-export default class NestedRouter extends HTMLRouter {
-    protected history = nestedHistory;
-
-    renderPage() {
-        if (nestedHistory.path !== 'nested')
-            return <div>{nestedHistory.path}</div>;
-
-        simpleHistory.mount();
-
-        return <SimpleRouter />;
-    }
+export default class SubRouter extends HTMLRouter {
+    protected history = subHistory;
 
     render() {
         return (
             <main>
                 <ul>
                     <li>
-                        <a href="simple">Simple</a>
+                        <a href="sample">Sample</a>
                     </li>
                     <li>
-                        <a href="nested">Nested</a>
+                        <a href="temp">Temp</a>
                     </li>
                 </ul>
-                {this.renderPage()}
+                <div>
+                    {matchRoutes(
+                        [
+                            { paths: ['sample'], component: Sample },
+                            { paths: ['temp'], component: Temp }
+                        ],
+                        subHistory.path
+                    )}
+                </div>
             </main>
         );
     }

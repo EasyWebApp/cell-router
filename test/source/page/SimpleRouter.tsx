@@ -1,16 +1,30 @@
 import { createCell, component } from 'web-cell';
 import { observer } from 'mobx-web-cell';
-import { HTMLRouter } from '../../../source';
+import { HTMLRouter, matchRoutes } from '../../../source';
 
-import { simpleHistory } from '../model';
+import { topHistory } from '../model';
+import SubRouter from './NestedRouter';
+
+function Test({ path }) {
+    return <span>{path}</span>;
+}
+
+function Example({ path }) {
+    return (
+        <div>
+            {path}
+            <SubRouter />
+        </div>
+    );
+}
 
 @observer
 @component({
-    tagName: 'simple-router',
+    tagName: 'top-router',
     renderTarget: 'children'
 })
-export default class SimpleRouter extends HTMLRouter {
-    protected history = simpleHistory;
+export default class TopRouter extends HTMLRouter {
+    protected history = topHistory;
 
     render() {
         return (
@@ -23,7 +37,15 @@ export default class SimpleRouter extends HTMLRouter {
                         <a href="example">Example</a>
                     </li>
                 </ul>
-                <div>{simpleHistory.path}</div>
+                <div>
+                    {matchRoutes(
+                        [
+                            { paths: ['test'], component: Test },
+                            { paths: ['example'], component: Example }
+                        ],
+                        topHistory.path
+                    )}
+                </div>
             </main>
         );
     }

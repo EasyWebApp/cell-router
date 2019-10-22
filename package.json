@@ -1,6 +1,6 @@
 {
     "name": "cell-router",
-    "version": "2.0.0-beta.6",
+    "version": "2.0.0-rc.0",
     "license": "LGPL-3.0",
     "description": "Web Component Router based on WebCell & MobX",
     "keywords": [
@@ -39,7 +39,7 @@
         "koapache": "^1.0.6",
         "lint-staged": "^9.4.2",
         "microbundle": "^0.11.0",
-        "mobx": "^5.14.0",
+        "mobx": "^5.14.2",
         "mobx-web-cell": "^0.2.3",
         "parcel-bundler": "^1.12.4",
         "prettier": "^1.18.2",

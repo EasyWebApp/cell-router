@@ -1,4 +1,4 @@
 import { History } from '../../../source';
 
-export const simpleHistory = new History();
-export const nestedHistory = new History();
+export const topHistory = new History();
+export const subHistory = new History();

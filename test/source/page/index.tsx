@@ -1,11 +1,9 @@
 import { createCell, render } from 'web-cell';
 
-import SimpleRouter from './SimpleRouter';
-import NestedRouter from './NestedRouter';
+import TopRouter from './SimpleRouter';
 
 render(
     <div>
-        <SimpleRouter />
-        <NestedRouter />
+        <TopRouter />
     </div>
 );

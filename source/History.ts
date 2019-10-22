@@ -1,5 +1,4 @@
-import { observable } from 'mobx';
-import { parseURL } from './utility';
+import { observable, action } from 'mobx';
 
 const { location, history } = window;
 
@@ -9,58 +8,60 @@ export enum HistoryMode {
 }
 
 export class History {
-    protected mode: HistoryMode;
-    protected root = location.pathname;
+    protected baseURL: string;
+
+    set base(value: string) {
+        const { origin, pathname, hash } = new URL(value, location.href);
+
+        this.baseURL = origin + pathname + hash;
+    }
+
+    get base() {
+        return this.baseURL;
+    }
 
     @observable
-    path: string;
+    path = '';
 
-    constructor(mode: HistoryMode = HistoryMode.hash) {
+    mode: HistoryMode;
+
+    constructor(mode = HistoryMode.hash) {
         this.mode = mode;
-        this.path =
-            mode === HistoryMode.path ? '' : location.hash.split('#')[1];
-
-        var { title } = history.state || '';
-
-        if (title) document.title = title;
-        else title = document.title;
-
-        history.replaceState(
-            { mode, root: this.root, path: this.path, title },
-            title
-        );
-
-        window.addEventListener('popstate', ({ state }) => {
-            if (!state) return;
-
-            const { mode, root, path, title } = state;
-
-            if (mode !== this.mode || root !== this.root) return;
-
-            if (title) document.title = title;
-
-            this.path = path;
-        });
     }
 
-    mount(path: string = location.pathname + location.hash) {
-        (this.root = path), (this.path = '');
-    }
-
-    push(path: string, title: string, data?: any) {
-        if (title) document.title = title;
-        else title = document.title;
+    @action
+    push(path: string, title = document.title, data?: any) {
+        const { base, mode } = this;
 
         history.pushState(
-            { ...data, mode: this.mode, root: this.root, path, title },
-            title,
-            (this.root + this.mode + path).replace(/\/{2,}/g, '/')
+            { ...data, base, path, title },
+            (document.title = title),
+            base + mode + path
         );
 
         this.path = path;
     }
 
-    get parsedPath() {
-        return parseURL(this.path);
+    @action
+    replace(path: string, title = document.title, data?: any) {
+        const { base, mode } = this;
+
+        history.replaceState(
+            { ...data, base, path, title },
+            (document.title = title),
+            base + mode + path
+        );
+
+        this.path = path;
+    }
+
+    @action
+    back() {
+        const { base, path, title } = history.state || {};
+
+        if (base === this.base) {
+            if (typeof path === 'string') this.path = path;
+            if (title) document.title = title;
+        }
     }
 }
