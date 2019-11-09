@@ -1,6 +1,6 @@
 import { createCell, render } from 'web-cell';
 
-import TopRouter from './SimpleRouter';
+import TopRouter from './TopRouter';
 
 render(
     <div>

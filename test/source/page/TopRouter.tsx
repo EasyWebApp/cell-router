@@ -3,7 +3,7 @@ import { observer } from 'mobx-web-cell';
 import { HTMLRouter, matchRoutes } from '../../../source';
 
 import { topHistory } from '../model';
-import SubRouter from './NestedRouter';
+import SubRouter from './SubRouter';
 
 function Test({ path }) {
     return <span>{path}</span>;

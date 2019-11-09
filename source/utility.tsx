@@ -26,6 +26,16 @@ export function parsePathData(URI: string) {
     return { path, params };
 }
 
+export function scrollTo(selector: string, root?: Element) {
+    const [matched, ID] = /^#(.+)/.exec(selector);
+
+    if (ID === 'top') return window.scrollTo(0, 0);
+
+    const anchor = (root || document).querySelector(selector);
+
+    if (anchor) anchor.scrollIntoView({ behavior: 'smooth' });
+}
+
 interface Route {
     paths: (string | RegExp)[];
     component: Function;

@@ -14,6 +14,7 @@
 
     -   `<a href="route/path">Page title</a>`
     -   `<a href="route/path" title="Page title" target="_self">Example page</a>`
+    -   `<a href="#page-section">Page section</a>` (Scroll to an Anchor smoothly)
 
 -   [x] **Path Mode**: `location.hash` (default) & `history.pushState()`
 

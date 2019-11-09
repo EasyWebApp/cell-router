@@ -64,4 +64,20 @@ export class History {
             if (title) document.title = title;
         }
     }
+
+    reset(isSub?: boolean) {
+        const { hash, href } = location;
+
+        this.path = '';
+
+        if (!isSub) {
+            this.base = hash ? href.slice(0, -hash.length) : href;
+
+            const { base, path, title, ...data } = history.state || {};
+
+            this.replace(hash.slice(1), title, data);
+        } else {
+            this.base = href;
+        }
+    }
 }

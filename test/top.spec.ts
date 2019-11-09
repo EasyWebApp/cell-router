@@ -64,4 +64,10 @@ describe('Top router', () => {
 
         await expectPage('top-router', '', 'Cell Router', '');
     });
+
+    it('should render a page based on Changed Hash', async () => {
+        await page.evaluate(() => (location.hash = '#test'));
+
+        await expectPage('top-router', 'test', 'Test', '#test');
+    });
 });

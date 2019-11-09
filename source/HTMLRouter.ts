@@ -1,6 +1,7 @@
 import { mixin, delegate } from 'web-cell';
 
-import { History } from './History';
+import { History, HistoryMode } from './History';
+import { scrollTo } from './utility';
 
 type LinkElement = HTMLAnchorElement | HTMLAreaElement;
 
@@ -25,7 +26,7 @@ export abstract class HTMLRouter extends mixin() {
 
     protected abstract history: History;
 
-    push = delegate('a[href]', (event: MouseEvent) => {
+    handleLink = delegate('a[href]', (event: MouseEvent) => {
         const link = event.target as LinkElement;
 
         if (HTMLRouter.isRoute(link)) {
@@ -36,35 +37,44 @@ export abstract class HTMLRouter extends mixin() {
                 link.title || link.textContent
             );
         } else if (/^#.+/.test(link.getAttribute('href'))) {
-            const anchor = this.querySelector(link.hash);
+            event.preventDefault(), event.stopPropagation();
 
-            if (anchor) anchor.scrollIntoView({ behavior: 'smooth' });
+            scrollTo(link.hash, this);
         }
     });
 
-    back = () => this.history.back();
+    handleBack = () => this.history.back();
+
+    handleHash = (event: HashChangeEvent) => {
+        event.stopImmediatePropagation();
+
+        const { hash } = window.location;
+        const path = hash.slice(1);
+        const link = this.querySelector<HTMLElement>(`a[href="${path}"]`);
+
+        this.history.replace(
+            path,
+            link ? link.title || link.textContent : undefined
+        );
+    };
 
     connectedCallback() {
         super.connectedCallback();
 
-        const { hash, href } = window.location;
+        this.history.reset(!!this.parentRouter);
 
-        if (!this.parentRouter) {
-            this.history.base = hash ? href.slice(0, -hash.length) : href;
+        this.addEventListener('click', this.handleLink);
+        window.addEventListener('popstate', this.handleBack);
 
-            const { base, path, title, ...data } = history.state || {};
-
-            this.history.replace(hash.slice(1), title, data);
-        } else {
-            this.history.base = href;
-        }
-
-        this.addEventListener('click', this.push);
-        window.addEventListener('popstate', this.back);
+        if (this.history.mode === HistoryMode.hash)
+            window.addEventListener('hashchange', this.handleHash);
     }
 
     disconnectedCallback() {
-        this.removeEventListener('click', this.push);
-        window.removeEventListener('popstate', this.back);
+        this.removeEventListener('click', this.handleLink);
+        window.removeEventListener('popstate', this.handleBack);
+
+        if (this.history.mode === HistoryMode.hash)
+            window.removeEventListener('hashchange', this.handleHash);
     }
 }
