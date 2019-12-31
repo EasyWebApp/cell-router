@@ -1,26 +1,21 @@
 import { createCell } from 'web-cell';
 
 export function parsePathData(URI: string) {
-    const [path, data] = URI.split('?'),
-        params = {};
-    // @ts-ignore
-    for (let [key, value] of Array.from(new URLSearchParams(data).entries())) {
-        const item = params[key];
+    const params = {},
+        [path, data] = URI.split('?');
 
-        try {
-            value = JSON.parse(value);
-        } catch (error) {
-            /**/
-        }
+    const searchParams = new URLSearchParams(data);
 
-        if (!(item != null)) {
-            params[key] = value;
-            continue;
-        }
+    for (const key of searchParams.keys()) {
+        const value = searchParams.getAll(key).map(item => {
+            try {
+                return JSON.parse(item);
+            } catch (error) {
+                return item;
+            }
+        });
 
-        if (!(item instanceof Array)) params[key] = [item];
-
-        params[key].push(value);
+        params[key] = value.length < 2 ? value[0] : value;
     }
 
     return { path, params };
@@ -48,6 +43,9 @@ export function matchRoutes(list: Route[], path: string) {
                 typeof item === 'string'
                     ? path.startsWith(item)
                     : item.exec(path)
-            )
-                return <Component {...parsePathData(path)} />;
+            ) {
+                const data = parsePathData(path);
+
+                return <Component {...data.params} path={data.path} />;
+            }
 }

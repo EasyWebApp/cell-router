@@ -6,6 +6,10 @@
 
 [![NPM](https://nodei.co/npm/cell-router.png?downloads=true&downloadRank=true&stars=true)][4]
 
+## Demo
+
+https://web-cell.dev/scaffold/
+
 ## Feature
 
 -   [x] **Router Component** as a **Page Container**
@@ -102,7 +106,7 @@ export default class PageRouter extends HTMLRouter {
 ```
 
 [1]: https://www.webcomponents.org/
-[2]: https://github.com/EasyWebApp/WebCell/tree/v2
+[2]: https://web-cell.dev/
 [3]: https://mobx.js.org/
 [4]: https://nodei.co/npm/cell-router/
 [5]: ./test/source/page/NestedRouter.tsx
