@@ -1,7 +1,7 @@
-import { mixin, delegate } from 'web-cell';
+import { mixin, delegate, createCell } from 'web-cell';
 
 import { History, HistoryMode } from './History';
-import { scrollTo } from './utility';
+import { Route, scrollTo, matchRoutes } from './utility';
 
 type LinkElement = HTMLAnchorElement | HTMLAreaElement;
 
@@ -25,6 +25,8 @@ export abstract class HTMLRouter extends mixin() {
     }
 
     protected abstract history: History;
+    protected abstract routes: Route[];
+    private currentPage: Function;
 
     handleLink = delegate('a[href]', (event: MouseEvent) => {
         const link = event.target as LinkElement;
@@ -63,6 +65,15 @@ export abstract class HTMLRouter extends mixin() {
 
         this.history.reset(!!this.parentRouter);
 
+        this.routes = this.routes
+            .map(({ paths, ...rest }) =>
+                paths.map(path => ({ paths: [path], ...rest }))
+            )
+            .flat()
+            .sort(({ paths: [A] }, { paths: [B] }) =>
+                (B as string).localeCompare(A as string)
+            );
+
         this.addEventListener('click', this.handleLink);
         window.addEventListener('popstate', this.handleBack);
 
@@ -76,5 +87,29 @@ export abstract class HTMLRouter extends mixin() {
 
         if (this.history.mode === HistoryMode.hash)
             window.removeEventListener('hashchange', this.handleHash);
+    }
+
+    render() {
+        const { component, async, path, params } =
+            matchRoutes(this.routes, this.history.path) || {};
+
+        if (!component) return;
+
+        if (async)
+            component().then((func: Function) => {
+                const route = this.routes.find(
+                    route => route.component === component
+                );
+                if (!route) return;
+
+                route.component = func;
+                delete route.async;
+                // @ts-ignore
+                this.update();
+            });
+        else this.currentPage = component;
+
+        if (this.currentPage)
+            return <this.currentPage {...params} path={path} />;
     }
 }

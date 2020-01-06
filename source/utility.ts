@@ -1,5 +1,3 @@
-import { createCell } from 'web-cell';
-
 export function parsePathData(URI: string) {
     const params = {},
         [path, data] = URI.split('?');
@@ -31,21 +29,19 @@ export function scrollTo(selector: string, root?: Element) {
     if (anchor) anchor.scrollIntoView({ behavior: 'smooth' });
 }
 
-interface Route {
+export interface Route {
     paths: (string | RegExp)[];
-    component: Function;
+    component: Function | (() => Promise<Function>);
+    async?: boolean;
 }
 
 export function matchRoutes(list: Route[], path: string) {
-    for (const { paths, component: Component } of list)
+    for (const { paths, ...rest } of list)
         for (const item of paths)
             if (
                 typeof item === 'string'
                     ? path.startsWith(item)
                     : item.exec(path)
-            ) {
-                const data = parsePathData(path);
-
-                return <Component {...data.params} path={data.path} />;
-            }
+            )
+                return { ...rest, ...parsePathData(path) };
 }

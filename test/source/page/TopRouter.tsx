@@ -1,6 +1,6 @@
 import { createCell, component } from 'web-cell';
 import { observer } from 'mobx-web-cell';
-import { HTMLRouter, matchRoutes } from '../../../source';
+import { HTMLRouter } from '../../../source';
 
 import { topHistory } from '../model';
 import SubRouter from './SubRouter';
@@ -25,6 +25,14 @@ function Example({ path }) {
 })
 export default class TopRouter extends HTMLRouter {
     protected history = topHistory;
+    protected routes = [
+        { paths: ['test'], component: Test },
+        {
+            paths: ['example'],
+            component: () => Promise.resolve(Example),
+            async: true
+        }
+    ];
 
     render() {
         return (
@@ -37,15 +45,7 @@ export default class TopRouter extends HTMLRouter {
                         <a href="example">Example</a>
                     </li>
                 </ul>
-                <div>
-                    {matchRoutes(
-                        [
-                            { paths: ['test'], component: Test },
-                            { paths: ['example'], component: Example }
-                        ],
-                        topHistory.path
-                    )}
-                </div>
+                <div>{super.render()}</div>
             </main>
         );
     }

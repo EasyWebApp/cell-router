@@ -1,6 +1,6 @@
 {
     "name": "cell-router",
-    "version": "2.0.0-rc.3",
+    "version": "2.0.0-rc.4",
     "license": "LGPL-3.0",
     "description": "Web Component Router based on WebCell & MobX",
     "keywords": [
@@ -26,7 +26,7 @@
     "peerDependencies": {
         "mobx": "^5.15.1",
         "mobx-web-cell": "^0.2.5",
-        "web-cell": "^2.0.0-rc.12"
+        "web-cell": "^2.0.0-rc.13"
     },
     "devDependencies": {
         "@types/jest": "^24.0.25",
@@ -48,10 +48,10 @@
         "ts-jest": "^24.2.0",
         "typedoc": "^0.15.6",
         "typescript": "^3.7.4",
-        "web-cell": "^2.0.0-rc.12"
+        "web-cell": "^2.0.0-rc.13"
     },
     "scripts": {
-        "debug": "cd test/  &&  parcel source/index.html",
+        "start": "cd test/  &&  parcel source/index.html --open",
         "lint": "lint-staged",
         "pack-test": "cd test/  &&  parcel build source/index.html",
         "set-chrome": "app-find chrome -c",

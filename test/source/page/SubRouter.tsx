@@ -1,6 +1,6 @@
 import { createCell, component } from 'web-cell';
 import { observer } from 'mobx-web-cell';
-import { HTMLRouter, matchRoutes } from '../../../source';
+import { HTMLRouter } from '../../../source';
 
 import { subHistory } from '../model';
 
@@ -19,6 +19,10 @@ function Temp({ path }) {
 })
 export default class SubRouter extends HTMLRouter {
     protected history = subHistory;
+    protected routes = [
+        { paths: ['sample'], component: Sample },
+        { paths: ['temp'], component: Temp }
+    ];
 
     render() {
         return (
@@ -31,15 +35,7 @@ export default class SubRouter extends HTMLRouter {
                         <a href="temp">Temp</a>
                     </li>
                 </ul>
-                <div>
-                    {matchRoutes(
-                        [
-                            { paths: ['sample'], component: Sample },
-                            { paths: ['temp'], component: Temp }
-                        ],
-                        subHistory.path
-                    )}
-                </div>
+                <div>{super.render()}</div>
             </main>
         );
     }

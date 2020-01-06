@@ -22,6 +22,8 @@ https://web-cell.dev/scaffold/
 
 -   [x] **Path Mode**: `location.hash` (default) & `history.pushState()`
 
+-   [x] **Async Loading** (recommend to use with `import()` ECMAScript proposal)
+
 -   [x] (experimental) [Nested Router][5] support
 
 ## Installation
@@ -46,6 +48,8 @@ npm install parcel-bundler -D
 
 ## Usage
 
+### Sync Pages
+
 `source/model/index.ts`
 
 ```typescript
@@ -56,7 +60,7 @@ export const history = new History();
 
 `source/page/PageRouter.tsx`
 
-```jsx
+```javascript
 import { createCell, component } from 'web-cell';
 import { observer } from 'mobx-web-cell';
 import { HTMLRouter } from 'cell-router/source';
@@ -78,6 +82,10 @@ function Example({ path }) {
 })
 export default class PageRouter extends HTMLRouter {
     protected history = history;
+    protected routes = [
+        { paths: ['test'], component: Test },
+        { paths: ['example'], component: Example }
+    ];
 
     render() {
         return (
@@ -90,15 +98,73 @@ export default class PageRouter extends HTMLRouter {
                         <a href="example">Example</a>
                     </li>
                 </ul>
-                <div>
-                    {matchRoutes(
-                        [
-                            { paths: ['test'], component: Test },
-                            { paths: ['example'], component: Example }
-                        ],
-                        history.path
-                    )}
-                </div>
+                <div>{super.render()}</div>
+            </main>
+        );
+    }
+}
+```
+
+### Async Pages
+
+`tsconfig.json`
+
+```json
+{
+    "compilerOptions": {
+        "module": "ESNext"
+    }
+}
+```
+
+`source/page/index.ts`
+
+```javascript
+export default [
+    {
+        paths: ['', 'home'],
+        component: async () => (await import('./Home.tsx')).default,
+        async: true
+    },
+    {
+        paths: ['list'],
+        component: async () => (await import('./List.tsx')).default,
+        async: true
+    }
+];
+```
+
+`source/component/PageRouter.tsx`
+
+```javascript
+import { component, createCell } from 'web-cell';
+import { observer } from 'mobx-web-cell';
+import { HTMLRouter } from 'cell-router/source';
+
+import { history } from '../model';
+import routes from '../page';
+
+@observer
+@component({
+    tagName: 'page-router',
+    renderTarget: 'children'
+})
+export default class PageRouter extends HTMLRouter {
+    protected history = history;
+    protected routes = routes;
+
+    render() {
+        return (
+            <main>
+                <ul>
+                    <li>
+                        <a href="home">Home</a>
+                    </li>
+                    <li>
+                        <a href="list">List</a>
+                    </li>
+                </ul>
+                <div>{super.render()}</div>
             </main>
         );
     }
