@@ -10,5 +10,13 @@
         "lib": ["ES2019", "DOM", "DOM.Iterable"],
         "target": "ES5"
     },
-    "include": ["source/**/*"]
+    "include": ["source/**/*"],
+    "typedocOptions": {
+        "name": "Cell Router",
+        "mode": "file",
+        "excludeExternals": true,
+        "excludeNotExported": true,
+        "readme": "./ReadMe.md",
+        "out": "docs/"
+    }
 }

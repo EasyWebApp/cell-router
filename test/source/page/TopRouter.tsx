@@ -29,8 +29,7 @@ export default class TopRouter extends HTMLRouter {
         { paths: ['test'], component: Test },
         {
             paths: ['example'],
-            component: () => Promise.resolve(Example),
-            async: true
+            component: () => Promise.resolve(Example)
         }
     ];
 

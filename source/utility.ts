@@ -32,7 +32,6 @@ export function scrollTo(selector: string, root?: Element) {
 export interface Route {
     paths: (string | RegExp)[];
     component: Function | (() => Promise<Function>);
-    async?: boolean;
 }
 
 export function matchRoutes(list: Route[], path: string) {

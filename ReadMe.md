@@ -2,9 +2,10 @@
 
 [Web Component][1] Router based on [WebCell][2] & [MobX][3]
 
-[![](https://data.jsdelivr.com/v1/package/npm/cell-router/badge?style=rounded)][3]
+[![NPM Dependency](https://david-dm.org/EasyWebApp/cell-router.svg)][4]
+[![Build Status](https://travis-ci.com/EasyWebApp/cell-router.svg?branch=master)][5]
 
-[![NPM](https://nodei.co/npm/cell-router.png?downloads=true&downloadRank=true&stars=true)][4]
+[![NPM](https://nodei.co/npm/cell-router.png?downloads=true&downloadRank=true&stars=true)][6]
 
 ## Demo
 
@@ -24,7 +25,7 @@ https://web-cell.dev/scaffold/
 
 -   [x] **Async Loading** (recommend to use with `import()` ECMAScript proposal)
 
--   [x] (experimental) [Nested Router][5] support
+-   [x] (experimental) [Nested Router][7] support
 
 ## Installation
 
@@ -123,13 +124,11 @@ export default class PageRouter extends HTMLRouter {
 export default [
     {
         paths: ['', 'home'],
-        component: async () => (await import('./Home.tsx')).default,
-        async: true
+        component: async () => (await import('./Home.tsx')).default
     },
     {
         paths: ['list'],
-        component: async () => (await import('./List.tsx')).default,
-        async: true
+        component: async () => (await import('./List.tsx')).default
     }
 ];
 ```
@@ -174,5 +173,7 @@ export default class PageRouter extends HTMLRouter {
 [1]: https://www.webcomponents.org/
 [2]: https://web-cell.dev/
 [3]: https://mobx.js.org/
-[4]: https://nodei.co/npm/cell-router/
-[5]: ./test/source/page/NestedRouter.tsx
+[4]: https://david-dm.org/EasyWebApp/cell-router
+[5]: https://travis-ci.com/EasyWebApp/cell-router
+[6]: https://nodei.co/npm/cell-router/
+[7]: ./test/source/page/TopRouter.tsx

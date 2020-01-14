@@ -1,6 +1,6 @@
 {
     "name": "cell-router",
-    "version": "2.0.0-rc.4",
+    "version": "2.0.0-rc.6",
     "license": "LGPL-3.0",
     "description": "Web Component Router based on WebCell & MobX",
     "keywords": [
@@ -39,16 +39,16 @@
         "koapache": "^1.0.6",
         "lint-staged": "^9.5.0",
         "microbundle": "^0.11.0",
-        "mobx": "^5.15.1",
+        "mobx": "^5.15.2",
         "mobx-web-cell": "^0.2.5",
         "parcel-bundler": "^1.12.4",
         "prettier": "^1.19.1",
         "puppeteer-core": "^1.20.0",
         "snabbdom": "^0.7.4",
-        "ts-jest": "^24.2.0",
-        "typedoc": "^0.15.6",
+        "ts-jest": "^24.3.0",
+        "typedoc": "^0.15.8",
         "typescript": "^3.7.4",
-        "web-cell": "^2.0.0-rc.13"
+        "web-cell": "^2.0.0-rc.14"
     },
     "scripts": {
         "start": "cd test/  &&  parcel source/index.html --open",
@@ -57,7 +57,7 @@
         "set-chrome": "app-find chrome -c",
         "test": "npm run lint  &&  npm run pack-test  &&  jest --testTimeout 6000 --forceExit",
         "pack-dist": "microbundle --external web-cell,mobx --globals web-cell=WebCell --name CellRouter",
-        "pack-docs": "typedoc --name \"Cell Router\" --out docs/ source/",
+        "pack-docs": "typedoc source/",
         "build": "npm run pack-dist  &&  npm run pack-docs",
         "help": "npm run pack-docs  &&  web-server docs/ -o",
         "prepublishOnly": "npm test  &&  npm run build"

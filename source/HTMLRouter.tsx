@@ -1,4 +1,4 @@
-import { mixin, delegate, createCell } from 'web-cell';
+import { mixin, VNodeChildElement, delegate, createCell } from 'web-cell';
 
 import { History, HistoryMode } from './History';
 import { Route, scrollTo, matchRoutes } from './utility';
@@ -26,11 +26,9 @@ export abstract class HTMLRouter extends mixin() {
 
     protected abstract history: History;
     protected abstract routes: Route[];
-    private currentPage: Function;
+    private currentPage: VNodeChildElement | VNodeChildElement[];
 
-    handleLink = delegate('a[href]', (event: MouseEvent) => {
-        const link = event.target as LinkElement;
-
+    handleLink = delegate('a[href]', (event: MouseEvent, link: LinkElement) => {
         if (HTMLRouter.isRoute(link)) {
             event.preventDefault(), event.stopPropagation();
 
@@ -90,26 +88,26 @@ export abstract class HTMLRouter extends mixin() {
     }
 
     render() {
-        const { component, async, path, params } =
+        const { component: Component, path, params } =
             matchRoutes(this.routes, this.history.path) || {};
 
-        if (!component) return;
+        if (!Component) return;
 
-        if (async)
-            component().then((func: Function) => {
-                const route = this.routes.find(
-                    route => route.component === component
-                );
-                if (!route) return;
+        const tree = <Component {...params} path={path} />;
 
-                route.component = func;
-                delete route.async;
-                // @ts-ignore
-                this.update();
-            });
-        else this.currentPage = component;
+        if (!(tree instanceof Promise)) return (this.currentPage = tree);
 
-        if (this.currentPage)
-            return <this.currentPage {...params} path={path} />;
+        tree.then((func: Function) => {
+            const route = this.routes.find(
+                route => route.component === Component
+            );
+            if (!route) return;
+
+            route.component = func;
+            // @ts-ignore
+            this.update();
+        });
+
+        return this.currentPage;
     }
 }
