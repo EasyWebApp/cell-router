@@ -15,11 +15,12 @@ https://web-cell.dev/scaffold/
 
 -   [x] **Router Component** as a **Page Container**
 
--   [x] **Page Link** (support `<a />` & `<area />`)
+-   [x] **Page Link** (support `<a />`, `<area />` & `<form />`)
 
     -   `<a href="route/path">Page title</a>`
     -   `<a href="route/path" title="Page title" target="_self">Example page</a>`
     -   `<a href="#page-section">Page section</a>` (Scroll to an Anchor smoothly)
+    -   `<form method="get" action="route/path" />` (Form Data processed by `URLSearchParams`)
 
 -   [x] **Path Mode**: `location.hash` (default) & `history.pushState()`
 
@@ -30,7 +31,7 @@ https://web-cell.dev/scaffold/
 ## Installation
 
 ```shell
-npm install web-cell@next mobx mobx-web-cell cell-router@next
+npm install web-cell mobx mobx-web-cell web-utility cell-router
 npm install parcel-bundler -D
 ```
 
@@ -39,7 +40,7 @@ npm install parcel-bundler -D
 ```json
 {
     "compilerOptions": {
-        "target": "es5",
+        "target": "ES5",
         "experimentalDecorators": true,
         "jsx": "react",
         "jsxFactory": "createCell"

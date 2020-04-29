@@ -1,20 +1,43 @@
 import { mixin, VNodeChildElement, delegate, createCell } from 'web-cell';
+import { walkDOM, scrollTo, formToJSON } from 'web-utility/source/DOM';
+import { buildURLData } from 'web-utility/source/URL';
 
 import { History, HistoryMode } from './History';
-import { Route, scrollTo, matchRoutes } from './utility';
+import { Route, matchRoutes } from './utility';
 
-type LinkElement = HTMLAnchorElement | HTMLAreaElement;
+type LinkElement = HTMLAnchorElement | HTMLAreaElement | HTMLFormElement;
 
-export abstract class HTMLRouter extends mixin() {
-    static isRoute(link: LinkElement) {
-        const path = link.getAttribute('href');
+export abstract class HTMLRouter extends mixin<{}, { loading?: boolean }>() {
+    state = { loading: false };
 
-        return (
+    static getInnerPath(link: LinkElement) {
+        const path = link.getAttribute('href') || link.getAttribute('action');
+
+        if (
             (link.target || '_self') === '_self' &&
-            /^https?:$/.test(link.protocol) &&
-            path !== link.href &&
-            path[0] !== '#'
-        );
+            !path.match(/^\w+:/) &&
+            (!(link instanceof HTMLFormElement) ||
+                (link.getAttribute('method') || 'get').toLowerCase() === 'get')
+        )
+            return path;
+    }
+
+    static getTitle(root: HTMLElement) {
+        if (root.title) return root.title;
+
+        var title = '';
+
+        for (const node of walkDOM(root))
+            if (node instanceof Text) {
+                const {
+                    width,
+                    height
+                } = node.parentElement.getBoundingClientRect();
+
+                if (width && height) title += node.nodeValue.trim();
+            }
+
+        return title;
     }
 
     get parentRouter(): HTMLRouter | undefined {
@@ -28,20 +51,36 @@ export abstract class HTMLRouter extends mixin() {
     protected abstract routes: Route[];
     private currentPage: VNodeChildElement | VNodeChildElement[];
 
-    handleLink = delegate('a[href]', (event: MouseEvent, link: LinkElement) => {
-        if (HTMLRouter.isRoute(link)) {
+    handleLink = delegate(
+        'a[href], area[href]',
+        (event: MouseEvent, link: LinkElement) => {
+            const path = HTMLRouter.getInnerPath(link);
+
+            if (!path) return;
+
+            event.preventDefault(), event.stopPropagation();
+
+            if (/^#.+/.test(path)) return scrollTo(path, this);
+
+            this.history.push(path, HTMLRouter.getTitle(link));
+        }
+    );
+
+    handleForm = delegate(
+        'form[action]',
+        (event: Event, form: HTMLFormElement) => {
+            const path = HTMLRouter.getInnerPath(form);
+
+            if (!path) return;
+
             event.preventDefault(), event.stopPropagation();
 
             this.history.push(
-                link.getAttribute('href'),
-                link.title || link.textContent
+                path + '?' + buildURLData(formToJSON(form)),
+                form.title
             );
-        } else if (/^#.+/.test(link.getAttribute('href'))) {
-            event.preventDefault(), event.stopPropagation();
-
-            scrollTo(link.hash, this);
         }
-    });
+    );
 
     handleBack = () => this.history.back();
 
@@ -59,8 +98,6 @@ export abstract class HTMLRouter extends mixin() {
     };
 
     connectedCallback() {
-        super.connectedCallback();
-
         this.history.reset(!!this.parentRouter);
 
         this.routes = this.routes
@@ -72,7 +109,10 @@ export abstract class HTMLRouter extends mixin() {
                 (B as string).localeCompare(A as string)
             );
 
+        super.connectedCallback();
+
         this.addEventListener('click', this.handleLink);
+        this.addEventListener('submit', this.handleForm);
         window.addEventListener('popstate', this.handleBack);
 
         if (this.history.mode === HistoryMode.hash)
@@ -81,10 +121,32 @@ export abstract class HTMLRouter extends mixin() {
 
     disconnectedCallback() {
         this.removeEventListener('click', this.handleLink);
+        this.removeEventListener('submit', this.handleForm);
         window.removeEventListener('popstate', this.handleBack);
 
         if (this.history.mode === HistoryMode.hash)
             window.removeEventListener('hashchange', this.handleHash);
+    }
+
+    protected async loadPage(
+        tree: Promise<Function>,
+        Component: () => Promise<Function>
+    ) {
+        await this.setState({ loading: true });
+        try {
+            const func = await tree,
+                route = this.routes.find(
+                    ({ component }) => component === Component
+                );
+
+            if (route) {
+                route.component = func;
+
+                this.update();
+            }
+        } finally {
+            await this.setState({ loading: false });
+        }
     }
 
     render() {
@@ -97,16 +159,7 @@ export abstract class HTMLRouter extends mixin() {
 
         if (!(tree instanceof Promise)) return (this.currentPage = tree);
 
-        tree.then((func: Function) => {
-            const route = this.routes.find(
-                route => route.component === Component
-            );
-            if (!route) return;
-
-            route.component = func;
-            // @ts-ignore
-            this.update();
-        });
+        this.loadPage(tree, Component as () => Promise<Function>);
 
         return this.currentPage;
     }
