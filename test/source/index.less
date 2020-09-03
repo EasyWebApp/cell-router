@@ -1,0 +1,26 @@
+nav a[href] {
+    display: inline-block;
+    padding: 0.5rem;
+}
+.router {
+    width: 100vw;
+    height: 100vh;
+    overflow: auto;
+    position: relative;
+    .page {
+        position: absolute;
+        top: 0;
+        left: 0;
+        transform: translateX(0);
+        opacity: 1;
+        transition: 0.25s;
+    }
+    .start {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    .end {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+}

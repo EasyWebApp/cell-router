@@ -8,13 +8,17 @@ var server: string, browser: Browser, page: Page;
 export async function bootServer() {
     if (server) return server;
 
-    const { address, port } = await new WebServer('test/dist/').workerHost();
+    const { address, port } = await new WebServer({
+        staticPath: 'test/dist/'
+    }).workerHost();
 
     return (server = `http://${address}:${port}/`);
 }
 
 export async function getPage(path: string) {
-    browser = browser || (await launch({ executablePath: npm_config_chrome }));
+    browser =
+        browser ||
+        (await launch({ executablePath: npm_config_chrome, slowMo: 200 }));
 
     page = page || (await browser.pages())[0];
 
@@ -24,13 +28,13 @@ export async function getPage(path: string) {
 }
 
 export async function expectPage(
-    rootSelector: string,
+    selector: string,
     content: string,
     title: string,
     path: string
 ) {
     expect(
-        await page.$eval(`${rootSelector} div`, tag => [
+        await page.$eval(selector, tag => [
             tag.textContent,
             document.title,
             window.location.hash

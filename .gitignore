@@ -2,5 +2,5 @@ node_modules/
 package-lock.json
 dist/
 .cache/
-.rts2_cache_*/
 docs/
+.vscode/

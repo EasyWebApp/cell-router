@@ -1,6 +1,6 @@
 # Cell Router
 
-[Web Component][1] Router based on [WebCell][2] & [MobX][3]
+[Web Component][1] Router based on [WebCell][2] & [Iterable Observer][3]
 
 [![NPM Dependency](https://david-dm.org/EasyWebApp/cell-router.svg)][4]
 [![Build Status](https://travis-ci.com/EasyWebApp/cell-router.svg?branch=master)][5]
@@ -26,12 +26,12 @@ https://web-cell.dev/scaffold/
 
 -   [x] **Async Loading** (recommend to use with `import()` ECMAScript proposal)
 
--   [x] (experimental) [Nested Router][7] support
+-   [x] CSS based **Page Transition Animation** (example [CSS][7] & [TSX][8])
 
 ## Installation
 
 ```shell
-npm install web-cell mobx mobx-web-cell web-utility cell-router
+npm install web-cell cell-router
 npm install parcel-bundler -D
 ```
 
@@ -43,7 +43,8 @@ npm install parcel-bundler -D
         "target": "ES5",
         "experimentalDecorators": true,
         "jsx": "react",
-        "jsxFactory": "createCell"
+        "jsxFactory": "createCell",
+        "jsxFragmentFactory": "Fragment"
     }
 }
 ```
@@ -52,59 +53,38 @@ npm install parcel-bundler -D
 
 ### Sync Pages
 
-`source/model/index.ts`
+`source/index.tsx`
 
-```typescript
-import { History } from 'cell-router/source';
+```jsx
+import { documentReady, render, createCell, Fragment } from 'web-cell';
+import { History, PageProps, CellRouter } from 'cell-router/source';
 
-export const history = new History();
-```
+const history = new History();
 
-`source/page/PageRouter.tsx`
-
-```javascript
-import { createCell, component } from 'web-cell';
-import { observer } from 'mobx-web-cell';
-import { HTMLRouter } from 'cell-router/source';
-
-import { history } from '../model';
-
-function Test({ path }) {
-    return <span>{path}</span>;
+function TestPage({ path, params, history }: PageProps) {
+    return (
+        <ul>
+            <li>Path: {path}</li>
+            <li>Data: {JSON.stringify(params)}</li>
+        </ul>
+    );
 }
 
-function Example({ path }) {
-    return <span>{path}</span>;
-}
-
-@observer
-@component({
-    tagName: 'page-router',
-    renderTarget: 'children'
-})
-export default class PageRouter extends HTMLRouter {
-    protected history = history;
-    protected routes = [
-        { paths: ['test'], component: Test },
-        { paths: ['example'], component: Example }
-    ];
-
-    render() {
-        return (
-            <main>
-                <ul>
-                    <li>
-                        <a href="test">Test</a>
-                    </li>
-                    <li>
-                        <a href="example">Example</a>
-                    </li>
-                </ul>
-                <div>{super.render()}</div>
-            </main>
-        );
-    }
-}
+documentReady.then(() =>
+    render(
+        <>
+            <nav>
+                <a href="test?a=1">Test</a>
+                <a href="example?b=2">Example</a>
+            </nav>
+            <CellRouter
+                className="router"
+                history={history}
+                routes={[{ paths: ['test', /^example/], component: TestPage }]}
+            />
+        </>
+    )
+);
 ```
 
 ### Async Pages
@@ -134,47 +114,34 @@ export default [
 ];
 ```
 
-`source/component/PageRouter.tsx`
+`source/index.tsx`
 
-```javascript
-import { component, createCell } from 'web-cell';
-import { observer } from 'mobx-web-cell';
-import { HTMLRouter } from 'cell-router/source';
+```jsx
+import { documentReady, render, createCell, Fragment } from 'web-cell';
+import { History, CellRouter } from 'cell-router/source';
 
-import { history } from '../model';
-import routes from '../page';
+import routes from './page';
 
-@observer
-@component({
-    tagName: 'page-router',
-    renderTarget: 'children'
-})
-export default class PageRouter extends HTMLRouter {
-    protected history = history;
-    protected routes = routes;
+const history = new History();
 
-    render() {
-        return (
-            <main>
-                <ul>
-                    <li>
-                        <a href="home">Home</a>
-                    </li>
-                    <li>
-                        <a href="list">List</a>
-                    </li>
-                </ul>
-                <div>{super.render()}</div>
-            </main>
-        );
-    }
-}
+documentReady.then(() =>
+    render(
+        <>
+            <nav>
+                <a href="test?a=1">Test</a>
+                <a href="example?b=2">Example</a>
+            </nav>
+            <CellRouter className="router" history={history} routes={routes} />
+        </>
+    )
+);
 ```
 
 [1]: https://www.webcomponents.org/
 [2]: https://web-cell.dev/
-[3]: https://mobx.js.org/
+[3]: https://web-cell.dev/iterable-observer/
 [4]: https://david-dm.org/EasyWebApp/cell-router
 [5]: https://travis-ci.com/EasyWebApp/cell-router
 [6]: https://nodei.co/npm/cell-router/
-[7]: ./test/source/page/TopRouter.tsx
+[7]: https://github.com/EasyWebApp/cell-router/blob/v2/test/source/index.less#L5
+[8]: https://github.com/EasyWebApp/cell-router/blob/v2/test/source/page/index.tsx#L12

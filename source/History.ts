@@ -1,83 +1,149 @@
-import { observable, action } from 'mobx';
+import { createQueue } from 'iterable-observer';
+import { walkDOM, scrollTo, formToJSON } from 'web-utility/source/DOM';
+import { buildURLData } from 'web-utility/source/URL';
 
-const { location, history } = window;
+export type LinkElement = HTMLAnchorElement | HTMLAreaElement | HTMLFormElement;
 
-export enum HistoryMode {
+export enum PathPrefix {
     hash = '#',
     path = '/'
 }
 
+export type PathMode = keyof typeof PathPrefix;
+
+const { location, history } = window;
+
 export class History {
-    protected baseURL: string;
+    stream = createQueue<string>();
+    paths: string[] = [];
+    prefix: PathPrefix;
 
-    set base(value: string) {
-        const { origin, pathname, hash } = new URL(value, location.href);
-
-        this.baseURL = origin + pathname + hash;
+    get path() {
+        return location[
+            this.prefix === PathPrefix.hash ? 'hash' : 'pathname'
+        ].slice(1);
     }
 
-    get base() {
-        return this.baseURL;
+    constructor(mode: PathMode = 'hash') {
+        this.prefix = PathPrefix[mode];
     }
 
-    @observable
-    path = '';
-
-    mode: HistoryMode;
-
-    constructor(mode = HistoryMode.hash) {
-        this.mode = mode;
+    [Symbol.asyncIterator]() {
+        return this.stream.observable[Symbol.asyncIterator]();
     }
 
-    @action
-    push(path: string, title = document.title, data?: any) {
-        const { base, mode } = this;
+    async set(path: string, title = document.title) {
+        if (!this.paths.includes(path)) this.paths.push(path);
 
-        history.pushState(
-            { ...data, base, path, title },
-            (document.title = title),
-            base + mode + path
-        );
+        await this.stream.process(path);
 
-        this.path = path;
+        document.title = title;
     }
 
-    @action
-    replace(path: string, title = document.title, data?: any) {
-        const { base, mode } = this;
+    push(path: string, title = document.title) {
+        history.pushState({ path, title }, title, this.prefix + path);
 
-        history.replaceState(
-            { ...data, base, path, title },
-            (document.title = title),
-            base + mode + path
-        );
-
-        this.path = path;
+        return this.set(path, title);
     }
 
-    @action
-    back() {
-        const { base, path, title } = history.state || {};
+    replace(path: string, title = document.title) {
+        history.replaceState({ path, title }, title, this.prefix + path);
 
-        if (base === this.base) {
-            if (typeof path === 'string') this.path = path;
-            if (title) document.title = title;
-        }
+        return this.set(path, title);
     }
 
-    reset(isSub?: boolean) {
-        const { hash, href } = location;
+    compare(last: string, next: string) {
+        for (const path of this.paths)
+            if (last === path) return -1;
+            else if (next === path) return 1;
 
-        this.path = '';
+        return 0;
+    }
 
-        if (!isSub) {
-            this.base = hash ? href.slice(0, -hash.length) : href;
+    static getInnerPath(link: LinkElement) {
+        const path = link.getAttribute('href') || link.getAttribute('action');
 
-            const { base, path, title, ...data } = history.state || {};
+        if (
+            (link.target || '_self') === '_self' &&
+            !path.match(/^\w+:/) &&
+            (!(link instanceof HTMLFormElement) ||
+                (link.getAttribute('method') || 'get').toLowerCase() === 'get')
+        )
+            return path;
+    }
 
-            this.replace(hash.slice(1), title, data);
-        } else {
-            this.base = href;
-        }
+    static getTitle(root: HTMLElement) {
+        if (root.title) return root.title;
+
+        var title = '';
+
+        for (const node of walkDOM(root))
+            if (node instanceof Text) {
+                const {
+                    width,
+                    height
+                } = node.parentElement.getBoundingClientRect();
+
+                if (width && height) title += node.nodeValue.trim();
+            }
+
+        return title;
+    }
+
+    handleClick = (event: MouseEvent) => {
+        const link = (event.target as HTMLElement).closest<
+            HTMLAnchorElement | HTMLAreaElement
+        >('a[href], area[href]');
+
+        if (!link) return;
+
+        const path = History.getInnerPath(link);
+
+        if (!path) return;
+
+        event.preventDefault();
+
+        if (/^#.+/.test(path))
+            return scrollTo(path, event.currentTarget as Element);
+
+        this.push(path, History.getTitle(link));
+    };
+
+    handleForm = (event: Event) => {
+        const form = event.target as HTMLFormElement;
+        const path = History.getInnerPath(form);
+
+        if (!path) return;
+
+        event.preventDefault();
+
+        this.push(path + '?' + buildURLData(formToJSON(form)), form.title);
+    };
+
+    private popping = false;
+
+    listen(root: Element) {
+        root.addEventListener('click', this.handleClick);
+        root.addEventListener('submit', this.handleForm);
+
+        if (this.prefix === PathPrefix.hash)
+            window.addEventListener(
+                'hashchange',
+                () => this.popping || this.set(this.path)
+            );
+
+        window.addEventListener('popstate', async ({ state }) => {
+            const { path = this.path, title } = state || {};
+
+            this.popping = true;
+
+            await this.set(path, title);
+
+            this.popping = false;
+        });
+
+        setTimeout(() => this.replace(this.path, (history.state || {}).title));
+
+        return this;
     }
 }

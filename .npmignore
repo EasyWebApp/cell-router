@@ -1,6 +1,6 @@
 test/
 dist/
-.rts2_cache_*/
 Contributing.md
 docs/
 .travis.yml
+.vscode/

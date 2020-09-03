@@ -1,9 +1,9 @@
 {
     "compilerOptions": {
-        "target": "es5",
+        "target": "ES5",
         "experimentalDecorators": true,
         "jsx": "react",
         "jsxFactory": "createCell"
     },
-    "include": ["./**/*", "../source/**/*"]
+    "include": ["./**/*", "../source/*"]
 }

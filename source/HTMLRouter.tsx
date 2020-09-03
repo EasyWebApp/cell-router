@@ -1,166 +1,177 @@
-import { mixin, VNodeChildElement, delegate, createCell } from 'web-cell';
-import { walkDOM, scrollTo, formToJSON } from 'web-utility/source/DOM';
-import { buildURLData } from 'web-utility/source/URL';
+import {
+    WebCellProps,
+    WebCellElement,
+    component,
+    mixin,
+    watch,
+    attribute,
+    createCell
+} from 'web-cell';
 
-import { History, HistoryMode } from './History';
-import { Route, matchRoutes } from './utility';
+import { Route, matchRoutes, watchStop } from './utility';
+import { History } from './History';
 
-type LinkElement = HTMLAnchorElement | HTMLAreaElement | HTMLFormElement;
+export interface CellRouterProps extends WebCellProps {
+    routes: Route[];
+    path?: string;
+    history?: History;
+    pageClass?: string;
+    startClass?: string;
+    endClass?: string;
+    onPageLoad?: (event: CustomEvent<string>) => any;
+    onPageRender?: (event: CustomEvent<string>) => any;
+}
 
-export abstract class HTMLRouter extends mixin<{}, { loading?: boolean }>() {
-    state = { loading: false };
+interface CellRouterState {
+    newPath: string;
+    oldPath: string;
+}
 
-    static getInnerPath(link: LinkElement) {
-        const path = link.getAttribute('href') || link.getAttribute('action');
-
-        if (
-            (link.target || '_self') === '_self' &&
-            !path.match(/^\w+:/) &&
-            (!(link instanceof HTMLFormElement) ||
-                (link.getAttribute('method') || 'get').toLowerCase() === 'get')
-        )
-            return path;
-    }
-
-    static getTitle(root: HTMLElement) {
-        if (root.title) return root.title;
-
-        var title = '';
-
-        for (const node of walkDOM(root))
-            if (node instanceof Text) {
-                const {
-                    width,
-                    height
-                } = node.parentElement.getBoundingClientRect();
-
-                if (width && height) title += node.nodeValue.trim();
-            }
-
-        return title;
-    }
-
-    get parentRouter(): HTMLRouter | undefined {
-        var node = this;
-        // @ts-ignore
-        while ((node = node.parentNode || node.host))
-            if (node instanceof HTMLRouter) return node;
-    }
-
-    protected abstract history: History;
-    protected abstract routes: Route[];
-    private currentPage: VNodeChildElement | VNodeChildElement[];
-
-    handleLink = delegate(
-        'a[href], area[href]',
-        (event: MouseEvent, link: LinkElement) => {
-            const path = HTMLRouter.getInnerPath(link);
-
-            if (!path) return;
-
-            event.preventDefault(), event.stopPropagation();
-
-            if (/^#.+/.test(path)) return scrollTo(path, this);
-
-            this.history.push(path, HTMLRouter.getTitle(link));
-        }
-    );
-
-    handleForm = delegate(
-        'form[action]',
-        (event: Event, form: HTMLFormElement) => {
-            const path = HTMLRouter.getInnerPath(form);
-
-            if (!path) return;
-
-            event.preventDefault(), event.stopPropagation();
-
-            this.history.push(
-                path + '?' + buildURLData(formToJSON(form)),
-                form.title
+@component({
+    tagName: 'cell-router',
+    renderTarget: 'children'
+})
+export class CellRouter extends mixin<CellRouterProps, CellRouterState>() {
+    static arrange(routes: Route[]) {
+        return routes
+            .reduce(
+                (routes, { paths, component }) => [
+                    ...routes,
+                    ...paths.map(path => ({ paths: [path], component }))
+                ],
+                [] as Route[]
+            )
+            .sort(({ paths: [a] }, { paths: [b] }) =>
+                (b + '').localeCompare(a + '')
             );
-        }
-    );
+    }
 
-    handleBack = () => this.history.back();
-
-    handleHash = (event: HashChangeEvent) => {
-        event.stopImmediatePropagation();
-
-        const { hash } = window.location;
-        const path = hash.slice(1);
-        const link = this.querySelector<HTMLElement>(`a[href="${path}"]`);
-
-        this.history.replace(
-            path,
-            link ? link.title || link.textContent : undefined
-        );
+    state = {
+        newPath: '',
+        oldPath: ''
     };
 
-    connectedCallback() {
-        this.history.reset(!!this.parentRouter);
-
-        this.routes = this.routes
-            .map(({ paths, ...rest }) =>
-                paths.map(path => ({ paths: [path], ...rest }))
-            )
-            .flat()
-            .sort(({ paths: [A] }, { paths: [B] }) =>
-                (B as string).localeCompare(A as string)
-            );
-
-        super.connectedCallback();
-
-        this.addEventListener('click', this.handleLink);
-        this.addEventListener('submit', this.handleForm);
-        window.addEventListener('popstate', this.handleBack);
-
-        if (this.history.mode === HistoryMode.hash)
-            window.addEventListener('hashchange', this.handleHash);
+    @watch
+    set routes(routes: Route[]) {
+        this.setProps({ routes: CellRouter.arrange(routes) });
     }
 
-    disconnectedCallback() {
-        this.removeEventListener('click', this.handleLink);
-        this.removeEventListener('submit', this.handleForm);
-        window.removeEventListener('popstate', this.handleBack);
-
-        if (this.history.mode === HistoryMode.hash)
-            window.removeEventListener('hashchange', this.handleHash);
+    @attribute
+    @watch
+    set path(path: string) {
+        this.setPath(path);
     }
 
-    protected async loadPage(
-        tree: Promise<Function>,
-        Component: () => Promise<Function>
-    ) {
-        await this.setState({ loading: true });
-        try {
-            const func = await tree,
-                route = this.routes.find(
-                    ({ component }) => component === Component
-                );
+    private setPath(path: string) {
+        return Promise.all([
+            this.setState({ oldPath: this.props.path, newPath: path }),
+            this.setProps({ path })
+        ]);
+    }
 
-            if (route) {
-                route.component = func;
+    @watch
+    set history(history: History) {
+        this.setProps({ history }).then(async () => {
+            history.listen(this.ownerDocument.body);
 
-                this.update();
+            for await (const {
+                data,
+                defer: { resolve }
+            } of history) {
+                await this.setPath(data);
+                resolve();
             }
-        } finally {
-            await this.setState({ loading: false });
-        }
+        });
     }
 
-    render() {
-        const { component: Component, path, params } =
-            matchRoutes(this.routes, this.history.path) || {};
+    @attribute
+    @watch
+    pageClass = '';
 
-        if (!Component) return;
+    @attribute
+    @watch
+    startClass = '';
 
-        const tree = <Component {...params} path={path} />;
+    @attribute
+    @watch
+    endClass = '';
 
-        if (!(tree instanceof Promise)) return (this.currentPage = tree);
+    pageOf(path: string): WebCellElement | undefined {
+        const { component: Page, path: pathname, params, ...rest } =
+            matchRoutes(this.routes, path) || {};
 
-        this.loadPage(tree, Component as () => Promise<Function>);
+        if (!Page) return;
 
-        return this.currentPage;
+        const page = (
+            <Page
+                {...rest}
+                path={pathname}
+                params={params}
+                history={this.history}
+            />
+        );
+        if (!(page instanceof Promise)) return page;
+
+        this.emit('pageload', path);
+
+        page.then(AsyncPage => {
+            const route = this.routes.find(
+                ({ component }) => component === Page
+            );
+            if (!route) return;
+
+            route.component = AsyncPage;
+
+            this.update();
+        });
+    }
+
+    connectedCallback() {
+        this.style.display = 'block';
+    }
+
+    updatedCallback() {
+        const { newPath } = this.state;
+
+        if (newPath) this.setState({ newPath: '' });
+        else this.emit('pagerender', this.path);
+    }
+
+    watchAnimation = async (box: HTMLElement) => {
+        await watchStop(box);
+
+        await this.setState({ oldPath: '' });
+    };
+
+    render(
+        { path = '', pageClass, startClass, endClass }: CellRouterProps,
+        { newPath, oldPath }: CellRouterState
+    ) {
+        [startClass, endClass] = [endClass, startClass].sort(() =>
+            this.history.compare(oldPath, newPath)
+        );
+
+        return (
+            <div>
+                {startClass && newPath ? (
+                    <div
+                        className={`${pageClass} ${startClass}`}
+                        key={newPath}
+                        ref={this.watchAnimation}
+                    >
+                        {this.pageOf(newPath)}
+                    </div>
+                ) : (
+                    <div className={pageClass} key={path}>
+                        {this.pageOf(path)}
+                    </div>
+                )}
+                {endClass && oldPath && (
+                    <div className={`${pageClass} ${endClass}`} key={oldPath}>
+                        {this.pageOf(oldPath)}
+                    </div>
+                )}
+            </div>
+        );
     }
 }

@@ -1,9 +1,25 @@
-import { createCell, render } from 'web-cell';
+import { documentReady, render, createCell, Fragment } from 'web-cell';
+import { CellRouter } from '../../../source/HTMLRouter';
 
-import TopRouter from './TopRouter';
+import { history } from '../model';
+import { NavBar, TestPage } from './example';
 
-render(
-    <div>
-        <TopRouter />
-    </div>
+documentReady.then(() =>
+    render(
+        <Fragment>
+            <NavBar />
+
+            <CellRouter
+                className="router"
+                pageClass="page"
+                startClass="start"
+                endClass="end"
+                history={history}
+                routes={[
+                    { paths: ['test'], component: TestPage },
+                    { paths: [/^example/], component: async () => TestPage }
+                ]}
+            />
+        </Fragment>
+    )
 );
