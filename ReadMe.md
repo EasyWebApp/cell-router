@@ -61,11 +61,11 @@ import { History, PageProps, CellRouter } from 'cell-router/source';
 
 const history = new History();
 
-function TestPage({ path, params, history }: PageProps) {
+function TestPage({ path, history, defaultSlot, ...data }: PageProps) {
     return (
         <ul>
             <li>Path: {path}</li>
-            <li>Data: {JSON.stringify(params)}</li>
+            <li>Data: {JSON.stringify(data)}</li>
         </ul>
     );
 }

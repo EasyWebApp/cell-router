@@ -12,8 +12,8 @@ export function watchStop(element: HTMLElement) {
 }
 export interface PageProps extends WebCellProps {
     path: string;
-    params: Record<string, any>;
     history?: History;
+    [key: string]: any;
 }
 
 export type PageComponent<P extends PageProps = PageProps> = (

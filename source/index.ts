@@ -1,3 +1,3 @@
 export * from './History';
-export * from './HTMLRouter';
+export * from './Router';
 export * from './utility';

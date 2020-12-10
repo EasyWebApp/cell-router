@@ -105,8 +105,8 @@ export class CellRouter extends mixin<CellRouterProps, CellRouterState>() {
         const page = (
             <Page
                 {...rest}
+                {...params}
                 path={pathname}
-                params={params}
                 history={this.history}
             />
         );

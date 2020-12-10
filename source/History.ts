@@ -1,5 +1,5 @@
 import { createQueue } from 'iterable-observer';
-import { walkDOM, scrollTo, formToJSON } from 'web-utility/source/DOM';
+import { getVisibleText, scrollTo, formToJSON } from 'web-utility/source/DOM';
 import { buildURLData } from 'web-utility/source/URL';
 
 export type LinkElement = HTMLAnchorElement | HTMLAreaElement | HTMLFormElement;
@@ -73,21 +73,7 @@ export class History {
     }
 
     static getTitle(root: HTMLElement) {
-        if (root.title) return root.title;
-
-        var title = '';
-
-        for (const node of walkDOM(root))
-            if (node instanceof Text) {
-                const {
-                    width,
-                    height
-                } = node.parentElement.getBoundingClientRect();
-
-                if (width && height) title += node.nodeValue.trim();
-            }
-
-        return title;
+        return root.title || getVisibleText(root);
     }
 
     handleClick = (event: MouseEvent) => {
