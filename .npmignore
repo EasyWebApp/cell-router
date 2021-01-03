@@ -2,5 +2,5 @@ test/
 dist/
 Contributing.md
 docs/
-.travis.yml
+.github/
 .vscode/

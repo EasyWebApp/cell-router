@@ -1,6 +1,6 @@
 {
     "name": "cell-router",
-    "version": "2.0.2",
+    "version": "2.0.4",
     "license": "LGPL-3.0",
     "description": "Web Component Router based on WebCell & MobX",
     "keywords": [
@@ -25,28 +25,29 @@
     "module": "dist/cell-router.js",
     "dependencies": {
         "iterable-observer": "^1.0.0-beta.5",
-        "web-cell": "^2.2.0",
-        "web-utility": "^2.1.0"
+        "web-cell": "^2.3.0-beta.5",
+        "web-utility": "^2.4.1"
     },
     "devDependencies": {
-        "@types/jest": "^26.0.18",
-        "@types/node": "^14.14.12",
-        "@types/puppeteer-core": "^2.0.0",
+        "@types/jest": "^26.0.19",
+        "@types/node": "^14.14.19",
+        "@types/puppeteer-core": "^5.4.0",
         "@webcomponents/webcomponentsjs": "^2.5.0",
+        "element-internals-polyfill": "^0.1.1",
         "fs-match": "^1.5.0",
-        "husky": "^4.3.5",
+        "husky": "^4.3.6",
         "jest": "^26.6.3",
         "koapache": "^2.1.1",
-        "less": "^3.12.2",
+        "less": "^4.0.0",
         "lint-staged": "^10.5.3",
-        "microbundle": "^0.12.4",
+        "microbundle": "^0.13.0",
         "parcel-bundler": "^1.12.4",
         "prettier": "^2.2.1",
         "puppeteer-core": "^5.5.0",
-        "snabbdom": "^1.0.1",
+        "snabbdom": "^2.1.0",
         "ts-jest": "^26.4.4",
-        "typedoc": "^0.19.2",
-        "typescript": "^4.1.2"
+        "typedoc": "^0.20.10",
+        "typescript": "^4.1.3"
     },
     "scripts": {
         "start": "cd test/  &&  parcel source/index.html --no-source-maps --open",
@@ -71,9 +72,7 @@
         "testEnvironment": "node"
     },
     "lint-staged": {
-        "*.{html,md,js,json,ts,tsx}": [
-            "prettier --write"
-        ]
+        "*.{html,md,js,json,ts,tsx}": "prettier --write"
     },
     "husky": {
         "hooks": {

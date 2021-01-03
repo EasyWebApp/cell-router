@@ -3,7 +3,7 @@
 [Web Component][1] Router based on [WebCell][2] & [Iterable Observer][3]
 
 [![NPM Dependency](https://david-dm.org/EasyWebApp/cell-router.svg)][4]
-[![Build Status](https://travis-ci.com/EasyWebApp/cell-router.svg?branch=master)][5]
+[![CI & CD](https://github.com/EasyWebApp/cell-router/workflows/CI%20&%20CD/badge.svg)][5]
 
 [![NPM](https://nodei.co/npm/cell-router.png?downloads=true&downloadRank=true&stars=true)][6]
 
@@ -141,7 +141,7 @@ documentReady.then(() =>
 [2]: https://web-cell.dev/
 [3]: https://web-cell.dev/iterable-observer/
 [4]: https://david-dm.org/EasyWebApp/cell-router
-[5]: https://travis-ci.com/EasyWebApp/cell-router
+[5]: https://github.com/EasyWebApp/cell-router/actions
 [6]: https://nodei.co/npm/cell-router/
 [7]: https://github.com/EasyWebApp/cell-router/blob/v2/test/source/index.less#L5
 [8]: https://github.com/EasyWebApp/cell-router/blob/v2/test/source/page/index.tsx#L12
