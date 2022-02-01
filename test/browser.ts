@@ -1,4 +1,4 @@
-import WebServer from 'koapache';
+import {WebServer} from 'koapache';
 import { Browser, Page, launch } from 'puppeteer-core';
 
 const { npm_config_chrome } = process.env;

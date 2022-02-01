@@ -1,0 +1,12 @@
+{
+    "name": "cell-router-test",
+    "private": true,
+    "devDependencies": {
+        "@webcomponents/webcomponentsjs": "^2.6.0",
+        "parcel": "^2.2.1",
+        "regenerator-runtime": "^0.13.9"
+    },
+    "scripts": {
+        "build": "parcel build source/index.html --no-optimize --no-source-maps"
+    }
+}

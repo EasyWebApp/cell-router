@@ -1,6 +1,5 @@
 import { WebCellProps, WebCellElement } from 'web-cell';
-import { watchMotion, durationOf } from 'web-utility/source/animation';
-import { parseURLData } from 'web-utility/source/URL';
+import { watchMotion, durationOf, parseURLData } from 'web-utility';
 
 import { History } from './History';
 

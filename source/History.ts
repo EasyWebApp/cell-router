@@ -1,6 +1,5 @@
 import { createQueue } from 'iterable-observer';
-import { getVisibleText, scrollTo, formToJSON } from 'web-utility/source/DOM';
-import { buildURLData } from 'web-utility/source/URL';
+import { getVisibleText, scrollTo, formToJSON , buildURLData } from 'web-utility';
 
 export type LinkElement = HTMLAnchorElement | HTMLAreaElement | HTMLFormElement;
 

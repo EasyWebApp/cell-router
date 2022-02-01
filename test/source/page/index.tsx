@@ -1,5 +1,5 @@
 import { documentReady, render, createCell, Fragment } from 'web-cell';
-import { CellRouter } from '../../../source/Router';
+import { CellRouter } from '../../../dist';
 
 import { history } from '../model';
 import { NavBar, TestPage } from './example';

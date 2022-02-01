@@ -1,6 +1,7 @@
 node_modules/
 package-lock.json
 dist/
-.cache/
+.parcel-cache/
 docs/
 .vscode/
+test/yarn.lock

@@ -1,4 +1,4 @@
-import { Page } from 'puppeteer-core';
+import type { Page } from 'puppeteer-core';
 import { bootServer, getPage, expectPage } from './browser';
 
 var server: string, page: Page;
@@ -11,12 +11,12 @@ describe('Top router', () => {
     });
 
     it('should render Router component', async () => {
-        expect(await page.$eval('body', tag => tag.innerHTML)).toBe(
+        expect(await page.$eval('body', tag => tag.innerHTML.trim())).toBe(
             '<nav>' +
                 '<a href="test?a=1">Test</a>' +
                 '<a href="example?b=2">Example</a>' +
                 '</nav>' +
-                '<cell-router class="router" style="display: block;" page-class="page" start-class="start" end-class="end" path="">' +
+                '<cell-router class="router" page-class="page" style="display: block;" start-class="start" end-class="end" path="">' +
                 '<div><div class="page"></div></div>' +
                 '</cell-router>'
         );

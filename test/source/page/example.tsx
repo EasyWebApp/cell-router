@@ -1,5 +1,5 @@
 import { createCell } from 'web-cell';
-import { PageProps } from '../../../source/utility';
+import { PageProps } from '../../../dist';
 
 export function NavBar() {
     return (
