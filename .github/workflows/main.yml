@@ -18,6 +18,7 @@ jobs:
             - name: Install, Build & Publish
               run: |
                   yarn
+                  cd test/  &&  yarn  &&  cd ..
                   yarn publish
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
