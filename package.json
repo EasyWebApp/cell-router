@@ -1,6 +1,6 @@
 {
     "name": "cell-router",
-    "version": "2.1.0",
+    "version": "2.1.1",
     "license": "LGPL-3.0",
     "description": "Web Component Router based on WebCell & MobX",
     "keywords": [
