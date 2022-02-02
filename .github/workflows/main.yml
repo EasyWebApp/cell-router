@@ -18,7 +18,7 @@ jobs:
             - uses: browser-actions/setup-chrome@latest
             - name: Install, Build & Publish
               run: |
-                  yarn
+                  yarn  &&  yarn set-chrome
                   cd test/  &&  yarn  &&  cd ..
                   yarn publish
               env:

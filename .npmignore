@@ -2,5 +2,7 @@ test/
 dist/
 Contributing.md
 docs/
+.parcel-cache/
+.husky/
 .github/
 .vscode/
