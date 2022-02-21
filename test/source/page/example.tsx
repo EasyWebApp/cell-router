@@ -1,20 +1,15 @@
 import { createCell } from 'web-cell';
 import { PageProps } from '../../../dist';
 
-export function NavBar() {
-    return (
-        <nav>
-            <a href="test?a=1">Test</a>
-            <a href="example?b=2">Example</a>
-        </nav>
-    );
+export interface TestPageProps extends PageProps {
+    edit: boolean;
 }
 
-export function TestPage({ path, history, defaultSlot, ...data }: PageProps) {
+export default function TestPage({ className, path, id, edit }: TestPageProps) {
     return (
-        <ul>
+        <ul className={`page ${className}`}>
             <li>Path: {path}</li>
-            <li>Data: {JSON.stringify(data)}</li>
+            <li>Data: {JSON.stringify({ id, edit })}</li>
         </ul>
     );
 }

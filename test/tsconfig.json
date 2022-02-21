@@ -1,9 +1,9 @@
 {
+    "extends": "../tsconfig.json",
     "compilerOptions": {
-        "target": "ES5",
-        "experimentalDecorators": true,
         "jsx": "react",
-        "jsxFactory": "createCell"
+        "jsxFactory": "createCell",
+        "jsxFragmentFactory": "Fragment"
     },
     "include": ["./**/*", "../source/*"]
 }

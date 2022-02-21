@@ -1,134 +1,126 @@
-import { createQueue } from 'iterable-observer';
-import { getVisibleText, scrollTo, formToJSON , buildURLData } from 'web-utility';
-
-export type LinkElement = HTMLAnchorElement | HTMLAreaElement | HTMLFormElement;
-
-export enum PathPrefix {
-    hash = '#',
-    path = '/'
-}
-
-export type PathMode = keyof typeof PathPrefix;
+import { URLPattern } from 'urlpattern-polyfill';
+import {
+    getVisibleText,
+    scrollTo,
+    formToJSON,
+    buildURLData,
+    parseURLData,
+    delegate,
+    isXDomain
+} from 'web-utility';
+import { observable, action } from 'mobx';
 
 const { location, history } = window;
+const baseURL = document.querySelector('base')?.href || location.origin,
+    originalTitle = document.querySelector('title')?.textContent.trim();
 
 export class History {
-    stream = createQueue<string>();
-    paths: string[] = [];
-    prefix: PathPrefix;
+    @observable
+    path = '';
 
-    get path() {
-        return location[
-            this.prefix === PathPrefix.hash ? 'hash' : 'pathname'
-        ].slice(1);
+    @observable
+    oldPath = '';
+
+    constructor() {
+        this.restore();
+
+        window.addEventListener('hashchange', this.restore);
+        window.addEventListener('popstate', this.restore);
+
+        document.addEventListener(
+            'click',
+            delegate('a[href], area[href]', this.handleLink.bind(this))
+        );
+        document.addEventListener(
+            'submit',
+            delegate('form[action]', this.handleForm)
+        );
     }
 
-    constructor(mode: PathMode = 'hash') {
-        this.prefix = PathPrefix[mode];
+    protected restore = () => {
+        const { state } = history;
+
+        this.push();
+
+        document.title =
+            state?.title || this.titleOf() || originalTitle || location.href;
+    };
+
+    @action
+    push(path = location.href) {
+        path = path.replace(baseURL, '');
+
+        if (path === this.path) return path;
+
+        this.oldPath = this.path;
+
+        return (this.path = path);
     }
 
-    [Symbol.asyncIterator]() {
-        return this.stream.observable[Symbol.asyncIterator]();
+    static dataOf(path: string) {
+        const [before, after] = path.split('#');
+
+        return parseURLData(after || before);
     }
 
-    async set(path: string, title = document.title) {
-        if (!this.paths.includes(path)) this.paths.push(path);
+    static match(pattern: string, path: string) {
+        const { pathname, hash } =
+            new URLPattern(pattern, baseURL).exec(
+                new URL(path.split('?')[0], baseURL)
+            ) || {};
 
-        await this.stream.process(path);
-
-        document.title = title;
-    }
-
-    push(path: string, title = document.title) {
-        history.pushState({ path, title }, title, this.prefix + path);
-
-        return this.set(path, title);
-    }
-
-    replace(path: string, title = document.title) {
-        history.replaceState({ path, title }, title, this.prefix + path);
-
-        return this.set(path, title);
-    }
-
-    compare(last: string, next: string) {
-        for (const path of this.paths)
-            if (last === path) return -1;
-            else if (next === path) return 1;
-
-        return 0;
-    }
-
-    static getInnerPath(link: LinkElement) {
-        const path = link.getAttribute('href') || link.getAttribute('action');
-
-        if (
-            (link.target || '_self') === '_self' &&
-            !path.match(/^\w+:/) &&
-            (!(link instanceof HTMLFormElement) ||
-                (link.getAttribute('method') || 'get').toLowerCase() === 'get')
-        )
-            return path;
+        return (hash || pathname)?.groups;
     }
 
     static getTitle(root: HTMLElement) {
         return root.title || getVisibleText(root);
     }
 
-    handleClick = (event: MouseEvent) => {
-        const link = (event.target as HTMLElement).closest<
-            HTMLAnchorElement | HTMLAreaElement
-        >('a[href], area[href]');
+    titleOf(path = this.path) {
+        path = path.replace(/^\//, '');
 
-        if (!link) return;
+        if (path)
+            for (const node of document.querySelectorAll<HTMLAnchorElement>(
+                `a[href="${path}"], area[href="${path}"]`
+            )) {
+                const title = History.getTitle(node);
 
-        const path = History.getInnerPath(link);
-
-        if (!path) return;
-
-        event.preventDefault();
-
-        if (/^#.+/.test(path))
-            return scrollTo(path, event.currentTarget as Element);
-
-        this.push(path, History.getTitle(link));
-    };
-
-    handleForm = (event: Event) => {
-        const form = event.target as HTMLFormElement;
-        const path = History.getInnerPath(form);
-
-        if (!path) return;
-
-        event.preventDefault();
-
-        this.push(path + '?' + buildURLData(formToJSON(form)), form.title);
-    };
-
-    private popping = false;
-
-    listen(root: Element) {
-        root.addEventListener('click', this.handleClick);
-        root.addEventListener('submit', this.handleForm);
-
-        if (this.prefix === PathPrefix.hash)
-            window.addEventListener(
-                'hashchange',
-                () => this.popping || this.set(this.path)
-            );
-
-        window.addEventListener('popstate', async ({ state }) => {
-            const { path = this.path, title } = state || {};
-
-            this.popping = true;
-
-            await this.set(path, title);
-
-            this.popping = false;
-        });
-
-        setTimeout(() => this.replace(this.path, (history.state || {}).title));
-
-        return this;
+                if (title) return title;
+            }
     }
+
+    handleLink(event: Event, link: HTMLAnchorElement) {
+        const path = link.getAttribute('href');
+
+        if ((link.target || '_self') !== '_self' || isXDomain(path)) return;
+
+        event.preventDefault();
+
+        if (path.startsWith('#'))
+            try {
+                if (document.querySelector(path))
+                    return scrollTo(path, event.currentTarget as Element);
+            } catch {}
+
+        const title = History.getTitle(link);
+
+        history.pushState({ title }, (document.title = title), path);
+
+        this.push(path);
+    }
+
+    handleForm = (event: Event, form: HTMLFormElement) => {
+        const { method, target } = form;
+
+        if (method !== 'get' || (target || '_self') !== '_self') return;
+
+        event.preventDefault();
+
+        const path = form.getAttribute('action'),
+            data = buildURLData(formToJSON(form));
+
+        this.push(`${path}?${data}`);
+    };
 }
+
+export default new History();

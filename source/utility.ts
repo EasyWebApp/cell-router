@@ -1,43 +1,38 @@
-import { WebCellProps, WebCellElement } from 'web-cell';
-import { watchMotion, durationOf, parseURLData } from 'web-utility';
+import { WebCellProps } from 'web-cell';
 
 import { History } from './History';
 
-export function watchStop(element: HTMLElement) {
-    return watchMotion(
-        durationOf('transition', element) ? 'transition' : 'animation',
-        element
-    );
+export function watchStop<T extends HTMLElement | SVGElement>(
+    root: T,
+    targetSelector: string
+) {
+    return new Promise<MotionEvent>(resolve => {
+        function end(event: MotionEvent) {
+            if (!(event.target as Element).matches(targetSelector)) return;
+
+            root.removeEventListener('transitionend', end);
+            root.removeEventListener('transitioncancel', end);
+            root.removeEventListener('animationend', end);
+            root.removeEventListener('animationcancel', end);
+
+            resolve(event);
+        }
+
+        root.addEventListener('transitionend', end);
+        root.addEventListener('transitioncancel', end);
+        root.addEventListener('animationend', end);
+        root.addEventListener('animationcancel', end);
+    });
 }
+
 export interface PageProps extends WebCellProps {
     path: string;
-    history?: History;
+    history: History;
     [key: string]: any;
 }
 
-export type PageComponent<P extends PageProps = PageProps> = (
-    props: P
-) => WebCellElement;
+export type MotionEvent = TransitionEvent | AnimationEvent;
 
-export interface Route {
-    paths: (string | RegExp)[];
-    component: Function | (() => Promise<PageComponent>);
-}
-
-export function matchRoutes(list: Route[], path: string) {
-    for (const { paths, ...rest } of list)
-        for (const item of paths)
-            if (
-                typeof item === 'string'
-                    ? path.startsWith(item)
-                    : item.exec(path)
-            ) {
-                const data = path.split('?');
-
-                return {
-                    ...rest,
-                    path: data[0],
-                    params: data[1] && parseURLData(data[1])
-                };
-            }
+export function nextTick() {
+    return new Promise(resolve => self.requestAnimationFrame(resolve));
 }

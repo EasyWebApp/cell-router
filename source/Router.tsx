@@ -1,177 +1,100 @@
 import {
     WebCellProps,
-    WebCellElement,
+    FunctionComponent,
+    WebCellClass,
     component,
-    mixin,
-    watch,
+    WebCell,
+    observer,
     attribute,
+    reaction,
     createCell
 } from 'web-cell';
+import { observable, computed } from 'mobx';
 
-import { Route, matchRoutes, watchStop } from './utility';
-import { History } from './History';
+import { PageProps, nextTick, watchStop } from './utility';
+import history, { History } from './History';
 
-export interface CellRouterProps extends WebCellProps {
-    routes: Route[];
-    path?: string;
-    history?: History;
-    pageClass?: string;
+export interface CellRouteProps extends WebCellProps {
+    path: string;
+    component: FunctionComponent<PageProps> | WebCellClass<PageProps>;
     startClass?: string;
     endClass?: string;
-    onPageLoad?: (event: CustomEvent<string>) => any;
-    onPageRender?: (event: CustomEvent<string>) => any;
-}
-
-interface CellRouterState {
-    newPath: string;
-    oldPath: string;
 }
 
 @component({
-    tagName: 'cell-router',
-    renderTarget: 'children'
+    tagName: 'cell-route'
 })
-export class CellRouter extends mixin<CellRouterProps, CellRouterState>() {
-    static arrange(routes: Route[]) {
-        return routes
-            .reduce(
-                (routes, { paths, component }) => [
-                    ...routes,
-                    ...paths.map(path => ({ paths: [path], component }))
-                ],
-                [] as Route[]
-            )
-            .sort(({ paths: [a] }, { paths: [b] }) =>
-                (b + '').localeCompare(a + '')
-            );
-    }
+@observer
+export class CellRoute extends WebCell<CellRouteProps>() {
+    @attribute
+    @observable
+    path: string;
 
-    state = {
-        newPath: '',
-        oldPath: ''
-    };
-
-    @watch
-    set routes(routes: Route[]) {
-        this.setProps({ routes: CellRouter.arrange(routes) });
-    }
+    @observable
+    component: CellRouteProps['component'];
 
     @attribute
-    @watch
-    set path(path: string) {
-        this.setPath(path);
-    }
-
-    private setPath(path: string) {
-        return Promise.all([
-            this.setState({ oldPath: this.props.path, newPath: path }),
-            this.setProps({ path })
-        ]);
-    }
-
-    @watch
-    set history(history: History) {
-        this.setProps({ history }).then(async () => {
-            history.listen(this.ownerDocument.body);
-
-            for await (const {
-                data,
-                defer: { resolve }
-            } of history) {
-                await this.setPath(data);
-                resolve();
-            }
-        });
-    }
+    @observable
+    startClass?: string;
 
     @attribute
-    @watch
-    pageClass = '';
+    @observable
+    endClass?: string;
 
-    @attribute
-    @watch
-    startClass = '';
+    @observable
+    moveClass?: string;
 
-    @attribute
-    @watch
-    endClass = '';
+    @observable
+    moved = !this.endClass;
 
-    pageOf(path: string): WebCellElement | undefined {
-        const { component: Page, path: pathname, params, ...rest } =
-            matchRoutes(this.routes, path) || {};
+    @computed
+    get matched() {
+        return History.match(this.path, history.path);
+    }
 
-        if (!Page) return;
+    @computed
+    get oldMatched() {
+        return History.match(this.path, history.oldPath);
+    }
 
-        const page = (
+    @reaction((element: CellRoute) => element.matched)
+    protected async toggleMotion(enter?: any) {
+        if (!this.startClass || !this.endClass) return;
+
+        this.moved = false;
+        if (enter) {
+            this.moveClass = this.startClass;
+            await nextTick();
+        } else {
+            const end = watchStop(this, `.${this.endClass}`);
+            this.moveClass = this.endClass;
+            await end;
+            this.moved = true;
+        }
+        this.moveClass = undefined;
+    }
+
+    render() {
+        const { matched, oldMatched, component: Page, moveClass, moved } = this,
+            { path, oldPath } = history;
+
+        return matched ? (
             <Page
-                {...rest}
-                {...params}
-                path={pathname}
-                history={this.history}
+                className={moveClass}
+                {...matched}
+                {...History.dataOf(path)}
+                {...{ path, history }}
             />
-        );
-        if (!(page instanceof Promise)) return page;
-
-        this.emit('pageload', path);
-
-        page.then(AsyncPage => {
-            const route = this.routes.find(
-                ({ component }) => component === Page
-            );
-            if (!route) return;
-
-            route.component = AsyncPage;
-
-            this.update();
-        });
-    }
-
-    connectedCallback() {
-        this.style.display = 'block';
-    }
-
-    updatedCallback() {
-        const { newPath } = this.state;
-
-        if (newPath) this.setState({ newPath: '' });
-        else this.emit('pagerender', this.path);
-    }
-
-    watchAnimation = async (box: HTMLElement) => {
-        await watchStop(box);
-
-        await this.setState({ oldPath: '' });
-    };
-
-    render(
-        { path = '', pageClass, startClass, endClass }: CellRouterProps,
-        { newPath, oldPath }: CellRouterState
-    ) {
-        [startClass, endClass] = [endClass, startClass].sort(() =>
-            this.history.compare(oldPath, newPath)
-        );
-
-        return (
-            <div>
-                {startClass && newPath ? (
-                    <div
-                        className={`${pageClass} ${startClass}`}
-                        key={newPath}
-                        ref={this.watchAnimation}
-                    >
-                        {this.pageOf(newPath)}
-                    </div>
-                ) : (
-                    <div className={pageClass} key={path}>
-                        {this.pageOf(path)}
-                    </div>
-                )}
-                {endClass && oldPath && (
-                    <div className={`${pageClass} ${endClass}`} key={oldPath}>
-                        {this.pageOf(oldPath)}
-                    </div>
-                )}
-            </div>
+        ) : (
+            oldMatched && !moved && (
+                <Page
+                    className={moveClass}
+                    {...oldMatched}
+                    {...History.dataOf(oldPath)}
+                    path={oldPath}
+                    history={history}
+                />
+            )
         );
     }
 }

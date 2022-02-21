@@ -1,13 +1,13 @@
 {
     "compilerOptions": {
-        "module": "ES2020",
         "moduleResolution": "Node",
-        "esModuleInterop": true,
         "downlevelIteration": true,
         "experimentalDecorators": true,
         "jsx": "react",
         "jsxFactory": "createCell",
-        "lib": ["ES2020", "DOM", "DOM.Iterable"],
+        "jsxFragmentFactory": "Fragment",
+        "lib": ["ES2021", "DOM", "DOM.Iterable"],
+        "skipLibCheck": true,
         "target": "ES5"
     },
     "include": ["source/*"],

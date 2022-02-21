@@ -1,4 +1,4 @@
-import {WebServer} from 'koapache';
+import { WebServer } from 'koapache';
 import { Browser, Page, launch } from 'puppeteer-core';
 
 const { npm_config_chrome } = process.env;
@@ -40,8 +40,4 @@ export async function expectPage(
             window.location.hash
         ])
     ).toStrictEqual(expect.arrayContaining([content, title, path]));
-}
-
-export function delay(seconds = 0.1) {
-    return new Promise(resolve => setTimeout(resolve, seconds * 1000));
 }

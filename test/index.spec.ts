@@ -10,15 +10,12 @@ describe('Top router', () => {
         page = await getPage(server);
     });
 
-    it('should render Router component', async () => {
+    it('should render Route components', async () => {
         expect(await page.$eval('body', tag => tag.innerHTML.trim())).toBe(
-            '<nav>' +
-                '<a href="test?a=1">Test</a>' +
-                '<a href="example?b=2">Example</a>' +
-                '</nav>' +
-                '<cell-router class="router" page-class="page" style="display: block;" start-class="start" end-class="end" path="">' +
-                '<div><div class="page"></div></div>' +
-                '</cell-router>'
+            '<nav><a href="#list/1">List page</a>' +
+                '<a href="#detail/2?edit=true">Detail page</a></nav>' +
+                '<main class="router"><cell-route path="#list/:id" start-class="start" end-class="end"></cell-route>' +
+                '<cell-route path="#detail/:id" start-class="start" end-class="end"></cell-route></main>'
         );
     });
 
@@ -26,19 +23,19 @@ describe('Top router', () => {
         await page.click('nav a:first-child');
 
         await expectPage(
-            'cell-router',
-            'Path: test' + 'Data: {"a":1}',
-            'Test',
-            '#test?a=1'
+            'cell-route:first-of-type',
+            'Path: #list/1' + 'Data: {"id":"1"}',
+            'List page',
+            '#list/1'
         );
 
         await page.click('nav a:last-child');
 
         await expectPage(
-            'cell-router',
-            'Path: example' + 'Data: {"b":2}',
-            'Example',
-            '#example?b=2'
+            'cell-route:last-of-type',
+            'Path: #detail/2?edit=true' + 'Data: {"id":"2","edit":true}',
+            'Detail page',
+            '#detail/2?edit=true'
         );
     });
 
@@ -46,19 +43,19 @@ describe('Top router', () => {
         await page.goBack();
 
         await expectPage(
-            'cell-router',
-            'Path: test' + 'Data: {"a":1}',
-            'Test',
-            '#test?a=1'
+            'cell-route:first-of-type',
+            'Path: /#list/1' + 'Data: {"id":"1"}',
+            'List page',
+            '#list/1'
         );
 
         await page.goForward();
 
         await expectPage(
-            'cell-router',
-            'Path: example' + 'Data: {"b":2}',
-            'Example',
-            '#example?b=2'
+            'cell-route:last-of-type',
+            'Path: /#detail/2?edit=true' + 'Data: {"id":"2","edit":true}',
+            'Detail page',
+            '#detail/2?edit=true'
         );
     });
 
@@ -66,34 +63,34 @@ describe('Top router', () => {
         await page.reload();
 
         await expectPage(
-            'cell-router',
-            'Path: example' + 'Data: {"b":2}',
-            'Example',
-            '#example?b=2'
+            'cell-route:last-of-type',
+            'Path: /#detail/2?edit=true' + 'Data: {"id":"2","edit":true}',
+            'Detail page',
+            '#detail/2?edit=true'
         );
 
         await page.goBack();
 
         await expectPage(
-            'cell-router',
-            'Path: test' + 'Data: {"a":1}',
-            'Test',
-            '#test?a=1'
+            'cell-route:first-of-type',
+            'Path: /#list/1' + 'Data: {"id":"1"}',
+            'List page',
+            '#list/1'
         );
 
         await page.goBack();
 
-        await expectPage('cell-router', '', 'Cell Router', '');
+        await expectPage('cell-route', '', 'Cell Router', '');
     });
 
     it('should render a page based on Changed Hash', async () => {
-        await page.evaluate(() => (location.hash = '#test?a=1'));
+        await page.evaluate(() => (location.hash = '#list/1'));
 
         await expectPage(
-            'cell-router',
-            'Path: test' + 'Data: {"a":1}',
-            'Cell Router',
-            '#test?a=1'
+            'cell-route:first-of-type',
+            'Path: /#list/1' + 'Data: {"id":"1"}',
+            'List page',
+            '#list/1'
         );
     });
 });
