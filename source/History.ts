@@ -1,4 +1,4 @@
-import { URLPattern } from 'urlpattern-polyfill';
+import 'urlpattern-polyfill';
 import {
     getVisibleText,
     scrollTo,

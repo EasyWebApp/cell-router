@@ -24,31 +24,32 @@
     "main": "dist/index.js",
     "module": "dist/index.esm.js",
     "dependencies": {
-        "@swc/helpers": "^0.3.3",
+        "@swc/helpers": "^0.3.17",
         "mobx": ">=4.0.0 <6.0.0",
         "regenerator-runtime": "^0.13.9",
-        "urlpattern-polyfill": "^1.0.0-rc5",
-        "web-cell": "^3.0.0-beta.0",
-        "web-utility": "^3.4.2"
+        "urlpattern-polyfill": "^5.0.3",
+        "web-cell": "^3.0.0-beta.1",
+        "web-utility": "^3.7.3"
     },
     "devDependencies": {
-        "@parcel/packager-ts": "^2.3.2",
-        "@parcel/transformer-less": "^2.3.2",
-        "@parcel/transformer-typescript-types": "^2.3.2",
-        "@types/jest": "^27.4.0",
-        "element-internals-polyfill": "^0.1.54",
+        "@parcel/packager-ts": "~2.6.0",
+        "@parcel/transformer-less": "~2.6.0",
+        "@parcel/transformer-typescript-types": "~2.6.0",
+        "@types/jest": "^28.1.1",
+        "element-internals-polyfill": "^1.1.4",
         "fs-match": "^1.6.0",
-        "husky": "^7.0.4",
-        "jest": "^27.4.7",
+        "husky": "^8.0.1",
+        "jest": "^28.1.0",
+        "jest-environment-jsdom": "^28.1.0",
         "koapache": "^2.2.1",
-        "lint-staged": "^12.3.4",
-        "parcel": "^2.3.2",
-        "prettier": "^2.5.1",
+        "lint-staged": "^13.0.0",
+        "parcel": "~2.6.0",
+        "prettier": "^2.6.2",
         "process": "^0.11.10",
-        "puppeteer-core": "^13.1.3",
-        "ts-jest": "^27.1.3",
-        "typedoc": "^0.22.11",
-        "typescript": "~4.3.5"
+        "puppeteer-core": "^14.2.1",
+        "ts-jest": "^28.0.4",
+        "typedoc": "^0.22.17",
+        "typescript": "~4.7.3"
     },
     "scripts": {
         "prepare": "husky install",
@@ -73,11 +74,5 @@
     },
     "lint-staged": {
         "*.{html,md,json,ts,tsx}": "prettier --write"
-    },
-    "browserslist": "> 0.5%, last 2 versions, not dead",
-    "targets": {
-        "main": {
-            "optimize": true
-        }
     }
 }

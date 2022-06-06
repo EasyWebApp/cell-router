@@ -1,9 +1,9 @@
 # Cell Router
 
-[Web Component][1] Router based on [WebCell][2] & [Iterable Observer][3]
+[Web Component][1] Router based on [WebCell][2] & [MobX][3]
 
 [![NPM Dependency](https://david-dm.org/EasyWebApp/cell-router.svg)][4]
-[![CI & CD](https://github.com/EasyWebApp/cell-router/workflows/CI%20&%20CD/badge.svg)][5]
+[![CI & CD](https://github.com/EasyWebApp/cell-router/actions/workflows/main.yml/badge.svg)][5]
 
 [![NPM](https://nodei.co/npm/cell-router.png?downloads=true&downloadRank=true&stars=true)][6]
 
@@ -13,18 +13,18 @@ https://web-cell.dev/scaffold/
 
 ## Feature
 
--   [x] **Router Component** as a **Page Container**
+-   [x] `<iframe />`-like **Route Component** as a **Page Container**
 
 -   [x] **Page Link** (support `<a />`, `<area />` & `<form />`)
 
     -   `<a href="route/path">Page title</a>`
-    -   `<a href="route/path" title="Page title" target="_self">Example page</a>`
+    -   `<a href="route/path" title="Page title">Example page</a>`
     -   `<a href="#page-section">Page section</a>` (Scroll to an Anchor smoothly)
     -   `<form method="get" action="route/path" />` (Form Data processed by `URLSearchParams`)
 
 -   [x] **Path Mode**: `location.hash` (default) & `history.pushState()`
 
--   [x] **Async Loading** (recommend to use with `import()` ECMAScript proposal)
+-   [x] **Async Loading** (recommend to use with `import()` ECMAScript syntax)
 
 -   [x] CSS based **Page Transition Animation** (example [CSS][7] & [TSX][8])
 
@@ -32,7 +32,7 @@ https://web-cell.dev/scaffold/
 
 ```shell
 npm install web-cell cell-router
-npm install parcel-bundler -D
+npm install parcel -D
 ```
 
 `tsconfig.json`
@@ -139,9 +139,9 @@ documentReady.then(() =>
 
 [1]: https://www.webcomponents.org/
 [2]: https://web-cell.dev/
-[3]: https://web-cell.dev/iterable-observer/
+[3]: https://github.com/mobxjs/mobx/tree/mobx4and5/docs
 [4]: https://david-dm.org/EasyWebApp/cell-router
-[5]: https://github.com/EasyWebApp/cell-router/actions
+[5]: https://github.com/EasyWebApp/cell-router/actions/workflows/main.yml
 [6]: https://nodei.co/npm/cell-router/
 [7]: https://github.com/EasyWebApp/cell-router/blob/v2/test/source/index.less#L5
 [8]: https://github.com/EasyWebApp/cell-router/blob/v2/test/source/page/index.tsx#L12

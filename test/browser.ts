@@ -1,5 +1,5 @@
 import { WebServer } from 'koapache';
-import { Browser, Page, launch } from 'puppeteer-core';
+import Puppeteer, { Browser, Page } from 'puppeteer-core';
 
 const { npm_config_chrome } = process.env;
 
@@ -16,11 +16,11 @@ export async function bootServer() {
 }
 
 export async function getPage(path: string) {
-    browser =
-        browser ||
-        (await launch({ executablePath: npm_config_chrome, slowMo: 200 }));
-
-    page = page || (await browser.pages())[0];
+    browser ||= await Puppeteer.launch({
+        executablePath: npm_config_chrome,
+        slowMo: 200
+    });
+    page ||= (await browser.pages())[0];
 
     await page.goto(path);
 

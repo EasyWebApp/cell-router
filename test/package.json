@@ -2,7 +2,7 @@
     "name": "cell-router-test",
     "private": true,
     "devDependencies": {
-        "parcel": "^2.3.2"
+        "parcel": "~2.6.0"
     },
     "scripts": {
         "start": "parcel source/index.html --no-source-maps --open",
