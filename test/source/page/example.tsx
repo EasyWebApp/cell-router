@@ -1,5 +1,4 @@
-import { createCell } from 'web-cell';
-import { PageProps } from '../../../dist';
+import { PageProps } from '../../../source';
 
 export interface TestPageProps extends PageProps {
     edit: boolean;

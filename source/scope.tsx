@@ -1,17 +1,16 @@
-import { WebCellProps, createCell } from 'web-cell';
+import { PropsWithChildren } from 'web-cell';
+import { HTMLProps } from 'web-utility';
 
-import { CellRouteProps, CellRoute } from './Router';
+import { CellRoute, CellRouteProps } from './Router';
 
 export interface RouterOptions
     extends Pick<CellRouteProps, 'startClass' | 'endClass'> {
     mode?: 'hash' | 'history';
 }
 
-export interface LinkProps extends WebCellProps {
-    to: string;
-}
+export type LinkProps = PropsWithChildren<{ to: string }>;
 
-export type FormProps = WebCellProps<HTMLFormElement>;
+export type FormProps = HTMLProps<HTMLFormElement>;
 
 export function createRouter({
     mode = 'hash',
@@ -23,16 +22,16 @@ export function createRouter({
         Route: ({ path, ...props }: CellRouteProps) => (
             <CellRoute {...props} {...scopeProps} path={prefix + path} />
         ),
-        Link: ({ to, defaultSlot, ...props }: LinkProps) => (
+        Link: ({ to, children, ...props }: LinkProps) => (
             <a {...props} href={prefix + to}>
-                {defaultSlot}
+                {children}
             </a>
         ),
         // @ts-ignore
-        Form: ({ action, defaultSlot, ...props }: FormProps) => (
+        Form: ({ action, children, ...props }: FormProps) => (
             // @ts-ignore
             <form {...props} action={prefix + action}>
-                {defaultSlot}
+                {children}
             </form>
         )
     };

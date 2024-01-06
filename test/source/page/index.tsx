@@ -1,8 +1,11 @@
+import { DOMRenderer } from 'dom-renderer';
+import { configure } from 'mobx';
 import { documentReady } from 'web-utility';
-import { render, createCell, Fragment } from 'web-cell';
 
-import { createRouter } from '../../../dist';
+import { createRouter } from '../../../source';
 import TestPage from './example';
+
+configure({ enforceActions: 'never' });
 
 const { Route, Link } = createRouter({
     startClass: 'start',
@@ -10,7 +13,7 @@ const { Route, Link } = createRouter({
 });
 
 documentReady.then(() =>
-    render(
+    new DOMRenderer().render(
         <>
             <nav>
                 <Link to="list/1">List page</Link>
