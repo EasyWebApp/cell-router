@@ -1,6 +1,6 @@
 import { computed, observable } from 'mobx';
 import {
-    ComponentClass,
+    ClassComponent,
     FunctionComponent,
     attribute,
     component,
@@ -14,14 +14,12 @@ import { PageProps, nextTick, watchStop } from './utility';
 
 export interface CellRouteProps extends HTMLProps<HTMLElement> {
     path: string;
-    component: FunctionComponent<PageProps> | ComponentClass;
+    component: FunctionComponent<PageProps> | ClassComponent;
     startClass?: string;
     endClass?: string;
 }
 
-@component({
-    tagName: 'cell-route'
-})
+@component({ tagName: 'cell-route' })
 @observer
 export class CellRoute extends HTMLElement {
     declare props: CellRouteProps;
@@ -30,8 +28,7 @@ export class CellRoute extends HTMLElement {
     @observable
     accessor path: string;
 
-    @observable
-    accessor component: CellRouteProps['component'];
+    component: CellRouteProps['component'];
 
     @attribute
     @observable

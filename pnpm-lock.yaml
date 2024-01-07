@@ -21,8 +21,8 @@ dependencies:
     specifier: ^9.0.0
     version: 9.0.0
   web-cell:
-    specifier: ^3.0.0-rc.3
-    version: 3.0.0-rc.3(element-internals-polyfill@1.3.10)(typescript@5.3.3)
+    specifier: ^3.0.0-rc.4
+    version: 3.0.0-rc.4(element-internals-polyfill@1.3.10)(typescript@5.3.3)
   web-utility:
     specifier: ^4.1.3
     version: 4.1.3(typescript@5.3.3)
@@ -89,8 +89,8 @@ devDependencies:
     specifier: ^0.25.6
     version: 0.25.6(typescript@5.3.3)
   typedoc-plugin-mdn-links:
-    specifier: ^3.1.10
-    version: 3.1.10(typedoc@0.25.6)
+    specifier: ^3.1.11
+    version: 3.1.11(typedoc@0.25.6)
   typescript:
     specifier: ~5.3.3
     version: 5.3.3
@@ -5988,8 +5988,8 @@ packages:
       mime-types: 2.1.35
     dev: true
 
-  /typedoc-plugin-mdn-links@3.1.10(typedoc@0.25.6):
-    resolution: {integrity: sha512-jwf08RS71CMLZ31bDqhW3Y+JRYIS5eHlVD/XwfEuk86prIlBvZqIWN4EuYtK7N757oV30yzSSZOsOdYmcp9Plw==}
+  /typedoc-plugin-mdn-links@3.1.11(typedoc@0.25.6):
+    resolution: {integrity: sha512-WmEt+FD6HKXCkcbQEmdVKtkEEJb9SLmUnGnKwKM9U5grocy9TOUQ1GmO2cXnzMBQ2i/o/wF8LK4JQf5Vch3DKg==}
     peerDependencies:
       typedoc: '>= 0.23.14 || 0.24.x || 0.25.x'
     dependencies:
@@ -6121,8 +6121,8 @@ packages:
     resolution: {integrity: sha512-DEAoo25RfSYMuTGc9vPJzZcZullwIqRDSI9LOy+fkCJPi6hykCnfKaXTuPBDuXAUcqHXyOgFtHNp/kB2FjYHbw==}
     dev: true
 
-  /web-cell@3.0.0-rc.3(element-internals-polyfill@1.3.10)(typescript@5.3.3):
-    resolution: {integrity: sha512-y/wiET3sMuC078PsQsqzCnmKX3gQOPBLlzMKV6TTiUVmW2iE8YdrN3fc1xRIUMYb8C/OauY5DugDhy2BqYWjsA==}
+  /web-cell@3.0.0-rc.4(element-internals-polyfill@1.3.10)(typescript@5.3.3):
+    resolution: {integrity: sha512-cez7095TRb39xIbXUSflsZzxo4igJNFSZfqpYj2a6wH0268fXhWbmDfr4pViF7tsjwIHwUe9296AKKqDicTjyQ==}
     peerDependencies:
       '@webcomponents/webcomponentsjs': ^2.8
       core-js: ^3
