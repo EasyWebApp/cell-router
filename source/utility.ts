@@ -1,3 +1,5 @@
+import { JsxProps } from 'dom-renderer';
+
 import { History } from './History';
 
 export function watchStop<T extends HTMLElement | SVGElement>(
@@ -23,7 +25,7 @@ export function watchStop<T extends HTMLElement | SVGElement>(
     });
 }
 
-export interface PageProps {
+export interface PageProps extends JsxProps<HTMLElement> {
     path: string;
     history: History;
     [key: string]: any;

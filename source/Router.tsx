@@ -1,3 +1,4 @@
+import { JsxProps } from 'dom-renderer';
 import { computed, observable } from 'mobx';
 import {
     ClassComponent,
@@ -7,12 +8,11 @@ import {
     observer,
     reaction
 } from 'web-cell';
-import { HTMLProps } from 'web-utility';
 
 import history, { History } from './History';
 import { PageProps, nextTick, watchStop } from './utility';
 
-export interface CellRouteProps extends HTMLProps<HTMLElement> {
+export interface CellRouteProps extends JsxProps<HTMLElement> {
     path: string;
     component: FunctionComponent<PageProps> | ClassComponent;
     startClass?: string;
@@ -54,7 +54,7 @@ export class CellRoute extends HTMLElement {
         return History.match(this.path, history.oldPath);
     }
 
-    @reaction((element: CellRoute) => element.matched)
+    @reaction(({ matched }) => matched)
     protected async toggleMotion(enter?: any) {
         if (!this.startClass || !this.endClass) return;
 

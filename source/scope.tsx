@@ -1,5 +1,5 @@
+import { JsxProps } from 'dom-renderer';
 import { PropsWithChildren } from 'web-cell';
-import { HTMLProps } from 'web-utility';
 
 import { CellRoute, CellRouteProps } from './Router';
 
@@ -10,7 +10,7 @@ export interface RouterOptions
 
 export type LinkProps = PropsWithChildren<{ to: string }>;
 
-export type FormProps = HTMLProps<HTMLFormElement>;
+export type FormProps = JsxProps<HTMLFormElement>;
 
 export function createRouter({
     mode = 'hash',
