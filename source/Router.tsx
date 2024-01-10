@@ -1,51 +1,48 @@
+import { JsxProps } from 'dom-renderer';
+import { computed, observable } from 'mobx';
 import {
-    WebCellProps,
+    ClassComponent,
     FunctionComponent,
-    WebCellClass,
-    component,
-    WebCell,
-    observer,
     attribute,
-    reaction,
-    createCell
+    component,
+    observer,
+    reaction
 } from 'web-cell';
-import { observable, computed } from 'mobx';
 
-import { PageProps, nextTick, watchStop } from './utility';
 import history, { History } from './History';
+import { PageProps, nextTick, watchStop } from './utility';
 
-export interface CellRouteProps extends WebCellProps {
+export interface CellRouteProps extends JsxProps<HTMLElement> {
     path: string;
-    component: FunctionComponent<PageProps> | WebCellClass<PageProps>;
+    component: FunctionComponent<PageProps> | ClassComponent;
     startClass?: string;
     endClass?: string;
 }
 
-@component({
-    tagName: 'cell-route'
-})
+@component({ tagName: 'cell-route' })
 @observer
-export class CellRoute extends WebCell<CellRouteProps>() {
+export class CellRoute extends HTMLElement {
+    declare props: CellRouteProps;
+
     @attribute
     @observable
-    path: string;
+    accessor path: string;
 
-    @observable
     component: CellRouteProps['component'];
 
     @attribute
     @observable
-    startClass?: string;
+    accessor startClass = '';
 
     @attribute
     @observable
-    endClass?: string;
+    accessor endClass = '';
 
     @observable
-    moveClass?: string;
+    accessor moveClass = '';
 
     @observable
-    moved = !this.endClass;
+    accessor moved = !this.endClass;
 
     @computed
     get matched() {
@@ -57,7 +54,7 @@ export class CellRoute extends WebCell<CellRouteProps>() {
         return History.match(this.path, history.oldPath);
     }
 
-    @reaction((element: CellRoute) => element.matched)
+    @reaction(({ matched }) => matched)
     protected async toggleMotion(enter?: any) {
         if (!this.startClass || !this.endClass) return;
 

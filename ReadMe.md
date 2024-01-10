@@ -2,7 +2,7 @@
 
 [Web Component][1] Router based on [WebCell][2] & [MobX][3]
 
-[![NPM Dependency](https://david-dm.org/EasyWebApp/cell-router.svg)][4]
+[![NPM Dependency](https://img.shields.io/librariesio/github/EasyWebApp/cell-router.svg)][4]
 [![CI & CD](https://github.com/EasyWebApp/cell-router/actions/workflows/main.yml/badge.svg)][5]
 
 [![NPM](https://nodei.co/npm/cell-router.png?downloads=true&downloadRank=true&stars=true)][6]
@@ -30,21 +30,33 @@ https://web-cell.dev/scaffold/
 
 ## Installation
 
+### Command
+
 ```shell
-npm install web-cell cell-router
-npm install parcel -D
+npm install dom-renderer web-cell cell-router
+npm install parcel @parcel/config-default @parcel/transformer-typescript-tsc -D
 ```
 
-`tsconfig.json`
+### `tsconfig.json`
 
 ```json
 {
     "compilerOptions": {
-        "target": "ES5",
-        "experimentalDecorators": true,
-        "jsx": "react",
-        "jsxFactory": "createCell",
-        "jsxFragmentFactory": "Fragment"
+        "target": "ES6",
+        "useDefineForClassFields": true,
+        "jsx": "react-jsx",
+        "jsxImportSource": "dom-renderer"
+    }
+}
+```
+
+### `.parcelrc`
+
+```json
+{
+    "extends": "@parcel/config-default",
+    "transformers": {
+        "*.{ts,tsx}": ["@parcel/transformer-typescript-tsc"]
     }
 }
 ```
@@ -53,95 +65,84 @@ npm install parcel -D
 
 ### Sync Pages
 
-`source/index.tsx`
+#### `source/index.tsx`
 
-```jsx
-import { documentReady, render, createCell, Fragment } from 'web-cell';
-import { History, PageProps, CellRouter } from 'cell-router/source';
+```tsx
+import { DOMRenderer } from 'dom-renderer';
+import { FC } from 'web-cell';
+import { createRouter, PageProps } from 'cell-router';
 
-const history = new History();
+const { Route, Link } = createRouter();
 
-function TestPage({ path, history, defaultSlot, ...data }: PageProps) {
-    return (
-        <ul>
-            <li>Path: {path}</li>
-            <li>Data: {JSON.stringify(data)}</li>
-        </ul>
-    );
-}
+const TestPage: FC<PageProps> = ({ path, history, defaultSlot, ...data }) => (
+    <ul>
+        <li>Path: {path}</li>
+        <li>Data: {JSON.stringify(data)}</li>
+    </ul>
+);
 
-documentReady.then(() =>
-    render(
-        <>
-            <nav>
-                <a href="test?a=1">Test</a>
-                <a href="example?b=2">Example</a>
-            </nav>
-            <CellRouter
-                className="router"
-                history={history}
-                routes={[{ paths: ['test', /^example/], component: TestPage }]}
-            />
-        </>
-    )
+new DOMRenderer().render(
+    <>
+        <nav>
+            <Link to="test?a=1">Test</Link>
+            <Link to="example/2">Example</Link>
+        </nav>
+        <main className="router">
+            <Route path="test" component={TestPage} />
+            <Route path="example/:id" component={TestPage} />
+        </main>
+    </>
 );
 ```
 
 ### Async Pages
 
-`tsconfig.json`
+#### `tsconfig.json`
 
 ```json
 {
     "compilerOptions": {
-        "module": "ESNext"
+        "module": "ES2020"
     }
 }
 ```
 
-`source/page/index.ts`
+#### `source/index.tsx`
 
-```javascript
-export default [
-    {
-        paths: ['', 'home'],
-        component: async () => (await import('./Home.tsx')).default
-    },
-    {
-        paths: ['list'],
-        component: async () => (await import('./List.tsx')).default
-    }
-];
-```
+```tsx
+import { DOMRenderer } from 'dom-renderer';
+import { FC, lazy } from 'web-cell';
+import { createRouter, PageProps } from 'cell-router';
 
-`source/index.tsx`
+const { Route, Link } = createRouter();
 
-```jsx
-import { documentReady, render, createCell, Fragment } from 'web-cell';
-import { History, CellRouter } from 'cell-router/source';
+const TestPage: FC<PageProps> = ({ path, history, defaultSlot, ...data }) => (
+    <ul>
+        <li>Path: {path}</li>
+        <li>Data: {JSON.stringify(data)}</li>
+    </ul>
+);
+const AsyncPage = lazy(() => import('./Async'));
 
-import routes from './page';
-
-const history = new History();
-
-documentReady.then(() =>
-    render(
-        <>
-            <nav>
-                <a href="test?a=1">Test</a>
-                <a href="example?b=2">Example</a>
-            </nav>
-            <CellRouter className="router" history={history} routes={routes} />
-        </>
-    )
+new DOMRenderer().render(
+    <>
+        <nav>
+            <Link to="test?a=1">Test</Link>
+            <Link to="example/2">Example</Link>
+        </nav>
+        <main className="router">
+            <Route path="test" component={TestPage} />
+            <Route path="example/:id" component={AsyncPage} />
+        </main>
+    </>
 );
 ```
 
 [1]: https://www.webcomponents.org/
 [2]: https://web-cell.dev/
-[3]: https://github.com/mobxjs/mobx/tree/mobx4and5/docs
-[4]: https://david-dm.org/EasyWebApp/cell-router
+[3]: https://mobx.js.org/
+[4]: https://libraries.io/npm/cell-router
 [5]: https://github.com/EasyWebApp/cell-router/actions/workflows/main.yml
 [6]: https://nodei.co/npm/cell-router/
-[7]: https://github.com/EasyWebApp/cell-router/blob/v2/test/source/index.less#L5
-[8]: https://github.com/EasyWebApp/cell-router/blob/v2/test/source/page/index.tsx#L12
+[7]: https://github.com/EasyWebApp/cell-router/blob/b7f98243834f9226088c15b111428e211bbfaa9f/test/source/index.less#L5-L25
+[8]: https://github.com/EasyWebApp/cell-router/blob/b7f98243834f9226088c15b111428e211bbfaa9f/test/source/page/index.tsx#L19-L32

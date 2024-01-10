@@ -16,10 +16,10 @@ const baseURL = document.querySelector('base')?.href || location.origin,
 
 export class History {
     @observable
-    path = '';
+    accessor path = '';
 
     @observable
-    oldPath = '';
+    accessor oldPath = '';
 
     constructor() {
         this.restore();

@@ -3,10 +3,9 @@
         "moduleResolution": "Node",
         "esModuleInterop": true,
         "downlevelIteration": true,
-        "experimentalDecorators": true,
-        "jsx": "react",
-        "jsxFactory": "createCell",
-        "jsxFragmentFactory": "Fragment",
+        "useDefineForClassFields": true,
+        "jsx": "react-jsx",
+        "jsxImportSource": "dom-renderer",
         "lib": ["ES2022", "DOM", "DOM.Iterable"],
         "skipLibCheck": true,
         "target": "ES2017"
@@ -17,6 +16,6 @@
         "excludeExternals": true,
         "excludePrivate": true,
         "readme": "./ReadMe.md",
-        "out": "docs/"
+        "plugin": ["typedoc-plugin-mdn-links"]
     }
 }

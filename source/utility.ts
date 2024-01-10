@@ -1,4 +1,4 @@
-import { WebCellProps } from 'web-cell';
+import { JsxProps } from 'dom-renderer';
 
 import { History } from './History';
 
@@ -25,7 +25,7 @@ export function watchStop<T extends HTMLElement | SVGElement>(
     });
 }
 
-export interface PageProps extends WebCellProps {
+export interface PageProps extends JsxProps<HTMLElement> {
     path: string;
     history: History;
     [key: string]: any;

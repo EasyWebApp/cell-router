@@ -1,6 +1,8 @@
 test/
 Contributing.md
 docs/
+.env
+.parcelrc
 .parcel-cache/
 .husky/
 .github/
