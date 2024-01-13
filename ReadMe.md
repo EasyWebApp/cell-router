@@ -24,9 +24,9 @@ https://web-cell.dev/scaffold/
 
 -   [x] **Path Mode**: `location.hash` (default) & `history.pushState()`
 
--   [x] **Async Loading** (recommend to use with `import()` ECMAScript syntax)
+-   [x] **Async Loading** (based on `import()` ECMAScript syntax)
 
--   [x] CSS based **Page Transition Animation** (example [CSS][7] & [TSX][8])
+-   [x] [Animate.css][7] based **Page Transition Animation**
 
 ## Installation
 
@@ -74,8 +74,14 @@ import { createRouter, PageProps } from 'cell-router';
 
 const { Route, Link } = createRouter();
 
-const TestPage: FC<PageProps> = ({ path, history, defaultSlot, ...data }) => (
-    <ul>
+const TestPage: FC<PageProps> = ({
+    className,
+    style,
+    path,
+    history,
+    ...data
+}) => (
+    <ul {...{ className, style }}>
         <li>Path: {path}</li>
         <li>Data: {JSON.stringify(data)}</li>
     </ul>
@@ -88,6 +94,10 @@ new DOMRenderer().render(
             <Link to="example/2">Example</Link>
         </nav>
         <main className="router">
+            <Route
+                path=""
+                component={props => <div {...props}>Home Page</div>}
+            />
             <Route path="test" component={TestPage} />
             <Route path="example/:id" component={TestPage} />
         </main>
@@ -116,8 +126,14 @@ import { createRouter, PageProps } from 'cell-router';
 
 const { Route, Link } = createRouter();
 
-const TestPage: FC<PageProps> = ({ path, history, defaultSlot, ...data }) => (
-    <ul>
+const TestPage: FC<PageProps> = ({
+    className,
+    style,
+    path,
+    history,
+    ...data
+}) => (
+    <ul {...{ className, style }}>
         <li>Path: {path}</li>
         <li>Data: {JSON.stringify(data)}</li>
     </ul>
@@ -131,6 +147,10 @@ new DOMRenderer().render(
             <Link to="example/2">Example</Link>
         </nav>
         <main className="router">
+            <Route
+                path=""
+                component={props => <div {...props}>Home Page</div>}
+            />
             <Route path="test" component={TestPage} />
             <Route path="example/:id" component={AsyncPage} />
         </main>
@@ -144,5 +164,4 @@ new DOMRenderer().render(
 [4]: https://libraries.io/npm/cell-router
 [5]: https://github.com/EasyWebApp/cell-router/actions/workflows/main.yml
 [6]: https://nodei.co/npm/cell-router/
-[7]: https://github.com/EasyWebApp/cell-router/blob/b7f98243834f9226088c15b111428e211bbfaa9f/test/source/index.less#L5-L25
-[8]: https://github.com/EasyWebApp/cell-router/blob/b7f98243834f9226088c15b111428e211bbfaa9f/test/source/page/index.tsx#L19-L32
+[7]: https://animate.style/
