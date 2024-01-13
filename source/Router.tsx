@@ -1,27 +1,31 @@
-import { JsxProps } from 'dom-renderer';
 import { computed, observable } from 'mobx';
 import {
+    AnimateCSS,
+    AnimationType,
     ClassComponent,
-    FunctionComponent,
+    FC,
+    WebCell,
+    WebCellProps,
     attribute,
     component,
-    observer,
-    reaction
+    observer
 } from 'web-cell';
 
 import history, { History } from './History';
-import { PageProps, nextTick, watchStop } from './utility';
+import { IncludeText, PageProps } from './utility';
 
-export interface CellRouteProps extends JsxProps<HTMLElement> {
+export interface CellRouteProps extends WebCellProps {
     path: string;
-    component: FunctionComponent<PageProps> | ClassComponent;
-    startClass?: string;
-    endClass?: string;
+    component: FC<PageProps> | ClassComponent;
+    inAnimation?: IncludeText<AnimationType, 'In'>;
+    outAnimation?: IncludeText<AnimationType, 'Out'>;
 }
+
+export interface CellRoute extends WebCell {}
 
 @component({ tagName: 'cell-route' })
 @observer
-export class CellRoute extends HTMLElement {
+export class CellRoute extends HTMLElement implements WebCell {
     declare props: CellRouteProps;
 
     @attribute
@@ -32,17 +36,11 @@ export class CellRoute extends HTMLElement {
 
     @attribute
     @observable
-    accessor startClass = '';
+    accessor inAnimation: CellRouteProps['inAnimation'] = 'fadeIn';
 
     @attribute
     @observable
-    accessor endClass = '';
-
-    @observable
-    accessor moveClass = '';
-
-    @observable
-    accessor moved = !this.endClass;
+    accessor outAnimation: CellRouteProps['outAnimation'] = 'fadeOut';
 
     @computed
     get matched() {
@@ -54,44 +52,45 @@ export class CellRoute extends HTMLElement {
         return History.match(this.path, history.oldPath);
     }
 
-    @reaction(({ matched }) => matched)
-    protected async toggleMotion(enter?: any) {
-        if (!this.startClass || !this.endClass) return;
-
-        this.moved = false;
-        if (enter) {
-            this.moveClass = this.startClass;
-            await nextTick();
-        } else {
-            const end = watchStop(this, `.${this.endClass}`);
-            this.moveClass = this.endClass;
-            await end;
-            this.moved = true;
-        }
-        this.moveClass = undefined;
+    connectedCallback() {
+        if (getComputedStyle(this.parentElement).position === 'static')
+            this.parentElement.style.position = 'relative';
     }
 
     render() {
-        const { matched, oldMatched, component: Page, moveClass, moved } = this,
+        const { inAnimation, outAnimation, matched, oldMatched } = this,
+            Tag = this.component,
             { path, oldPath } = history;
 
         return matched ? (
-            <Page
-                className={moveClass}
-                {...matched}
-                {...History.dataOf(path)}
-                {...{ path, history }}
+            <AnimateCSS
+                type={inAnimation}
+                component={props => (
+                    <Tag
+                        {...props}
+                        style={{ position: 'absolute', top: '0', left: '0' }}
+                        {...matched}
+                        {...History.dataOf(path)}
+                        {...{ path, history }}
+                    />
+                )}
+            />
+        ) : oldMatched ? (
+            <AnimateCSS
+                type={outAnimation}
+                component={props => (
+                    <Tag
+                        {...props}
+                        style={{ position: 'absolute', top: '0', left: '0' }}
+                        {...oldMatched}
+                        {...History.dataOf(oldPath)}
+                        path={oldPath}
+                        history={history}
+                    />
+                )}
             />
         ) : (
-            oldMatched && !moved && (
-                <Page
-                    className={moveClass}
-                    {...oldMatched}
-                    {...History.dataOf(oldPath)}
-                    path={oldPath}
-                    history={history}
-                />
-            )
+            <></>
         );
     }
 }
