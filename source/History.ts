@@ -16,10 +16,10 @@ const baseURL = document.querySelector('base')?.href || location.origin,
 
 export class History {
     @observable
-    accessor path = '';
+    accessor path: string;
 
     @observable
-    accessor oldPath = '';
+    accessor oldPath: string;
 
     constructor() {
         this.restore();
@@ -63,7 +63,9 @@ export class History {
         return parseURLData(after || before);
     }
 
-    static match(pattern: string, path: string) {
+    static match(pattern: string, path?: string) {
+        if (!path) return;
+
         const { pathname, hash } =
             new URLPattern(pattern, baseURL).exec(
                 new URL(path.split('?')[0], baseURL)

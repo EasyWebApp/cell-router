@@ -1,6 +1,6 @@
 {
     "name": "cell-router",
-    "version": "3.0.0-rc.3",
+    "version": "3.0.0-rc.5",
     "license": "LGPL-3.0",
     "description": "Web Component Router based on WebCell & MobX",
     "keywords": [
@@ -25,7 +25,7 @@
     "module": "dist/index.esm.js",
     "dependencies": {
         "@swc/helpers": "^0.5.3",
-        "dom-renderer": "^2.0.5",
+        "dom-renderer": "^2.0.6",
         "mobx": ">=6.11",
         "regenerator-runtime": "^0.14.1",
         "urlpattern-polyfill": "^9.0.0",
@@ -47,21 +47,20 @@
         "koapache": "^2.2.2",
         "lint-staged": "^15.2.0",
         "parcel": "~2.11.0",
-        "prettier": "^3.2.1",
+        "prettier": "^3.2.2",
         "process": "^0.11.10",
         "puppeteer-core": "^21.7.0",
         "rimraf": "^5.0.5",
         "ts-jest": "^29.1.1",
         "typedoc": "^0.25.7",
-        "typedoc-plugin-mdn-links": "^3.1.11",
+        "typedoc-plugin-mdn-links": "^3.1.12",
         "typescript": "~5.3.3"
     },
     "scripts": {
         "prepare": "husky install",
-        "start": "cd test/  &&  npm start",
         "set-chrome": "app-find chrome -c",
-        "preview": "cd test/  &&  rimraf .parcel-cache/ dist/  &&  parcel --open",
-        "pack-preview": "cd test/  &&  rimraf .parcel-cache/ dist/  &&  parcel build --public-url=. --dist-dir=../docs/preview/",
+        "preview": "cd test/  &&  rimraf ../.parcel-cache/ dist/  &&  parcel --open",
+        "pack-preview": "cd test/  &&  rimraf ../.parcel-cache/ dist/  &&  parcel build --public-url=. --dist-dir=../docs/preview/",
         "pack-dist": "rimraf dist/  &&  parcel build source/index.ts",
         "test": "lint-staged  &&  npm run pack-dist  &&  npm run pack-preview",
         "pack-docs": "rimraf docs/  &&  typedoc source/",

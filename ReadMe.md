@@ -9,7 +9,7 @@
 
 ## Demo
 
-https://web-cell.dev/scaffold/
+https://web-cell-scaffold.vercel.app/
 
 ## Feature
 

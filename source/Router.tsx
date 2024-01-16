@@ -52,13 +52,21 @@ export class CellRoute extends HTMLElement implements WebCell {
         return History.match(this.path, history.oldPath);
     }
 
+    pageStyle: WebCellProps['style'] = {
+        position: 'absolute',
+        top: '0',
+        left: '0',
+        width: '100%'
+    };
+
     connectedCallback() {
         if (getComputedStyle(this.parentElement).position === 'static')
             this.parentElement.style.position = 'relative';
     }
 
     render() {
-        const { inAnimation, outAnimation, matched, oldMatched } = this,
+        const { pageStyle, inAnimation, outAnimation, matched, oldMatched } =
+                this,
             Tag = this.component,
             { path, oldPath } = history;
 
@@ -68,7 +76,7 @@ export class CellRoute extends HTMLElement implements WebCell {
                 component={props => (
                     <Tag
                         {...props}
-                        style={{ position: 'absolute', top: '0', left: '0' }}
+                        style={pageStyle}
                         {...matched}
                         {...History.dataOf(path)}
                         {...{ path, history }}
@@ -81,7 +89,7 @@ export class CellRoute extends HTMLElement implements WebCell {
                 component={props => (
                     <Tag
                         {...props}
-                        style={{ position: 'absolute', top: '0', left: '0' }}
+                        style={pageStyle}
                         {...oldMatched}
                         {...History.dataOf(oldPath)}
                         path={oldPath}
