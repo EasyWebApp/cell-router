@@ -3,8 +3,7 @@ import { PropsWithChildren } from 'web-cell';
 
 import { CellRoute, CellRouteProps } from './Router';
 
-export interface RouterOptions
-    extends Pick<CellRouteProps, 'inAnimation' | 'outAnimation'> {
+export interface RouterOptions {
     mode?: 'hash' | 'history';
 }
 
