@@ -19,7 +19,10 @@ export interface CellRouteProps extends WebCellProps {
 
 export interface CellRoute extends WebCell {}
 
-@component({ tagName: 'cell-route' })
+@component({
+    tagName: 'cell-route',
+    transitible: true
+})
 @observer
 export class CellRoute extends HTMLElement implements WebCell {
     declare props: CellRouteProps;

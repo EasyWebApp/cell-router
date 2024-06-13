@@ -26,6 +26,8 @@ https://web-cell-scaffold.vercel.app/
 
 -   [x] **Async Loading** (based on `import()` ECMAScript syntax)
 
+-   [x] [View Transition API][7] based **Page Transition Animation**
+
 ## Installation
 
 ### Command
@@ -162,3 +164,4 @@ new DOMRenderer().render(
 [4]: https://libraries.io/npm/cell-router
 [5]: https://github.com/EasyWebApp/cell-router/actions/workflows/main.yml
 [6]: https://nodei.co/npm/cell-router/
+[7]: https://developer.chrome.com/docs/web-platform/view-transitions/

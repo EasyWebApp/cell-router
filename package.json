@@ -1,6 +1,6 @@
 {
     "name": "cell-router",
-    "version": "3.0.0-rc.6",
+    "version": "3.0.0-rc.7",
     "license": "LGPL-3.0",
     "description": "Web Component Router based on WebCell & MobX",
     "keywords": [
@@ -25,11 +25,11 @@
     "module": "dist/index.esm.js",
     "dependencies": {
         "@swc/helpers": "^0.5.11",
-        "dom-renderer": "^2.1.4",
+        "dom-renderer": "^2.1.7",
         "mobx": ">=6.11",
         "regenerator-runtime": "^0.14.1",
         "urlpattern-polyfill": "^10.0.0",
-        "web-cell": "^3.0.0-rc.15",
+        "web-cell": "^3.0.0-rc.16",
         "web-utility": "^4.4.0"
     },
     "devDependencies": {
@@ -45,15 +45,15 @@
         "jest": "^29.7.0",
         "jest-environment-jsdom": "^29.7.0",
         "koapache": "^2.2.2",
-        "lint-staged": "^15.2.2",
+        "lint-staged": "^15.2.7",
         "parcel": "~2.12.0",
-        "prettier": "^3.2.5",
+        "prettier": "^3.3.2",
         "process": "^0.11.10",
-        "puppeteer-core": "^22.9.0",
+        "puppeteer-core": "^22.11.0",
         "rimraf": "^5.0.7",
-        "ts-jest": "^29.1.2",
+        "ts-jest": "^29.1.4",
         "typedoc": "^0.25.13",
-        "typedoc-plugin-mdn-links": "^3.1.25",
+        "typedoc-plugin-mdn-links": "^3.1.29",
         "typescript": "~5.4.5"
     },
     "scripts": {
