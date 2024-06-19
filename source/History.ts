@@ -100,7 +100,7 @@ export class History {
 
         if (path.startsWith('#'))
             try {
-                if (document.querySelector(path))
+                if (document.querySelector(path) || path === '#top')
                     return scrollTo(path, event.currentTarget as Element);
             } catch {}
 
