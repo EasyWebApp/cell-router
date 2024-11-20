@@ -1,10 +1,12 @@
 import { JsxProps } from 'dom-renderer';
 import { PropsWithChildren } from 'web-cell';
 
+import { History, RouterMode } from './History';
 import { CellRoute, CellRouteProps } from './Router';
 
 export interface RouterOptions {
-    mode?: 'hash' | 'history';
+    mode?: keyof typeof RouterMode;
+    basePath?: string;
 }
 
 export type LinkProps = PropsWithChildren<{ to: string }>;
@@ -13,13 +15,22 @@ export type FormProps = JsxProps<HTMLFormElement>;
 
 export function createRouter({
     mode = 'hash',
+    basePath = '',
     ...scopeProps
 }: RouterOptions = {}) {
-    const prefix = mode === 'hash' ? '#' : '';
-
+    const prefix = RouterMode[mode],
+        history = new History(
+            (new URL(basePath, location.origin) + '').replace(/\/$/, ''),
+            RouterMode[mode]
+        );
     return {
         Route: ({ path, ...props }: CellRouteProps) => (
-            <CellRoute {...props} {...scopeProps} path={prefix + path} />
+            <CellRoute
+                {...props}
+                {...scopeProps}
+                history={history}
+                path={prefix + path}
+            />
         ),
         Link: ({ to, children, ...props }: LinkProps) => (
             <a {...props} href={prefix + to}>
