@@ -6,6 +6,9 @@ on:
 jobs:
     Build-and-Publish:
         runs-on: ubuntu-latest
+        permissions:
+            contents: write
+            id-token: write
         steps:
             - uses: actions/checkout@v4
 
@@ -20,14 +23,10 @@ jobs:
             - uses: browser-actions/setup-chrome@latest
 
             - name: Install Dependencies
-              run: |
-                  pnpm i --frozen-lockfile
-                  pnpm set-chrome
+              run: pnpm i --frozen-lockfile
 
             - name: Build & Publish
-              run: |
-                  cd test/  &&  pnpm i  &&  cd ..
-                  npm publish --access public --provenance
+              run: npm publish --access public --provenance
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 

@@ -9,7 +9,7 @@
 
 ## Demo
 
-https://web-cell.dev/WebCell-scaffold/
+https://web-cell.dev/cell-router/preview/
 
 ## Feature
 

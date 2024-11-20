@@ -39,6 +39,7 @@
         "@parcel/transformer-typescript-tsc": "~2.13.0",
         "@parcel/transformer-typescript-types": "~2.13.0",
         "@types/jest": "^29.5.14",
+        "dotenv": "^16.4.5",
         "element-internals-polyfill": "^1.3.12",
         "fs-match": "^1.7.2",
         "husky": "^9.1.7",
@@ -58,11 +59,11 @@
     },
     "scripts": {
         "prepare": "husky",
-        "set-chrome": "app-find chrome -c",
+        "install": "app-find chrome msedge firefox -c",
         "preview": "cd test/  &&  rimraf ../.parcel-cache/ dist/  &&  parcel --open",
         "pack-preview": "cd test/  &&  rimraf ../.parcel-cache/ dist/  &&  parcel build --public-url=. --dist-dir=../docs/preview/",
         "pack-dist": "rimraf dist/  &&  parcel build source/index.ts",
-        "test": "lint-staged  &&  npm run pack-dist  &&  npm run pack-preview",
+        "test": "lint-staged  &&  npm run pack-preview  &&  jest --forceExit",
         "pack-docs": "rimraf docs/  &&  typedoc source/",
         "build": "npm run pack-dist  &&  npm run pack-docs",
         "help": "npm run pack-docs  &&  web-server docs/ -o",
@@ -75,7 +76,8 @@
         "tabWidth": 4
     },
     "jest": {
-        "preset": "ts-jest"
+        "preset": "ts-jest",
+        "testTimeout": 10000
     },
     "lint-staged": {
         "*.{html,md,json,ts,tsx}": "prettier --write"

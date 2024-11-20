@@ -3,5 +3,6 @@ package-lock.json
 dist/
 .parcel-cache/
 docs/
+.env
 .vscode/
-test/yarn.lock
+yarn.lock

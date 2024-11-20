@@ -1,7 +1,9 @@
-import { WebServer } from 'koapache';
-import Puppeteer, { Browser, Page } from 'puppeteer-core';
+import 'dotenv/config';
 
-const { npm_config_chrome } = process.env;
+import { WebServer } from 'koapache';
+import { launch, Browser, Page } from 'puppeteer-core';
+
+const { CI, chrome, msedge, firefox } = process.env;
 
 var server: string, browser: Browser, page: Page;
 
@@ -9,15 +11,17 @@ export async function bootServer() {
     if (server) return server;
 
     const { address, port } = await new WebServer({
-        staticPath: 'test/dist/'
+        staticPath: 'docs/preview/'
     }).workerHost();
 
     return (server = `http://${address}:${port}/`);
 }
 
 export async function getPage(path: string) {
-    browser ||= await Puppeteer.launch({
-        executablePath: npm_config_chrome,
+    browser ||= await launch({
+        browser: chrome || msedge ? 'chrome' : 'firefox',
+        executablePath: chrome || msedge || firefox,
+        headless: !!CI,
         slowMo: 200
     });
     page ||= (await browser.pages())[0];
@@ -33,11 +37,10 @@ export async function expectPage(
     title: string,
     path: string
 ) {
-    expect(
-        await page.$eval(selector, tag => [
-            tag.textContent,
-            document.title,
-            window.location.hash
-        ])
-    ).toStrictEqual(expect.arrayContaining([content, title, path]));
+    const result = await page.$eval(selector, tag => [
+        tag.textContent,
+        document.title,
+        window.location.hash
+    ]);
+    expect(result).toEqual([content, title, path]);
 }
