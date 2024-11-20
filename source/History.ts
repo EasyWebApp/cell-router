@@ -11,8 +11,21 @@ import {
 import { observable, action } from 'mobx';
 
 const { location, history } = window;
-const baseURL = document.querySelector('base')?.href || location.origin,
-    originalTitle = document.querySelector('title')?.textContent.trim();
+
+const basePath = document.querySelector('base')?.getAttribute('href');
+
+const defaultBaseURL = (
+    basePath
+        ? new URL(basePath, location.origin) + ''
+        : location.href.split(/\?|#/)[0]
+).replace(/\/$/, '');
+
+const originalTitle = document.querySelector('title')?.textContent.trim();
+
+export enum RouterMode {
+    hash = '#',
+    history = '/'
+}
 
 export class History {
     @observable
@@ -21,7 +34,10 @@ export class History {
     @observable
     accessor oldPath: string;
 
-    constructor() {
+    constructor(
+        public baseURL = defaultBaseURL,
+        public delimiter: RouterMode = RouterMode.hash
+    ) {
         this.restore();
 
         window.addEventListener('hashchange', this.restore);
@@ -48,7 +64,10 @@ export class History {
 
     @action
     push(path = location.href) {
-        path = path.replace(baseURL, '');
+        path = path.replace(this.baseURL, '');
+
+        if (this.delimiter === RouterMode.hash)
+            path = path.match(/#.*/)?.[0] || RouterMode.hash;
 
         if (path === this.path) return path;
 
@@ -63,12 +82,12 @@ export class History {
         return parseURLData(after || before);
     }
 
-    static match(pattern: string, path?: string) {
+    match(pattern: string, path = this.path) {
         if (!path) return;
 
         const { pathname, hash } =
-            new URLPattern(pattern, baseURL).exec(
-                new URL(path.split('?')[0], baseURL)
+            new URLPattern(pattern, this.baseURL).exec(
+                new URL(path.split('?')[0], this.baseURL)
             ) || {};
 
         return (hash || pathname)?.groups;
@@ -124,5 +143,3 @@ export class History {
         this.push(`${path}?${data}`);
     };
 }
-
-export default new History();

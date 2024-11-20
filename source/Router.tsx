@@ -9,10 +9,11 @@ import {
     observer
 } from 'web-cell';
 
-import history, { History } from './History';
+import { History } from './History';
 import { PageProps } from './utility';
 
 export interface CellRouteProps extends WebCellProps {
+    history?: History;
     path: string;
     component: FC<PageProps> | ClassComponent;
 }
@@ -27,6 +28,9 @@ export interface CellRoute extends WebCell {}
 export class CellRoute extends HTMLElement implements WebCell {
     declare props: CellRouteProps;
 
+    @observable
+    accessor history: History | undefined;
+
     @attribute
     @observable
     accessor path: string;
@@ -35,12 +39,16 @@ export class CellRoute extends HTMLElement implements WebCell {
 
     @computed
     get matched() {
-        return History.match(this.path, history.path);
+        return this.history?.match(this.path);
+    }
+
+    connectedCallback() {
+        this.history ||= new History();
     }
 
     render() {
-        const { component: Tag, matched } = this,
-            { path } = history;
+        const { history, component: Tag, matched } = this;
+        const { path } = history || {};
 
         return matched ? (
             <Tag
