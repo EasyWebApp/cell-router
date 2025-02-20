@@ -1,5 +1,5 @@
 import { JsxProps } from 'dom-renderer';
-import { PropsWithChildren } from 'web-cell';
+import { WebCellProps } from 'web-cell';
 
 import { History, RouterMode } from './History';
 import { CellRoute, CellRouteProps } from './Router';
@@ -9,7 +9,9 @@ export interface RouterOptions {
     basePath?: string;
 }
 
-export type LinkProps = PropsWithChildren<{ to: string }>;
+export interface LinkProps extends WebCellProps<HTMLAnchorElement> {
+    to: string;
+}
 
 export type FormProps = JsxProps<HTMLFormElement>;
 

@@ -4,6 +4,7 @@ import { WebServer } from 'koapache';
 import { launch, Browser, Page } from 'puppeteer-core';
 
 const { CI, chrome, msedge, firefox } = process.env;
+const chromiumPath = chrome || msedge;
 
 var server: string, browser: Browser, page: Page;
 
@@ -19,8 +20,9 @@ export async function bootServer() {
 
 export async function getPage(path: string) {
     browser ||= await launch({
-        browser: chrome || msedge ? 'chrome' : 'firefox',
-        executablePath: chrome || msedge || firefox,
+        browser: chromiumPath ? 'chrome' : 'firefox',
+        executablePath: chromiumPath || firefox,
+        args: chromiumPath ? ['--no-sandbox'] : [],
         headless: !!CI,
         slowMo: 200
     });
