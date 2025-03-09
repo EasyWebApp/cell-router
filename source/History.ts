@@ -113,7 +113,12 @@ export class History {
     handleLink(event: Event, link: HTMLAnchorElement) {
         const path = link.getAttribute('href');
 
-        if ((link.target || '_self') !== '_self' || isXDomain(path)) return;
+        if (
+            (link.target || '_self') !== '_self' ||
+            isXDomain(path) ||
+            link.download
+        )
+            return;
 
         event.preventDefault();
 
