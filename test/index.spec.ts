@@ -15,12 +15,9 @@ describe('Top router', () => {
             '<nav><a href="#list/1">List page</a>' +
                 '<a href="#detail/2?edit=true">Detail page</a>' +
                 '<a href="#async/3?edit=true">Async page</a></nav>' +
-                '<main class="router">' +
-                '<cell-route path="#"><div>Home Page</div></cell-route>' +
-                '<cell-route path="#list/:id"></cell-route>' +
-                '<cell-route path="#detail/:id"></cell-route>' +
-                '<cell-route path="#async/:id"></cell-route>' +
-                '</main>'
+                '<cell-router class="router">' +
+                '<div>Home Page</div>' +
+                '</cell-router>'
         );
     });
 
@@ -28,7 +25,7 @@ describe('Top router', () => {
         await page.click('nav a:nth-child(1)');
 
         await expectPage(
-            'cell-route:nth-child(2)',
+            'cell-router',
             'Path: #list/1' + 'Data: {"id":"1"}',
             'List page',
             '#list/1'
@@ -37,7 +34,7 @@ describe('Top router', () => {
         await page.click('nav a:nth-child(2)');
 
         await expectPage(
-            'cell-route:nth-child(3)',
+            'cell-router',
             'Path: #detail/2?edit=true' + 'Data: {"id":"2","edit":true}',
             'Detail page',
             '#detail/2?edit=true'
@@ -48,7 +45,7 @@ describe('Top router', () => {
         await page.goBack();
 
         await expectPage(
-            'cell-route:nth-child(2)',
+            'cell-router',
             'Path: #list/1' + 'Data: {"id":"1"}',
             'List page',
             '#list/1'
@@ -57,7 +54,7 @@ describe('Top router', () => {
         await page.goForward();
 
         await expectPage(
-            'cell-route:nth-child(3)',
+            'cell-router',
             'Path: #detail/2?edit=true' + 'Data: {"id":"2","edit":true}',
             'Detail page',
             '#detail/2?edit=true'
@@ -68,7 +65,7 @@ describe('Top router', () => {
         await page.reload();
 
         await expectPage(
-            'cell-route:nth-child(3)',
+            'cell-router',
             'Path: #detail/2?edit=true' + 'Data: {"id":"2","edit":true}',
             'Detail page',
             '#detail/2?edit=true'
@@ -77,7 +74,7 @@ describe('Top router', () => {
         await page.goBack();
 
         await expectPage(
-            'cell-route:nth-child(2)',
+            'cell-router',
             'Path: #list/1' + 'Data: {"id":"1"}',
             'List page',
             '#list/1'
@@ -85,14 +82,14 @@ describe('Top router', () => {
 
         await page.goBack();
 
-        await expectPage('cell-route', 'Home Page', 'Cell Router', '');
+        await expectPage('cell-router', 'Home Page', 'Cell Router', '');
     });
 
     it('should render a page based on Changed Hash', async () => {
         await page.evaluate(() => (location.hash = '#list/1'));
 
         await expectPage(
-            'cell-route:nth-child(2)',
+            'cell-router',
             'Path: #list/1' + 'Data: {"id":"1"}',
             'List page',
             '#list/1'
@@ -103,7 +100,7 @@ describe('Top router', () => {
         await page.click('nav a:nth-child(3)');
 
         await expectPage(
-            'cell-route:nth-child(4) h1',
+            'cell-router h1',
             'Async',
             'Async page',
             '#async/3?edit=true'
