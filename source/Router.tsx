@@ -66,9 +66,12 @@ export class CellRouter
         if (routes[0]) this.routes = routes;
     };
 
-    @reaction(({ history }) => history.path)
+    @reaction(({ history }) => history?.path)
     async renderChildren() {
         const { history, routes } = this;
+
+        if (!history) return;
+
         const { path } = history;
         const [{ component: Tag, ...matched } = {}] = [...routes]
             .sort(
