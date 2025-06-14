@@ -13,20 +13,32 @@ https://web-cell.dev/cell-router/preview/
 
 ## Feature
 
--   [x] `<iframe />`-like **Route Component** as a **Page Container**
+- [x] `<iframe />`-like **Route Component** as a **Page Container**
 
--   [x] **Page Link** (support `<a />`, `<area />` & `<form />`)
+- [x] **Page Link** (support `<a />`, `<area />` & `<form />`)
 
-    -   `<a href="route/path">Page title</a>`
-    -   `<a href="route/path" title="Page title">Example page</a>`
-    -   `<a href="#page-section">Page section</a>` (Scroll to an Anchor smoothly)
-    -   `<form method="get" action="route/path" />` (Form Data processed by `URLSearchParams`)
+    - `<a href="route/path">Page title</a>`
+    - `<a href="route/path" title="Page title">Example page</a>`
+    - `<a href="#page-section">Page section</a>` (Scroll to an Anchor smoothly)
+    - `<form method="get" action="route/path" />` (Form Data processed by `URLSearchParams`)
 
--   [x] **Path Mode**: `location.hash` (default) & `history.pushState()`
+- [x] **Path Mode**: `location.hash` (default) & `history.pushState()`
 
--   [x] **Async Loading** (based on `import()` ECMAScript syntax)
+- [x] **Async Loading** (based on `import()` ECMAScript syntax)
 
--   [x] [View Transition API][7] based **Page Transition Animation**
+- [x] [View Transition API][7] based **Page Transition Animation**
+
+## Version
+
+|        SemVer        | status | WebCell |               API                | async page | page transition | nested router |
+| :------------------: | :----: | :-----: | :------------------------------: | :--------: | :-------------: | :-----------: |
+|        `4.x`         |   ✅   | `>=3.1` |        HTML tags (+ JSON)        |     ✅     |       ✅        |      ❌       |
+|        `3.x`         |   ❌   |  `3.x`  |            HTML tags             |     ✅     |       ✅        |      ❌       |
+|        `2.x`         |   ❌   |  `2.x`  |         HTML tag + JSON          |     ✅     |       ✅        |      ✅       |
+| `>=2.0.0-alpha.0 <2` |   ❌   |  `2.x`  |     `abstract class` + JSON      |     ✅     |       ❌        |      ✅       |
+|        `1.x`         |   ❌   |  `1.x`  | `abstract class` + ES decorators |     ❌     |       ❌        |      ❌       |
+|     `>=0.9 <1.0`     |   ❌   |  `0.x`  | `abstract class` + ES decorators |     ❌     |       ❌        |      ❌       |
+|        `<0.9`        |   ❌   |  `0.x`  |       `class` + HTML tags        |     ❌     |       ❌        |      ❌       |
 
 ## Installation
 
@@ -70,7 +82,7 @@ npm install parcel @parcel/config-default @parcel/transformer-typescript-tsc -D
 ```tsx
 import { DOMRenderer } from 'dom-renderer';
 import { FC } from 'web-cell';
-import { createRouter, PageProps } from 'cell-router';
+import { CellRouter, createRouter, PageProps } from 'cell-router';
 
 const { Route, Link } = createRouter();
 
@@ -93,14 +105,14 @@ new DOMRenderer().render(
             <Link to="test?a=1">Test</Link>
             <Link to="example/2">Example</Link>
         </nav>
-        <main className="router">
+        <CellRouter className="router">
             <Route
                 path=""
                 component={props => <div {...props}>Home Page</div>}
             />
             <Route path="test" component={TestPage} />
             <Route path="example/:id" component={TestPage} />
-        </main>
+        </CellRouter>
     </>
 );
 ```
@@ -122,7 +134,7 @@ new DOMRenderer().render(
 ```tsx
 import { DOMRenderer } from 'dom-renderer';
 import { FC, lazy } from 'web-cell';
-import { createRouter, PageProps } from 'cell-router';
+import { CellRouter, createRouter, PageProps } from 'cell-router';
 
 const { Route, Link } = createRouter();
 
@@ -146,14 +158,14 @@ new DOMRenderer().render(
             <Link to="test?a=1">Test</Link>
             <Link to="example/2">Example</Link>
         </nav>
-        <main className="router">
+        <CellRouter className="router">
             <Route
                 path=""
                 component={props => <div {...props}>Home Page</div>}
             />
             <Route path="test" component={TestPage} />
             <Route path="example/:id" component={AsyncPage} />
-        </main>
+        </CellRouter>
     </>
 );
 ```
