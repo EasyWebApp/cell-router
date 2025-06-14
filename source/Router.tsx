@@ -1,5 +1,5 @@
 import { DOMRenderer } from 'dom-renderer';
-import { observable, reaction } from 'mobx';
+import { observable } from 'mobx';
 import {
     ClassComponent,
     FC,
@@ -7,7 +7,8 @@ import {
     WebCellProps,
     attribute,
     component,
-    observer
+    observer,
+    reaction
 } from 'web-cell';
 
 import { History } from './History';
@@ -42,10 +43,10 @@ export class CellRouter
     extends HTMLElement
     implements WebCell<CellRouterProps>
 {
-    @observable
+    @observable.shallow
     accessor history: History | undefined;
 
-    @observable
+    @observable.shallow
     accessor routes: Route[] = [];
 
     #renderer = new DOMRenderer();
@@ -54,11 +55,6 @@ export class CellRouter
         this.history ||= new History();
 
         this.renderChildren();
-
-        this.disconnectedCallback = reaction(
-            () => this.history.path,
-            this.renderChildren
-        );
     }
 
     handleSlotChange = ({ currentTarget }: Event) => {
@@ -70,7 +66,8 @@ export class CellRouter
         if (routes[0]) this.routes = routes;
     };
 
-    renderChildren = async () => {
+    @reaction(({ history }) => history.path)
+    async renderChildren() {
         const { history, routes } = this;
         const { path } = history;
         const [{ component: Tag, ...matched } = {}] = [...routes]
@@ -106,7 +103,7 @@ export class CellRouter
         } catch {
             return updateCallbackDone;
         }
-    };
+    }
 
     render() {
         return <slot onSlotChange={this.handleSlotChange} />;

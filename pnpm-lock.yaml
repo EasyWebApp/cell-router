@@ -24,8 +24,8 @@ importers:
         specifier: ^10.1.0
         version: 10.1.0
       web-cell:
-        specifier: ^3.0.4
-        version: 3.0.4(jsdom@20.0.3)(typescript@5.8.3)
+        specifier: ^3.1.0
+        version: 3.1.0(jsdom@20.0.3)(typescript@5.8.3)
       web-utility:
         specifier: ^4.4.3
         version: 4.4.3(typescript@5.8.3)
@@ -73,8 +73,8 @@ importers:
         specifier: ^2.2.2
         version: 2.2.2(@types/node@24.0.1)
       lint-staged:
-        specifier: ^16.1.0
-        version: 16.1.0
+        specifier: ^16.1.1
+        version: 16.1.1
       parcel:
         specifier: ~2.15.2
         version: 2.15.2(@swc/helpers@0.5.17)
@@ -2357,8 +2357,8 @@ packages:
   linkify-it@5.0.0:
     resolution: {integrity: sha512-5aHCbzQRADcdP+ATqnDuhhJ/MRIqDkZX5pyjFHRRysS8vZ5AbqGEoFIb6pYHPZ+L/OC2Lc+xT8uHVVR5CAK/wQ==}
 
-  lint-staged@16.1.0:
-    resolution: {integrity: sha512-HkpQh69XHxgCjObjejBT3s2ILwNjFx8M3nw+tJ/ssBauDlIpkx2RpqWSi1fBgkXLSSXnbR3iEq1NkVtpvV+FLQ==}
+  lint-staged@16.1.1:
+    resolution: {integrity: sha512-kVZvRAHw9WuufENnwuZLiB1X/8B8YpGszzjMET0bP+uJSjjB7KXeaX2ckYRtQyHfeQdCWMc6tRK34t4geHL9sg==}
     engines: {node: '>=20.17'}
     hasBin: true
 
@@ -3187,8 +3187,8 @@ packages:
   weak-lru-cache@1.2.2:
     resolution: {integrity: sha512-DEAoo25RfSYMuTGc9vPJzZcZullwIqRDSI9LOy+fkCJPi6hykCnfKaXTuPBDuXAUcqHXyOgFtHNp/kB2FjYHbw==}
 
-  web-cell@3.0.4:
-    resolution: {integrity: sha512-JGWgakfkiu84FiUQxuw66QfQpPyTXlTejCZ9MLm46c96ppAtYzDgWYbVXt8jIOV6jVwG7aZzqO4v/rnSBTAaKQ==}
+  web-cell@3.1.0:
+    resolution: {integrity: sha512-F/6XHHqQS2LGg5tV0eMcTesFZBtBRe4qQ33nKgwqxFUPRCFsCF+ZadeecFiUTMEb02whIJtuKDZIXw87gkYbgA==}
     peerDependencies:
       '@webcomponents/webcomponentsjs': ^2.8
       core-js: ^3
@@ -6228,7 +6228,7 @@ snapshots:
     dependencies:
       uc.micro: 2.1.0
 
-  lint-staged@16.1.0:
+  lint-staged@16.1.1:
     dependencies:
       chalk: 5.4.1
       commander: 14.0.0
@@ -7043,7 +7043,7 @@ snapshots:
 
   weak-lru-cache@1.2.2: {}
 
-  web-cell@3.0.4(jsdom@20.0.3)(typescript@5.8.3):
+  web-cell@3.1.0(jsdom@20.0.3)(typescript@5.8.3):
     dependencies:
       '@swc/helpers': 0.5.17
       dom-renderer: 2.6.2(typescript@5.8.3)

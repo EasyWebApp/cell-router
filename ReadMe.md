@@ -28,6 +28,18 @@ https://web-cell.dev/cell-router/preview/
 
 - [x] [View Transition API][7] based **Page Transition Animation**
 
+## Version
+
+|        SemVer        | status | WebCell |               API                | async page | page transition | nested router |
+| :------------------: | :----: | :-----: | :------------------------------: | :--------: | :-------------: | :-----------: |
+|        `4.x`         |   ✅   | `>=3.1` |        HTML tags (+ JSON)        |     ✅     |       ✅        |      ❌       |
+|        `3.x`         |   ❌   |  `3.x`  |            HTML tags             |     ✅     |       ✅        |      ❌       |
+|        `2.x`         |   ❌   |  `2.x`  |         HTML tag + JSON          |     ✅     |       ✅        |      ✅       |
+| `>=2.0.0-alpha.0 <2` |   ❌   |  `2.x`  |     `abstract class` + JSON      |     ✅     |       ❌        |      ✅       |
+|        `1.x`         |   ❌   |  `1.x`  | `abstract class` + ES decorators |     ❌     |       ❌        |      ❌       |
+|     `>=0.9 <1.0`     |   ❌   |  `0.x`  | `abstract class` + ES decorators |     ❌     |       ❌        |      ❌       |
+|        `<0.9`        |   ❌   |  `0.x`  |       `class` + HTML tags        |     ❌     |       ❌        |      ❌       |
+
 ## Installation
 
 ### Command
