@@ -16,7 +16,6 @@ https://web-cell.dev/cell-router/preview/
 - [x] `<iframe />`-like **Route Component** as a **Page Container**
 
 - [x] **Page Link** (support `<a />`, `<area />` & `<form />`)
-
     - `<a href="route/path">Page title</a>`
     - `<a href="route/path" title="Page title">Example page</a>`
     - `<a href="#page-section">Page section</a>` (Scroll to an Anchor smoothly)
@@ -24,7 +23,7 @@ https://web-cell.dev/cell-router/preview/
 
 - [x] **Path Mode**: `location.hash` (default) & `history.pushState()`
 
-- [x] **Async Loading** (based on `import()` ECMAScript syntax)
+- [x] **Async Loading** (based on `async`/`await` or `import()` ECMAScript syntax)
 
 - [x] [View Transition API][7] based **Page Transition Animation**
 
@@ -86,13 +85,7 @@ import { CellRouter, createRouter, PageProps } from 'cell-router';
 
 const { Route, Link } = createRouter();
 
-const TestPage: FC<PageProps> = ({
-    className,
-    style,
-    path,
-    history,
-    ...data
-}) => (
+const TestPage: FC<PageProps> = ({ className, style, path, history, ...data }) => (
     <ul {...{ className, style }}>
         <li>Path: {path}</li>
         <li>Data: {JSON.stringify(data)}</li>
@@ -106,10 +99,7 @@ new DOMRenderer().render(
             <Link to="example/2">Example</Link>
         </nav>
         <CellRouter className="router">
-            <Route
-                path=""
-                component={props => <div {...props}>Home Page</div>}
-            />
+            <Route path="" component={props => <div {...props}>Home Page</div>} />
             <Route path="test" component={TestPage} />
             <Route path="example/:id" component={TestPage} />
         </CellRouter>
@@ -129,6 +119,44 @@ new DOMRenderer().render(
 }
 ```
 
+#### `source/Dynamic.tsx`
+
+```tsx
+import { FC } from 'web-cell';
+import { PageProps } from 'cell-router';
+
+const DynamicPage: FC<PageProps> = ({ path, id, ...props }) => (
+    <div {...props}>
+        <h1>Dynamic</h1>
+        <pre>
+            <code>{JSON.stringify({ path, id, ...props }, null, 4)}</code>
+        </pre>
+    </div>
+);
+export default DynamicPage;
+```
+
+#### `source/Async.tsx`
+
+```tsx
+import { FC, observer } from 'web-cell';
+import { sleep } from 'web-utility';
+import { PageProps } from 'cell-router';
+
+export const AsyncPage: FC<PageProps> = observer(async props => {
+    await sleep();
+
+    return (
+        <div {...props}>
+            <h1>Async</h1>
+            <pre>
+                <code>{JSON.stringify(props, null, 4)}</code>
+            </pre>
+        </div>
+    );
+});
+```
+
 #### `source/index.tsx`
 
 ```tsx
@@ -136,35 +164,30 @@ import { DOMRenderer } from 'dom-renderer';
 import { FC, lazy } from 'web-cell';
 import { CellRouter, createRouter, PageProps } from 'cell-router';
 
+import { AsyncPage } from './Async';
+
 const { Route, Link } = createRouter();
 
-const TestPage: FC<PageProps> = ({
-    className,
-    style,
-    path,
-    history,
-    ...data
-}) => (
+const SyncPage: FC<PageProps> = ({ className, style, path, history, ...data }) => (
     <ul {...{ className, style }}>
         <li>Path: {path}</li>
         <li>Data: {JSON.stringify(data)}</li>
     </ul>
 );
-const AsyncPage = lazy(() => import('./Async'));
+const DynamicPage = lazy(() => import('./Dynamic'));
 
 new DOMRenderer().render(
     <>
         <nav>
-            <Link to="test?a=1">Test</Link>
-            <Link to="example/2">Example</Link>
+            <Link to="sync?a=1">Sync</Link>
+            <Link to="dynamic/2">Dynamic</Link>
+            <Link to="async/3">Async</Link>
         </nav>
         <CellRouter className="router">
-            <Route
-                path=""
-                component={props => <div {...props}>Home Page</div>}
-            />
-            <Route path="test" component={TestPage} />
-            <Route path="example/:id" component={AsyncPage} />
+            <Route path="" component={props => <div {...props}>Home Page</div>} />
+            <Route path="sync" component={SyncPage} />
+            <Route path="dynamic/:id" component={DynamicPage} />
+            <Route path="async/:id" component={AsyncPage} />
         </CellRouter>
     </>
 );

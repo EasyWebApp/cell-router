@@ -1,3 +1,4 @@
+import { sleep } from 'web-utility';
 import type { Page } from 'puppeteer-core';
 import { bootServer, getPage, expectPage } from './browser';
 
@@ -14,7 +15,8 @@ describe('Top router', () => {
         expect(await page.$eval('body', tag => tag.innerHTML.trim())).toBe(
             '<nav><a href="#list/1">List page</a>' +
                 '<a href="#detail/2?edit=true">Detail page</a>' +
-                '<a href="#async/3?edit=true">Async page</a></nav>' +
+                '<a href="#dynamic/3?edit=true">Dynamic page</a>' +
+                '<a href="#async/4?edit=true">Async page</a></nav>' +
                 '<cell-router class="router">' +
                 '<div>Home Page</div>' +
                 '</cell-router>'
@@ -96,14 +98,19 @@ describe('Top router', () => {
         );
     });
 
-    it('should load an Async Page component', async () => {
+    it('should load a Dynamic Page component', async () => {
         await page.click('nav a:nth-child(3)');
 
-        await expectPage(
-            'cell-router h1',
-            'Async',
-            'Async page',
-            '#async/3?edit=true'
-        );
+        await sleep();
+
+        await expectPage('cell-router h1', 'Dynamic', 'Dynamic page', '#dynamic/3?edit=true');
+    });
+
+    it('should load an Async Page component', async () => {
+        await page.click('nav a:nth-child(4)');
+
+        await sleep();
+
+        await expectPage('cell-router h1', 'Async', 'Async page', '#async/4?edit=true');
     });
 });

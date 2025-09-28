@@ -18,11 +18,14 @@ export interface Route {
     path: string;
     component: FC<PageProps> | ClassComponent;
 }
-export interface CellRoute extends WebCell<Route> {}
+
+export type CellRouteProps = Route & WebCellProps;
+
+export interface CellRoute extends WebCell<CellRouteProps> {}
 
 @component({ tagName: 'cell-route' })
 @observer
-export class CellRoute extends HTMLElement implements WebCell<Route> {
+export class CellRoute extends HTMLElement implements WebCell<CellRouteProps> {
     @attribute
     @observable
     accessor path: string;
@@ -39,10 +42,7 @@ export interface CellRouter extends WebCell<CellRouterProps> {}
 
 @component({ tagName: 'cell-router', mode: 'open' })
 @observer
-export class CellRouter
-    extends HTMLElement
-    implements WebCell<CellRouterProps>
-{
+export class CellRouter extends HTMLElement implements WebCell<CellRouterProps> {
     @observable.shallow
     accessor history: History | undefined;
 
@@ -74,10 +74,7 @@ export class CellRouter
 
         const { path } = history;
         const [{ component: Tag, ...matched } = {}] = [...routes]
-            .sort(
-                ({ path: a }, { path: b }) =>
-                    b.split('/').length - a.split('/').length
-            )
+            .sort(({ path: a }, { path: b }) => b.split('/').length - a.split('/').length)
             .map(({ path, component }) => {
                 const matched = history.match(path);
 
@@ -86,11 +83,7 @@ export class CellRouter
             .filter(Boolean);
 
         const vNode = Tag ? (
-            <Tag
-                {...matched}
-                {...History.dataOf(path)}
-                {...{ path, history }}
-            />
+            <Tag {...matched} {...History.dataOf(path)} {...{ path, history }} />
         ) : (
             <></>
         );
@@ -99,8 +92,7 @@ export class CellRouter
             return {};
         };
         const { finished, updateCallbackDone } =
-            document.startViewTransition?.(render) ||
-            (render() as ViewTransition);
+            document.startViewTransition?.(render) || (render() as ViewTransition);
         try {
             await finished;
         } catch {
