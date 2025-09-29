@@ -16,9 +16,10 @@ describe('Top router', () => {
             '<nav><a href="#list/1">List page</a>' +
                 '<a href="#detail/2?edit=true">Detail page</a>' +
                 '<a href="#dynamic/3?edit=true">Dynamic page</a>' +
-                '<a href="#async/4?edit=true">Async page</a></nav>' +
+                '<a href="#async/4?edit=true">Async page</a>' +
+                '<a href="#not-found">404 page</a></nav>' +
                 '<cell-router class="router">' +
-                '<div>Home Page</div>' +
+                '<h1>Home</h1>' +
                 '</cell-router>'
         );
     });
@@ -84,7 +85,7 @@ describe('Top router', () => {
 
         await page.goBack();
 
-        await expectPage('cell-router', 'Home Page', 'Cell Router', '');
+        await expectPage('cell-router', 'Home', 'Cell Router', '');
     });
 
     it('should render a page based on Changed Hash', async () => {
@@ -112,5 +113,11 @@ describe('Top router', () => {
         await sleep();
 
         await expectPage('cell-router h1', 'Async', 'Async page', '#async/4?edit=true');
+    });
+
+    it('should show 404 page for not matched route', async () => {
+        await page.click('nav a:nth-child(5)');
+
+        await expectPage('cell-router h1', '404 Not Found', '404 page', '#not-found');
     });
 });

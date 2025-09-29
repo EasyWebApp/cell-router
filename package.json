@@ -1,6 +1,6 @@
 {
     "name": "cell-router",
-    "version": "4.0.4-rc.0",
+    "version": "4.0.4",
     "license": "LGPL-3.0",
     "description": "Web Component Router based on WebCell & MobX",
     "keywords": [
@@ -67,7 +67,8 @@
         ]
     },
     "scripts": {
-        "prepare": "husky  &&  app-find chrome msedge firefox -c",
+        "prepare": "husky",
+        "setup-browser": "app-find chrome msedge firefox -c",
         "preview": "cd test/  &&  rimraf ../.parcel-cache/ dist/  &&  parcel --open",
         "pack-preview": "cd test/  &&  rimraf ../.parcel-cache/ dist/  &&  parcel build --public-url=. --dist-dir=../docs/preview/",
         "pack-dist": "rimraf dist/  &&  parcel build source/index.ts",

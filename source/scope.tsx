@@ -39,11 +39,14 @@ export function createRouter<LinkTagName extends string, LinkTagProps extends { 
         Router: ({ routes, ...props }: CellRouterProps) => (
             <CellRouter
                 {...props}
-                routes={routes?.map(route => ({ ...route, path: prefix + route.path }))}
+                routes={routes?.map(({ path, ...route }) => ({
+                    ...route,
+                    path: path != null ? `${prefix}${path}` : path
+                }))}
             />
         ),
         Route: ({ path, ...props }: CellRouteProps) => (
-            <CellRoute {...props} path={prefix + path} />
+            <CellRoute {...props} path={path != null ? `${prefix}${path}` : path} />
         ),
         Link: ({ to, children, ...props }: LinkProps) => (
             <a {...props} href={prefix + to}>

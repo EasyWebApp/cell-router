@@ -21,13 +21,15 @@ documentReady.then(() =>
                 <XButton href="detail/2?edit=true">Detail page</XButton>
                 <Link to="dynamic/3?edit=true">Dynamic page</Link>
                 <Link to="async/4?edit=true">Async page</Link>
+                <Link to="not-found">404 page</Link>
             </nav>
             <Router className="router">
-                <Route path="" component={props => <div {...props}>Home Page</div>} />
+                <Route path="" component={() => <h1>Home</h1>} />
                 <Route path="list/:id" component={SyncPage} />
                 <Route path="detail/:id" component={SyncPage} />
                 <Route path="dynamic/:id" component={DynamicPage} />
                 <Route path="async/:id" component={AsyncPage} />
+                <Route path="*" component={() => <h1>404 Not Found</h1>} />
             </Router>
         </>
     )
