@@ -23,7 +23,9 @@ jobs:
             - uses: browser-actions/setup-chrome@latest
 
             - name: Install Dependencies
-              run: pnpm i --frozen-lockfile
+              run: |
+                pnpm i --frozen-lockfile
+                pnpm setup-browser
 
             - name: Build & Publish
               run: npm publish --access public --provenance
