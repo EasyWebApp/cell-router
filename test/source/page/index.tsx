@@ -5,18 +5,13 @@ import { documentReady } from 'web-utility';
 import { createRouter } from '../../../source';
 
 import { Button } from './Button';
-import { TestPage } from './example';
+import { AsyncPage, SyncPage } from './example';
 
-const AsyncPage = lazy(() => import('./async'));
+const DynamicPage = lazy(() => import('./dynamic'));
 
 configure({ enforceActions: 'never' });
 
-const {
-    Router,
-    Route,
-    Link,
-    Button: XButton
-} = createRouter({ linkTags: { Button } });
+const { Router, Route, Link, Button: XButton } = createRouter({ linkTags: { Button } });
 
 documentReady.then(() =>
     new DOMRenderer().render(
@@ -24,16 +19,17 @@ documentReady.then(() =>
             <nav>
                 <Link to="list/1">List page</Link>
                 <XButton href="detail/2?edit=true">Detail page</XButton>
-                <Link to="async/3?edit=true">Async page</Link>
+                <Link to="dynamic/3?edit=true">Dynamic page</Link>
+                <Link to="async/4?edit=true">Async page</Link>
+                <Link to="not-found">404 page</Link>
             </nav>
             <Router className="router">
-                <Route
-                    path=""
-                    component={props => <div {...props}>Home Page</div>}
-                />
-                <Route path="list/:id" component={TestPage} />
-                <Route path="detail/:id" component={TestPage} />
+                <Route path="" component={() => <h1>Home</h1>} />
+                <Route path="list/:id" component={SyncPage} />
+                <Route path="detail/:id" component={SyncPage} />
+                <Route path="dynamic/:id" component={DynamicPage} />
                 <Route path="async/:id" component={AsyncPage} />
+                <Route path="*" component={() => <h1>404 Not Found</h1>} />
             </Router>
         </>
     )
