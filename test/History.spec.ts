@@ -9,7 +9,7 @@ describe('History', () => {
         document.head.innerHTML = '<title>Cell Router</title>';
         document.body.innerHTML = '';
 
-        pushStateSpy = jest.spyOn(window.history, 'pushState').mockImplementation(() => undefined);
+        pushStateSpy = jest.spyOn(window.history, 'pushState').mockImplementation(() => {});
 
         Object.defineProperty(window, 'navigation', {
             writable: true,

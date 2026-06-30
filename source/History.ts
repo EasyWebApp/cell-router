@@ -15,7 +15,7 @@ const { location, history: legacyHistory } = window;
 type NavigationLike = {
     currentEntry?: { getState?: () => { title?: string } | undefined };
     navigate?: (path: string, options?: { state?: { title?: string }; history?: 'push' }) => void;
-    addEventListener?: (type: 'currententrychange', listener: EventListener) => void;
+    addEventListener?: (type: 'currententrychange', listener: () => void) => void;
 };
 
 const getNavigation = () => (window as Window & { navigation?: NavigationLike }).navigation;
@@ -47,10 +47,7 @@ export class History {
         this.restore();
 
         window.addEventListener('hashchange', this.restore);
-        getNavigation()?.addEventListener?.(
-            'currententrychange',
-            this.restore as unknown as EventListener
-        );
+        getNavigation()?.addEventListener?.('currententrychange', this.restore);
         window.addEventListener('popstate', this.restore);
 
         document.addEventListener(
