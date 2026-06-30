@@ -10,14 +10,20 @@ import {
 } from 'web-utility';
 import { observable, action } from 'mobx';
 
-const { location, history } = window;
+const { location, history: legacyHistory } = window;
+
+type NavigationLike = {
+    currentEntry?: { getState?: () => { title?: string } | undefined };
+    navigate?: (path: string, options?: { state?: { title?: string }; history?: 'push' }) => void;
+    addEventListener?: (type: 'currententrychange', listener: EventListener) => void;
+};
+
+const getNavigation = () => (window as Window & { navigation?: NavigationLike }).navigation;
 
 const basePath = document.querySelector('base')?.getAttribute('href');
 
 const defaultBaseURL = (
-    basePath
-        ? new URL(basePath, location.origin) + ''
-        : location.href.split(/\?|#/)[0]
+    basePath ? new URL(basePath, location.origin) + '' : location.href.split(/\?|#/)[0]
 ).replace(/\/$/, '');
 
 const originalTitle = document.querySelector('title')?.textContent.trim();
@@ -41,33 +47,32 @@ export class History {
         this.restore();
 
         window.addEventListener('hashchange', this.restore);
+        getNavigation()?.addEventListener?.(
+            'currententrychange',
+            this.restore as unknown as EventListener
+        );
         window.addEventListener('popstate', this.restore);
 
         document.addEventListener(
             'click',
             delegate('a[href], area[href]', this.handleLink.bind(this))
         );
-        document.addEventListener(
-            'submit',
-            delegate('form[action]', this.handleForm)
-        );
+        document.addEventListener('submit', delegate('form[action]', this.handleForm));
     }
 
     protected restore = () => {
-        const { state } = history;
+        const state = getNavigation()?.currentEntry?.getState?.() || legacyHistory.state;
 
         this.push();
 
-        document.title =
-            state?.title || this.titleOf() || originalTitle || location.href;
+        document.title = state?.title || this.titleOf() || originalTitle || location.href;
     };
 
     @action
     push(path = location.href) {
         path = path.replace(this.baseURL, '');
 
-        if (this.delimiter === RouterMode.hash)
-            path = path.match(/#.*/)?.[0] || RouterMode.hash;
+        if (this.delimiter === RouterMode.hash) path = path.match(/#.*/)?.[0] || RouterMode.hash;
 
         if (path === this.path) return path;
 
@@ -86,9 +91,8 @@ export class History {
         if (!path) return;
 
         const { pathname, hash } =
-            new URLPattern(pattern, this.baseURL).exec(
-                new URL(path.split('?')[0], this.baseURL)
-            ) || {};
+            new URLPattern(pattern, this.baseURL).exec(new URL(path.split('?')[0], this.baseURL)) ||
+            {};
 
         return (hash || pathname)?.groups;
     }
@@ -113,12 +117,7 @@ export class History {
     handleLink(event: Event, link: HTMLAnchorElement) {
         const path = link.getAttribute('href');
 
-        if (
-            (link.target || '_self') !== '_self' ||
-            isXDomain(path) ||
-            link.download
-        )
-            return;
+        if ((link.target || '_self') !== '_self' || isXDomain(path) || link.download) return;
 
         event.preventDefault();
 
@@ -130,7 +129,16 @@ export class History {
 
         const title = History.getTitle(link);
 
-        history.pushState({ title }, (document.title = title), path);
+        const navigation = getNavigation();
+
+        if (navigation?.navigate)
+            navigation.navigate(path, {
+                state: { title },
+                history: 'push'
+            });
+        else legacyHistory.pushState({ title }, '', path);
+
+        document.title = title;
 
         this.push(path);
     }
@@ -145,6 +153,17 @@ export class History {
         const path = form.getAttribute('action'),
             data = buildURLData(formToJSON(form));
 
-        this.push(`${path}?${data}`);
+        const nextPath = `${path}?${data}`;
+
+        const navigation = getNavigation();
+
+        if (navigation?.navigate)
+            navigation.navigate(nextPath, {
+                state: { title: this.titleOf(nextPath) },
+                history: 'push'
+            });
+        else legacyHistory.pushState({}, '', nextPath);
+
+        this.push(nextPath);
     };
 }

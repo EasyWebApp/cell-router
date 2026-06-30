@@ -24,7 +24,7 @@ https://web-cell.dev/cell-router/preview/
     - `<form method="get" action="route/path" />` (Form Data processed by `new URLSearchParams()`)
     - custom component with `href` property
 
-- [x] **Path Mode**: `location.hash` (default) & `history.pushState()`
+- [x] **Path Mode**: `location.hash` (default) & `navigation.navigate()`
 
 - [x] **Async Loading** (based on `async`/`await` or `import()` ECMAScript syntax)
 
