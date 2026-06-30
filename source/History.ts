@@ -51,11 +51,15 @@ export class History {
     }
 
     protected restore = () => {
-        const state = getNavigation().currentEntry?.getState() as { title?: string } | undefined;
+        const state = getNavigation().currentEntry?.getState();
+        const title =
+            typeof state === 'object' && state && 'title' in state && typeof state.title === 'string'
+                ? state.title
+                : undefined;
 
         this.push();
 
-        document.title = state?.title || this.titleOf() || originalTitle || location.href;
+        document.title = title || this.titleOf() || originalTitle || location.href;
     };
 
     @action
