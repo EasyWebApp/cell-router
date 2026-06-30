@@ -128,7 +128,7 @@ export class History {
             } catch {}
 
         const title = History.getTitle(link);
-
+        document.title = title;
         const navigation = getNavigation();
 
         if (navigation?.navigate)
@@ -137,8 +137,6 @@ export class History {
                 history: 'push'
             });
         else legacyHistory.pushState({ title }, '', path);
-
-        document.title = title;
 
         this.push(path);
     }

@@ -3,13 +3,13 @@
 import { History, RouterMode } from '../source/History';
 
 describe('History', () => {
-    let pushState: jest.SpiedFunction<typeof window.history.pushState>;
+    let pushStateSpy: jest.SpiedFunction<typeof window.history.pushState>;
 
     beforeEach(() => {
         document.head.innerHTML = '<title>Cell Router</title>';
         document.body.innerHTML = '';
 
-        pushState = jest.spyOn(window.history, 'pushState').mockImplementation(() => undefined);
+        pushStateSpy = jest.spyOn(window.history, 'pushState').mockImplementation(() => undefined);
 
         Object.defineProperty(window, 'navigation', {
             writable: true,
@@ -19,7 +19,7 @@ describe('History', () => {
     });
 
     afterEach(() => {
-        pushState.mockRestore();
+        pushStateSpy.mockRestore();
     });
 
     it('should use Navigation API to navigate links', () => {
@@ -48,7 +48,7 @@ describe('History', () => {
             history: 'push'
         });
         expect(history.path).toBe('/list/1');
-        expect(pushState).not.toHaveBeenCalled();
+        expect(pushStateSpy).not.toHaveBeenCalled();
     });
 
     it('should fallback to History API for links without Navigation API', () => {
@@ -60,7 +60,7 @@ describe('History', () => {
 
         history.handleLink(new MouseEvent('click', { cancelable: true }), link);
 
-        expect(pushState).toHaveBeenCalledWith({ title: 'List page' }, '', '/list/1');
+        expect(pushStateSpy).toHaveBeenCalledWith({ title: 'List page' }, '', '/list/1');
         expect(history.path).toBe('/list/1');
     });
 
@@ -91,6 +91,6 @@ describe('History', () => {
             history: 'push'
         });
         expect(history.path).toBe('/search?keyword=router');
-        expect(pushState).not.toHaveBeenCalled();
+        expect(pushStateSpy).not.toHaveBeenCalled();
     });
 });
