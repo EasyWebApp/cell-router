@@ -1,4 +1,3 @@
-/// <reference types="navigation-api-types" />
 import 'urlpattern-polyfill';
 import {
     getVisibleText,
@@ -12,7 +11,7 @@ import {
 import { observable, action } from 'mobx';
 
 const { location } = window;
-const getNavigation = () => (window as Window & { navigation: Navigation }).navigation;
+const getNavigation = () => window.navigation;
 
 const basePath = document.querySelector('base')?.getAttribute('href');
 
@@ -52,7 +51,7 @@ export class History {
     }
 
     protected restore = () => {
-        const state = getNavigation().currentEntry?.getState();
+        const state = getNavigation().currentEntry?.getState() as { title?: string } | undefined;
 
         this.push();
 
