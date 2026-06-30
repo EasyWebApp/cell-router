@@ -93,4 +93,25 @@ describe('History', () => {
         expect(history.path).toBe('/search?keyword=router');
         expect(pushStateSpy).not.toHaveBeenCalled();
     });
+
+    it('should fallback to History state when Navigation state is empty', () => {
+        window.history.replaceState(
+            { title: 'Fallback title' },
+            '',
+            `${window.location.origin}/fallback`
+        );
+
+        Object.defineProperty(window, 'navigation', {
+            writable: true,
+            configurable: true,
+            value: {
+                addEventListener: jest.fn(),
+                currentEntry: { getState: () => undefined }
+            }
+        });
+
+        new History('https://example.com', RouterMode.history);
+
+        expect(document.title).toBe('Fallback title');
+    });
 });
