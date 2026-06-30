@@ -154,15 +154,15 @@ export class History {
             data = buildURLData(formToJSON(form));
 
         const nextPath = `${path}?${data}`;
-
+        const title = this.titleOf(nextPath) || document.title;
         const navigation = getNavigation();
 
         if (navigation?.navigate)
             navigation.navigate(nextPath, {
-                state: { title: this.titleOf(nextPath) },
+                state: { title },
                 history: 'push'
             });
-        else legacyHistory.pushState({}, '', nextPath);
+        else legacyHistory.pushState({ title }, '', nextPath);
 
         this.push(nextPath);
     };

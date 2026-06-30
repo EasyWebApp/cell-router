@@ -3,7 +3,7 @@
 import { History, RouterMode } from '../source/History';
 
 describe('History', () => {
-    var pushState: jest.SpiedFunction<typeof window.history.pushState>;
+    let pushState: jest.SpiedFunction<typeof window.history.pushState>;
 
     beforeEach(() => {
         document.head.innerHTML = '<title>Cell Router</title>';
@@ -87,7 +87,7 @@ describe('History', () => {
         history.handleForm(new Event('submit', { cancelable: true }), form);
 
         expect(navigate).toHaveBeenCalledWith('/search?keyword=router', {
-            state: { title: undefined },
+            state: { title: 'Cell Router' },
             history: 'push'
         });
         expect(history.path).toBe('/search?keyword=router');
