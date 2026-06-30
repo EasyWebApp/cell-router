@@ -1,3 +1,4 @@
+/// <reference types="navigation-api-types" />
 import 'urlpattern-polyfill';
 import {
     getVisibleText,
@@ -10,15 +11,8 @@ import {
 } from 'web-utility';
 import { observable, action } from 'mobx';
 
-const { location, history: legacyHistory } = window;
-
-type NavigationLike = {
-    currentEntry?: { getState?: () => { title?: string } | undefined };
-    navigate?: (path: string, options?: { state?: { title?: string }; history?: 'push' }) => void;
-    addEventListener?: (type: 'currententrychange', listener: () => void) => void;
-};
-
-const getNavigation = () => (window as Window & { navigation?: NavigationLike }).navigation;
+const { location } = window;
+const getNavigation = () => (window as Window & { navigation: Navigation }).navigation;
 
 const basePath = document.querySelector('base')?.getAttribute('href');
 
@@ -47,7 +41,7 @@ export class History {
         this.restore();
 
         window.addEventListener('hashchange', this.restore);
-        getNavigation()?.addEventListener?.('currententrychange', this.restore);
+        getNavigation().addEventListener('currententrychange', this.restore);
         window.addEventListener('popstate', this.restore);
 
         document.addEventListener(
@@ -58,7 +52,7 @@ export class History {
     }
 
     protected restore = () => {
-        const state = getNavigation()?.currentEntry?.getState?.() || legacyHistory.state;
+        const state = getNavigation().currentEntry?.getState();
 
         this.push();
 
@@ -126,14 +120,10 @@ export class History {
 
         const title = History.getTitle(link);
         document.title = title;
-        const navigation = getNavigation();
-
-        if (navigation?.navigate)
-            navigation.navigate(path, {
-                state: { title },
-                history: 'push'
-            });
-        else legacyHistory.pushState({ title }, '', path);
+        getNavigation().navigate(path, {
+            state: { title },
+            history: 'push'
+        });
 
         this.push(path);
     }
@@ -150,14 +140,10 @@ export class History {
 
         const nextPath = `${path}?${data}`;
         const title = this.titleOf(nextPath) || document.title;
-        const navigation = getNavigation();
-
-        if (navigation?.navigate)
-            navigation.navigate(nextPath, {
-                state: { title },
-                history: 'push'
-            });
-        else legacyHistory.pushState({ title }, '', nextPath);
+        getNavigation().navigate(nextPath, {
+            state: { title },
+            history: 'push'
+        });
 
         this.push(nextPath);
     };

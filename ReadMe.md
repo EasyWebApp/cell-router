@@ -49,7 +49,10 @@ https://web-cell.dev/cell-router/preview/
 ```shell
 npm install dom-renderer web-cell cell-router
 npm install parcel @parcel/config-default @parcel/transformer-typescript-tsc -D
+npm install navigation-api-types -D
 ```
+
+> To support legacy browsers, please install a Navigation API polyfill (for example: `navigation-api-polyfill`) in your application.
 
 ### `tsconfig.json`
 
