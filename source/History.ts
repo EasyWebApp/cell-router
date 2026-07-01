@@ -1,23 +1,13 @@
 import 'urlpattern-polyfill';
-import {
-    getVisibleText,
-    scrollTo,
-    formToJSON,
-    buildURLData,
-    parseURLData,
-    delegate,
-    isXDomain
-} from 'web-utility';
+import { getVisibleText, parseURLData } from 'web-utility';
 import { observable, action } from 'mobx';
 
-const { location, history } = window;
+const { location, navigation } = window;
 
 const basePath = document.querySelector('base')?.getAttribute('href');
 
 const defaultBaseURL = (
-    basePath
-        ? new URL(basePath, location.origin) + ''
-        : location.href.split(/\?|#/)[0]
+    basePath ? new URL(basePath, location.origin) + '' : location.href.split(/\?|#/)[0]
 ).replace(/\/$/, '');
 
 const originalTitle = document.querySelector('title')?.textContent.trim();
@@ -40,40 +30,79 @@ export class History {
     ) {
         this.restore();
 
-        window.addEventListener('hashchange', this.restore);
-        window.addEventListener('popstate', this.restore);
-
-        document.addEventListener(
-            'click',
-            delegate('a[href], area[href]', this.handleLink.bind(this))
-        );
-        document.addEventListener(
-            'submit',
-            delegate('form[action]', this.handleForm)
-        );
+        navigation.addEventListener('navigate', this.handleNavigate);
+        navigation.addEventListener('currententrychange', this.restore);
     }
 
     protected restore = () => {
-        const { state } = history;
+        const state = navigation.currentEntry.getState() as Record<string, any> | null;
 
         this.push();
 
-        document.title =
-            state?.title || this.titleOf() || originalTitle || location.href;
+        document.title = state?.title || this.titleOf() || originalTitle || location.href;
+    };
+
+    protected shouldIntercept(event: any) {
+        if (!event?.canIntercept || event.downloadRequest || event.formData) return false;
+
+        const url = new URL(event.destination.url);
+        const baseOrigin = new URL(this.baseURL, location.href).origin;
+
+        if (url.origin !== baseOrigin) return false;
+
+        if (event.hashChange)
+            try {
+                if (url.hash && (document.querySelector(url.hash) || url.hash === '#top'))
+                    return false;
+            } catch {
+                return true;
+            }
+
+        return true;
+    }
+
+    handleNavigate = (event: any) => {
+        if (!this.shouldIntercept(event)) return;
+
+        event.intercept({
+            scroll: 'manual',
+            focusReset: 'manual',
+            handler: async () => {
+                const path = event.destination.url;
+                const routePath = this.push(path);
+                const sourceTitle = event.sourceElement && History.getTitle(event.sourceElement);
+                const title = sourceTitle || this.titleOf(routePath) || document.title;
+
+                document.title = title;
+                navigation.updateCurrentEntry({ state: { title } });
+
+                this.push(path);
+            }
+        });
     };
 
     @action
     push(path = location.href) {
         path = path.replace(this.baseURL, '');
 
-        if (this.delimiter === RouterMode.hash)
-            path = path.match(/#.*/)?.[0] || RouterMode.hash;
+        if (this.delimiter === RouterMode.hash) path = path.match(/#.*/)?.[0] || RouterMode.hash;
 
         if (path === this.path) return path;
 
         this.oldPath = this.path;
 
         return (this.path = path);
+    }
+
+    navigate(path: string, state: Record<string, any> = {}) {
+        const title = state.title || this.titleOf(path) || document.title;
+        const nextState = { ...state, title };
+
+        navigation.navigate(path, { state: nextState, history: 'push' });
+
+        document.title = title;
+
+        this.push(path);
     }
 
     static dataOf(path: string) {
@@ -85,10 +114,10 @@ export class History {
     match(pattern: string, path = this.path) {
         if (!path) return;
 
+        const Pattern = (window as any).URLPattern;
         const { pathname, hash } =
-            new URLPattern(pattern, this.baseURL).exec(
-                new URL(path.split('?')[0], this.baseURL)
-            ) || {};
+            new Pattern(pattern, this.baseURL).exec(new URL(path.split('?')[0], this.baseURL)) ||
+            {};
 
         return (hash || pathname)?.groups;
     }
@@ -109,42 +138,4 @@ export class History {
                 if (title) return title;
             }
     }
-
-    handleLink(event: Event, link: HTMLAnchorElement) {
-        const path = link.getAttribute('href');
-
-        if (
-            (link.target || '_self') !== '_self' ||
-            isXDomain(path) ||
-            link.download
-        )
-            return;
-
-        event.preventDefault();
-
-        if (path.startsWith('#'))
-            try {
-                if (document.querySelector(path) || path === '#top')
-                    return scrollTo(path, event.currentTarget as Element);
-            } catch {}
-
-        const title = History.getTitle(link);
-
-        history.pushState({ title }, (document.title = title), path);
-
-        this.push(path);
-    }
-
-    handleForm = (event: Event, form: HTMLFormElement) => {
-        const { method, target } = form;
-
-        if (method !== 'get' || (target || '_self') !== '_self') return;
-
-        event.preventDefault();
-
-        const path = form.getAttribute('action'),
-            data = buildURLData(formToJSON(form));
-
-        this.push(`${path}?${data}`);
-    };
 }

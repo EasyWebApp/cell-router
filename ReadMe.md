@@ -24,7 +24,7 @@ https://web-cell.dev/cell-router/preview/
     - `<form method="get" action="route/path" />` (Form Data processed by `new URLSearchParams()`)
     - custom component with `href` property
 
-- [x] **Path Mode**: `location.hash` (default) & `history.pushState()`
+- [x] **Path Mode**: `location.hash` (default) & `navigation.navigate()`
 
 - [x] **Async Loading** (based on `async`/`await` or `import()` ECMAScript syntax)
 
@@ -47,7 +47,8 @@ https://web-cell.dev/cell-router/preview/
 ### Command
 
 ```shell
-npm install dom-renderer web-cell cell-router
+npm install dom-renderer web-cell cell-router \
+    @virtualstate/navigation  # for legacy browser support
 npm install parcel @parcel/config-default @parcel/transformer-typescript-tsc -D
 ```
 
@@ -82,6 +83,8 @@ npm install parcel @parcel/config-default @parcel/transformer-typescript-tsc -D
 #### `source/index.tsx`
 
 ```tsx
+import '@virtualstate/navigation/polyfill'; // for legacy browser support
+
 import { DOMRenderer } from 'dom-renderer';
 import { FC } from 'web-cell';
 import { createRouter, PageProps } from 'cell-router';
@@ -220,6 +223,6 @@ new DOMRenderer().render(
 [3]: https://mobx.js.org/
 [4]: https://libraries.io/npm/cell-router
 [5]: https://github.com/EasyWebApp/cell-router/actions/workflows/main.yml
-[6]: https://nodei.co/npm/cell-router/
+[6]: https://npm.im/cell-router/
 [7]: https://developer.mozilla.org/en-US/docs/Web/API/URL_Pattern_API
 [8]: https://developer.chrome.com/docs/web-platform/view-transitions/
