@@ -1,13 +1,5 @@
 import 'urlpattern-polyfill';
-import {
-    getVisibleText,
-    scrollTo,
-    formToJSON,
-    buildURLData,
-    parseURLData,
-    delegate,
-    isXDomain
-} from 'web-utility';
+import { getVisibleText, parseURLData } from 'web-utility';
 import { observable, action } from 'mobx';
 
 const { location, navigation } = window;
@@ -38,15 +30,8 @@ export class History {
     ) {
         this.restore();
 
-        window.addEventListener('hashchange', this.restore);
+        navigation.addEventListener('navigate', this.handleNavigate);
         navigation.addEventListener('currententrychange', this.restore);
-        window.addEventListener('popstate', this.restore);
-
-        document.addEventListener(
-            'click',
-            delegate('a[href], area[href]', this.handleLink.bind(this))
-        );
-        document.addEventListener('submit', delegate('form[action]', this.handleForm));
     }
 
     protected restore = () => {
@@ -55,6 +40,45 @@ export class History {
         this.push();
 
         document.title = state?.title || this.titleOf() || originalTitle || location.href;
+    };
+
+    protected shouldIntercept(event: any) {
+        if (!event?.canIntercept || event.downloadRequest || event.formData) return false;
+
+        const url = new URL(event.destination.url);
+        const baseOrigin = new URL(this.baseURL, location.href).origin;
+
+        if (url.origin !== baseOrigin) return false;
+
+        if (event.hashChange)
+            try {
+                if (url.hash && (document.querySelector(url.hash) || url.hash === '#top'))
+                    return false;
+            } catch {
+                return true;
+            }
+
+        return true;
+    }
+
+    handleNavigate = (event: any) => {
+        if (!this.shouldIntercept(event)) return;
+
+        event.intercept({
+            scroll: 'manual',
+            focusReset: 'manual',
+            handler: async () => {
+                const path = event.destination.url;
+                const routePath = this.push(path);
+                const sourceTitle = event.sourceElement && History.getTitle(event.sourceElement);
+                const title = sourceTitle || this.titleOf(routePath) || document.title;
+
+                document.title = title;
+                navigation.updateCurrentEntry({ state: { title } });
+
+                this.push(path);
+            }
+        });
     };
 
     @action
@@ -70,6 +94,17 @@ export class History {
         return (this.path = path);
     }
 
+    navigate(path: string, state: Record<string, any> = {}) {
+        const title = state.title || this.titleOf(path) || document.title;
+        const nextState = { ...state, title };
+
+        navigation.navigate(path, { state: nextState, history: 'push' });
+
+        document.title = title;
+
+        this.push(path);
+    }
+
     static dataOf(path: string) {
         const [before, after] = path.split('#');
 
@@ -79,8 +114,9 @@ export class History {
     match(pattern: string, path = this.path) {
         if (!path) return;
 
+        const Pattern = (window as any).URLPattern;
         const { pathname, hash } =
-            new URLPattern(pattern, this.baseURL).exec(new URL(path.split('?')[0], this.baseURL)) ||
+            new Pattern(pattern, this.baseURL).exec(new URL(path.split('?')[0], this.baseURL)) ||
             {};
 
         return (hash || pathname)?.groups;
@@ -102,43 +138,4 @@ export class History {
                 if (title) return title;
             }
     }
-
-    handleLink(event: Event, link: HTMLAnchorElement) {
-        const path = link.getAttribute('href');
-
-        if ((link.target || '_self') !== '_self' || isXDomain(path) || link.download) return;
-
-        event.preventDefault();
-
-        if (path.startsWith('#'))
-            try {
-                if (document.querySelector(path) || path === '#top')
-                    return scrollTo(path, event.currentTarget as Element);
-            } catch {}
-
-        const title = (document.title = History.getTitle(link));
-
-        navigation.navigate(path, { state: { title }, history: 'push' });
-
-        this.push(path);
-    }
-
-    handleForm = (event: Event, form: HTMLFormElement) => {
-        const { method, target } = form;
-
-        if (method !== 'get' || (target || '_self') !== '_self') return;
-
-        event.preventDefault();
-
-        const path = form.getAttribute('action'),
-            data = buildURLData(formToJSON(form));
-
-        const nextPath = `${path}?${data}`;
-
-        const title = this.titleOf(nextPath) || document.title;
-
-        navigation.navigate(nextPath, { state: { title }, history: 'push' });
-
-        this.push(nextPath);
-    };
 }
