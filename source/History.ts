@@ -10,8 +10,7 @@ import {
 } from 'web-utility';
 import { observable, action } from 'mobx';
 
-const { location } = window;
-const getNavigation = () => window.navigation;
+const { location, navigation } = window;
 
 const basePath = document.querySelector('base')?.getAttribute('href');
 
@@ -40,7 +39,7 @@ export class History {
         this.restore();
 
         window.addEventListener('hashchange', this.restore);
-        getNavigation().addEventListener('currententrychange', this.restore);
+        navigation.addEventListener('currententrychange', this.restore);
         window.addEventListener('popstate', this.restore);
 
         document.addEventListener(
@@ -51,15 +50,11 @@ export class History {
     }
 
     protected restore = () => {
-        const state = getNavigation().currentEntry?.getState();
-        const title =
-            typeof state === 'object' && state && 'title' in state && typeof state.title === 'string'
-                ? state.title
-                : undefined;
+        const state = navigation.currentEntry.getState() as Record<string, any> | null;
 
         this.push();
 
-        document.title = title || this.titleOf() || originalTitle || location.href;
+        document.title = state?.title || this.titleOf() || originalTitle || location.href;
     };
 
     @action
@@ -121,12 +116,9 @@ export class History {
                     return scrollTo(path, event.currentTarget as Element);
             } catch {}
 
-        const title = History.getTitle(link);
-        document.title = title;
-        getNavigation().navigate(path, {
-            state: { title },
-            history: 'push'
-        });
+        const title = (document.title = History.getTitle(link));
+
+        navigation.navigate(path, { state: { title }, history: 'push' });
 
         this.push(path);
     }
@@ -142,11 +134,10 @@ export class History {
             data = buildURLData(formToJSON(form));
 
         const nextPath = `${path}?${data}`;
+
         const title = this.titleOf(nextPath) || document.title;
-        getNavigation().navigate(nextPath, {
-            state: { title },
-            history: 'push'
-        });
+
+        navigation.navigate(nextPath, { state: { title }, history: 'push' });
 
         this.push(nextPath);
     };

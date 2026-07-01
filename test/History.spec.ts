@@ -1,32 +1,38 @@
 /** @jest-environment jsdom */
 
-import { History, RouterMode } from '../source/History';
-
 describe('History', () => {
     let navigate: jest.Mock;
 
-    beforeEach(() => {
-        document.head.innerHTML = '<title>Cell Router</title>';
-        document.body.innerHTML = '';
-        navigate = jest.fn();
-
+    function loadHistory(title = 'Cell Router') {
         Object.defineProperty(window, 'navigation', {
             writable: true,
             configurable: true,
             value: {
                 navigate,
                 addEventListener: jest.fn(),
-                currentEntry: { getState: () => ({ title: 'Cell Router' }) }
+                currentEntry: { getState: () => ({ title }) }
             }
         });
+
+        jest.resetModules();
+
+        return import('../source/History');
+    }
+
+    beforeEach(() => {
+        document.head.innerHTML = '<title>Cell Router</title>';
+        document.body.innerHTML = '';
+        navigate = jest.fn();
     });
 
-    it('should use Navigation API to navigate links', () => {
+    it('should use Navigation API to navigate links', async () => {
+        const { History, RouterMode } = await loadHistory();
+
         const history = new History('https://example.com', RouterMode.history);
         const link = document.createElement('a');
 
         link.title = 'List page';
-        link.setAttribute('href', '/list/1');
+        link.href = '/list/1';
 
         history.handleLink(new MouseEvent('click', { cancelable: true }), link);
 
@@ -37,12 +43,14 @@ describe('History', () => {
         expect(history.path).toBe('/list/1');
     });
 
-    it('should use Navigation API to submit GET forms', () => {
+    it('should use Navigation API to submit GET forms', async () => {
+        const { History, RouterMode } = await loadHistory();
+
         const history = new History('https://example.com', RouterMode.history);
         const form = document.createElement('form');
 
-        form.setAttribute('action', '/search');
-        form.setAttribute('method', 'get');
+        form.method = 'get';
+        form.action = '/search';
         form.innerHTML = '<input name="keyword" value="router" />';
 
         history.handleForm(new Event('submit', { cancelable: true }), form);
@@ -54,16 +62,8 @@ describe('History', () => {
         expect(history.path).toBe('/search?keyword=router');
     });
 
-    it('should restore title from Navigation API state', () => {
-        Object.defineProperty(window, 'navigation', {
-            writable: true,
-            configurable: true,
-            value: {
-                addEventListener: jest.fn(),
-                navigate,
-                currentEntry: { getState: () => ({ title: 'Navigation title' }) }
-            }
-        });
+    it('should restore title from Navigation API state', async () => {
+        const { History, RouterMode } = await loadHistory('Navigation title');
 
         new History('https://example.com', RouterMode.history);
 
